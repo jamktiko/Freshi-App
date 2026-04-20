@@ -47,11 +47,13 @@
 
 ### 1. Miksi kestävä kehitys on tärkeää minulle tai tiimillemme?
 
-Vastaus
+Kestävä kehitys on tärkeää ryhmällemme, koska haluamme huomioida valinnoissamme ympäristövaikutukset sekä inhimilleset arvot.
 
 ## Aihe
 
 ### 2. Miksi sovelluksen aihe on tärkeä? Edistääkö se jotakin kestävän kehityksen tavoitetta?
+
+Sovelluksemme aihe on tärkeä, koska tavoitteenamme on vähentää ruokahävikkiä kuluttajien arjessa. Aiheemme peilaa YK:n ruokahävikin vähentämistavoitetta. Lisäksi sovelluksemme liittyy vahvasti ruokaturvaan ja ruoan turvalliseen kuluttamiseen. Kunnioitamme käyttämiämme raaka-aineita ja siksi pyrimme vähentämään ruokahävikkiä. Sovelluksen tarkoituksen on myös levittää tietoisuuttaa ruokahävikin vähentämisestä.
 
 <!-- ESIMERKIKSI -->
 <!-- Tietoisuuden lisääminen kestävästä kehityksestä (SDG4: Hyvä koulutus) -->
@@ -73,7 +75,7 @@ Vastaus
 <!-- Miten sovelluksen vaatima palvelinkapasiteetti on mitoitettu? -->
 <!-- Käytetäänkö sovelluksessa tai sen kehitysprosessissa tekoälyä? -->
 
-Vastaus
+Sovelluksemme rakenne on teknisesti kevyt ja käyttöliittymämme selkeä. Turhat animaatiot ja raskaat taustaprosessit on minimoitu. Tämä tukee vastuullista kuluttamista ja fiksua luonnnonvarojen käyttöä. Sovelluksemme toimii myös vanehemmilla laitteilla, mikä vähentää tarvetta uusille laitteille. Mahdollistaaksemme optimaalisen tuotteen, kehitystyössä käytetään apuna tekoälyä.
 
 ### 4. Millä tavoin sovellus saattaa välillisesti lisätä tai vähentää luonnonvarojen kulutusta?
 
@@ -84,7 +86,7 @@ Vastaus
 <!-- Kannustaako sovellus muuhun kulutukseen? (esim. sovellus on verkkokauppa) -->
 <!-- Millä tavoin sovellus saattaa muuttaa käyttäjän toimintaa? (esim. lisätä tai vähentää yksityisautoilua) -->
 
-Vastaus
+Sovelluksemme vähentää kuluttajien aiheuttamaa ruokahävikkiä ja samalla ohjaa fiksumpiin ja kestävämpiin taloudellisiin valintoihin.
 
 ### 5. Kuinka sovelluksen pitkäikäisyys on varmistettu?
 
@@ -95,7 +97,7 @@ Vastaus
 <!-- Onko sovellus mukautettavissa muuttuviin tarpeisiin ja vaatimuksiin? -->
 <!-- Onko sovelluksen lähdekoodi ja kehitysprosessi dokumentoitu? -->
 
-Vastaus
+Sovelluksemme kehitys on dokumentoitu ja projekti on suunniteltu laajennettavaksi ja helposti ylläpidettäväksi. Kehityksessä käytetään yleisiä teknologioita ja uudelleen käytettävää koodia. Sovellus on riippuvainen ulkoisista kirjastoista ja järjestelmistä(AWS).
 
 ### 6. Kuinka sovelluksessa on huomioitu saavutettavuus ja yhdenvertaisuus?
 
@@ -106,6 +108,8 @@ Vastaus
 <!-- Noudattaako sovellus lain määräämiä saavutettavuusvaatimuksia? -->
 <!-- Millaista osaamista ja varallisuutta sovelluksen käyttö vaatii? -->
 <!-- Millä kielillä sovellus on saatavilla? -->
+
+Sovelluksessa käytetään yleisiä käyettävyyden periaatteita. Sovellus täyttää saavutettavuuden standardit(WSAG), mikä tekee siitä käytettävän kaikille. Sovellus on kaikille ilmainen, joten sen käyttöön ei tarvitse erityisosaamista tai varallisuutta.
 
 Vastaus
 
@@ -118,7 +122,7 @@ Vastaus
 <!-- Millaisia vaikutuksia sovelluksella voi olla sosiaalisiin suhteisiin, terveyteen tai mielialaan? -->
 <!-- Millaisia vaikutuksia sovelluksella voi olla elämänhallintaan tai taloudelliseen tilanteeseen? -->
 
-Vastaus
+Sovellus tukee elintarvikkeiden turvallista kuluttamista seuraamalla elintarvikkeiden päivämääriä. Sovellus lisää käyttäjän hyvinvointia säästämällä rahaa, vähentäen turhaa hävikkiä sekä ehdottamalla helppoja ratkaisuja hävikin vähentämiseen. Sovelluksen avulla käyttäjä voi tehdä havaintoja omista kulutus- ja ruokatottumuksistaan lisäten positiivista mielikuvaa elämänhallinastaan.
 
 ### 8. Millaisia vaikutuksia sovelluksella voi olla yhteiskunnallisella tasolla?
 
@@ -131,7 +135,7 @@ Vastaus
 <!-- Kuinka sovellusta moderoidaan? (esim. disinformaation ja vihapuheen torjunta) -->
 <!-- Kuinka sovelluksessa on huomioitu tietoturvallisuus ja tietosuoja?  -->
 
-Vastaus
+Sovellus on vastuullinen niin ekologisesti, taloudellisesti ja sosiaalisesti. Sovelluksen tarkoituksena on hävikin vähentäminen, joka hyödyttää koko yhteiskuntaa. Sovelluksen tietoturva on toteutettu on EU:n lainsäädäntöä noudattaen eli se ei kerää turhaa henkilödataa.
 
 ### 9. Kuinka sovellusprojektissa on huomioitu inhimilliset ja aineelliset resurssit?
 
@@ -144,4 +148,4 @@ Vastaus
 <!-- Pystytäänkö työntekijöille ja alihankkijoille maksamaan asianmukaisesti? -->
 <!-- Mahdollistaako rahoitus turvallisen ylläpidon sekä pitkäjänteisen jatkokehittelyn? -->
 
-Vastaus
+Kehittäjien työtehtävät jaetaan tasapuolisesti, työmäärä pidetään realistisena ja dokumentointi on kunnossa. Aineellisten resurssien käyttöä pyritään minimoimaan sovelluksen yksinkertaisella arkkitehtuurilla. Kehityksessä noudatetaan ketterän kehityksen SCRUM-mallia. Sovelluksen kehityksestä ei ole käytetty rahoitusta. Projektin tavoitteet on realistisia, saavutettavia ja selkeitä.
