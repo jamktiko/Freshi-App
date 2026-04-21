@@ -1,0 +1,112 @@
+############################
+# 🧠 NODE.JS
+############################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+############################
+# 🔐 ENV & SECRETS
+############################
+.env
+.env.*
+!.env.example
+
+# AWS credentials
+.aws/
+credentials
+config
+
+# Private keys / certs
+*.pem
+*.key
+*.crt
+
+############################
+# ☁️ AWS / DEPLOYMENT
+############################
+.elasticbeanstalk/*
+!.elasticbeanstalk/config.yml
+
+# SAM / Serverless
+.aws-sam/
+.serverless/
+
+############################
+# 📱 IONIC / CAPACITOR
+############################
+# Build output
+www/
+dist/
+build/
+
+# Capacitor native platforms
+android/
+ios/
+
+# Ionic cache
+.ionic/
+
+############################
+# 📦 ANDROID (APK / Studio)
+############################
+*.apk
+*.aab
+*.keystore
+*.jks
+
+android/.gradle/
+android/local.properties
+android/app/build/
+android/build/
+
+############################
+# 🖥️ EDITORIT
+############################
+.vscode/
+.idea/
+*.swp
+*.swo
+
+############################
+# 🧪 TESTIT & COVERAGE
+############################
+coverage/
+.nyc_output/
+
+############################
+# 🗄️ LOGIT & TEMPIT
+############################
+logs/
+*.log
+tmp/
+temp/
+
+############################
+# 🧾 OS-TIEDOSTOT
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# 🧱 BUILD ARTIFACTS
+############################
+*.zip
+*.tar
+*.gz
+
+############################
+# 🔥 TURVALLISUUS (extra)
+############################
+# JSON key files (Google, AWS jne.)
+*.json.key
+*secret*.json
+
+# dotenv backupit
+.env.backup
+.env.local
+.env.production
+.env.development
