@@ -69,8 +69,6 @@ Jokainen jäsen kirjaa henkilökohtaiseen excel-dokumenttiin oman tuntikirjaukse
 
 ### Palaverikäytänteet
 
-_Projektin viikkopalaveri pidetään xxx paikassa xxx. Kuka kirjoittaa palaveripöytäkirjan, ja missä ne elävät?_
-
 Joka aamu pidetään pieni n. 5-10min palaveri, jossa käydään läpi ryhmäläisten päivän työtehtävät sekä kirjataan ne ylös. Työpäivän päätteeksi jokainen jäsen kertoo, mitä hän on päivän aikana saanut valmiiksi. Mahdolliset ongelmat ja kysymykset tuodaan myös esille.
 Viikon viimeisenä työpäivänä pidetään pidempi viikkopalaveri, jossa käydään läpi projektin tila sekä mitä koko viikon aikana on saatu rakennettua. palverissa tehdään myös katsaus aikatauluun; Ollaanko aikataulussa pysytty? Vaatiiko aikataulu muokkausta? Palaverissa suunnitellaan seuraavan viikon aikataulu ja työtehtävät. Scrum master johtaa kokouksia ja kirjoittaa niistä raportit.
 
