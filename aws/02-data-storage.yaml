@@ -1,0 +1,198 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Kodin ruokatarvikkeiden ylläpitosovellus - Data and Storage (DynamoDB, S3, CloudFront)'
+
+Resources:
+  FoodAppTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: FoodItems
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+        - AttributeName: ItemId
+          AttributeType: S
+        - AttributeName: ExpirationDate
+          AttributeType: S
+        - AttributeName: Name
+          AttributeType: S
+        - AttributeName: Category
+          AttributeType: S
+        - AttributeName: Brand
+          AttributeType: S
+        - AttributeName: OpenedDate
+          AttributeType: S
+        - AttributeName: NotificationStatus
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+        - AttributeName: ItemId
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: NotificationQueryIndex
+          KeySchema:
+            - AttributeName: NotificationStatus
+              KeyType: HASH
+            - AttributeName: ExpirationDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: ExpirationDateIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: ExpirationDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: NameIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: Name
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: CategoryIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: Category
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: BrandIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: Brand
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: OpenedDateIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: OpenedDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST # Serverless, cost effective, easily handles 2s SLA load
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  UserDevicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: UserDevices
+      AttributeDefinitions:
+        - AttributeName: UserId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: UserId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  ImageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${AWS::StackName}-OAC"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  ImageDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        Origins:
+          - DomainName: !GetAtt ImageBucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ImageBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${ImageBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ImageDistribution}"
+
+Outputs:
+  DynamoDBTableName:
+    Description: DynamoDB Table Name
+    Value: !Ref FoodAppTable
+    Export:
+      Name: !Sub "${AWS::StackName}-DynamoDBTableName"
+  DynamoDBTableArn:
+    Description: DynamoDB Table ARN
+    Value: !GetAtt FoodAppTable.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-DynamoDBTableArn"
+  UserDevicesTableName:
+    Description: UserDevices DynamoDB Table Name
+    Value: !Ref UserDevicesTable
+    Export:
+      Name: !Sub "${AWS::StackName}-UserDevicesTableName"
+  UserDevicesTableArn:
+    Description: UserDevices DynamoDB Table ARN
+    Value: !GetAtt UserDevicesTable.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-UserDevicesTableArn"
+  S3BucketName:
+    Description: S3 Bucket Name for Images
+    Value: !Ref ImageBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketName"
+  S3BucketArn:
+    Description: S3 Bucket ARN for Images
+    Value: !GetAtt ImageBucket.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketArn"
+  CloudFrontDomainName:
+    Description: CloudFront Distribution Domain Name
+    Value: !GetAtt ImageDistribution.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-CloudFrontDomainName"
