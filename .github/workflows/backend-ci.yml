@@ -19,19 +19,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '24'
-        # cache: 'npm' # Uncomment this when a package.json is added to the repo
         
     - name: Install Dependencies
-      run: |
-        echo "Installing dependencies..."
-        # npm ci # Uncomment when package.json is added
+      working-directory: ./backend
+      run: npm install
         
-    - name: Run Linter / Formatting Checks
-      run: |
-        echo "Running Linters..."
-        # npm run lint # Placeholder for ESLint/Prettier
-        
-    - name: Run Unit Tests
-      run: |
-        echo "Running Unit Tests..."
-        # npm test # Placeholder for Jest/Mocha
+    - name: Run Unit Tests (Mocked)
+      working-directory: ./backend
+      run: npm test

@@ -1,0 +1,40 @@
+name: Backend CD Pipeline
+
+on:
+  workflow_dispatch: # Changed from 'push' to manual trigger to prevent accidental AWS deployments while in test phase
+
+jobs:
+  deploy:
+    name: Deploy to AWS Elastic Beanstalk
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        
+    - name: Install Dependencies & Run Tests
+      working-directory: ./backend
+      run: |
+        npm install
+        npm test
+        
+    - name: Create Deployment Package
+      working-directory: ./backend
+      run: |
+        zip -r deploy.zip . -x "node_modules/*" "*.git*" "tests/*"
+        
+    - name: Deploy to Elastic Beanstalk
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: FoodAppBackend
+        environment_name: FoodAppEnv
+        version_label: "github-action-${{ github.sha }}"
+        region: eu-central-1
+        deployment_package: backend/deploy.zip
