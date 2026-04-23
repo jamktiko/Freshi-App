@@ -1,0 +1,7 @@
+{
+  "name": "Freshi-App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
