@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Kodin ruokatarvikkeiden ylläpitosovellus - Security and Identity (Cognito)'
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: FoodAppUsers
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+      UsernameAttributes:
+        - email
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: AndroidAppClient
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false # Android app client shouldn't have a secret
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: freshi-test
+      UserPoolId: !Ref UserPool
+
+Outputs:
+  UserPoolId:
+    Description: The ID of the Cognito User Pool
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolId"
+  UserPoolClientId:
+    Description: The ID of the Cognito User Pool Client
+    Value: !Ref UserPoolClient
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolClientId"
+  UserPoolArn:
+    Description: The ARN of the Cognito User Pool
+    Value: !GetAtt UserPool.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolArn"
+  UserPoolDomainName:
+    Description: The Cognito Hosted UI Domain Name
+    Value: !Ref UserPoolDomain
+    Export:
+      Name: !Sub "${AWS::StackName}-UserPoolDomainName"
