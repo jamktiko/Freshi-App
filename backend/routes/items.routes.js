@@ -1,10 +1,12 @@
 import express from "express";
-import { authMiddleware } from "../middleware/auth.middleware.js";
+//import { authMiddleware } from "../middleware/auth.middleware.js";
 import { createItem } from "../services/dynamo.service.js";
 
 const router = express.Router();
 
-router.post("/", authMiddleware, async (req, res) => {
+//authMiddleware, // Uncomment this line to enable authentication for item routes
+
+router.post("/",  async (req, res) => {
   try {
     const userId = req.user.sub;
 
