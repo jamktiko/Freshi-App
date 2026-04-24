@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Kodin ruokatarvikkeiden ylläpitosovellus - Compute (Elastic Beanstalk & IAM)'
+
+Parameters:
+  DataStackName:
+    Type: String
+    Description: Name of the Data & Storage stack to import DynamoDB and S3 outputs from.
+    Default: FoodAppDataStack
+  SecurityStackName:
+    Type: String
+    Description: Name of the Security stack to import Cognito outputs from.
+    Default: FoodAppSecurityStack
+  SolutionStackName:
+    Type: String
+    Description: >
+      The Elastic Beanstalk solution stack name.
+    Default: '64bit Amazon Linux 2023 v6.10.1 running Node.js 24'
+
+Resources:
+  BeanstalkServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: elasticbeanstalk.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth
+        - arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService
+
+  BeanstalkInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier
+      Policies:
+        - PolicyName: FoodAppBackendPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Access to DynamoDB (Main Table + ALL Indexes)
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  - Fn::ImportValue: !Sub '${DataStackName}-DynamoDBTableArn'
+                  - Fn::Sub:
+                      - '${TableArn}/index/*'
+                      - TableArn:
+                          Fn::ImportValue: !Sub '${DataStackName}-DynamoDBTableArn'
+              # Access to S3
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource:
+                  - Fn::Join:
+                      - ''
+                      - - Fn::ImportValue: !Sub '${DataStackName}-S3BucketArn'
+                        - '/*'
+
+              # Access to Amazon Bedrock (Nova Lite)
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource:
+                  - 'arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0'
+                  - 'arn:aws:bedrock:*::foundation-model/eu.amazon.nova-lite-v1:0'
+              # Access to CloudWatch
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  BeanstalkInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref BeanstalkInstanceRole
+
+  FoodAppApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: FoodAppBackend
+      Description: Backend for Kodin ruokatarvikkeiden ylläpitosovellus
+
+  FoodAppEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: !Ref FoodAppApplication
+      EnvironmentName: FoodAppEnv
+      SolutionStackName: !Ref SolutionStackName
+      Tier:
+        Name: WebServer
+        Type: Standard
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t3.small
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: SingleInstance
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: !Ref BeanstalkInstanceProfile
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value: !GetAtt BeanstalkServiceRole.Arn
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DYNAMODB_TABLE
+          Value:
+            Fn::ImportValue: !Sub '${DataStackName}-DynamoDBTableName'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: S3_BUCKET
+          Value:
+            Fn::ImportValue: !Sub '${DataStackName}-S3BucketName'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: BEDROCK_REGION
+          Value: 'eu-central-1'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: BEDROCK_MODEL_ID
+          Value: 'eu.amazon.nova-lite-v1:0'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_REGION
+          Value: !Ref 'AWS::Region'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COGNITO_USER_POOL_ID
+          Value:
+            Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolId'
+
+  # ---------------------------------------------------------
+  # API Gateway (HTTP API) to provide HTTPS & Proxy to Beanstalk
+  # ---------------------------------------------------------
+  FoodAppHttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: FoodAppApi
+      Description: 'Secure HTTPS API Gateway proxying to Elastic Beanstalk'
+      ProtocolType: HTTP
+
+  HttpApiIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/{proxy}'
+      IntegrationMethod: ANY
+      PayloadFormatVersion: '1.0'
+
+  HttpApiRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      RouteKey: 'ANY /{proxy+}'
+      Target: !Join ['/', ['integrations', !Ref HttpApiIntegration]]
+
+  HttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      StageName: '$default'
+      AutoDeploy: true
+
+Outputs:
+  ApiGatewayURL:
+    Description: 'The secure HTTPS URL for your Android App to call (API Gateway)'
+    Value: !Sub 'https://${FoodAppHttpApi}.execute-api.${AWS::Region}.amazonaws.com/'
+
+  EnvironmentURL:
+    Description: 'The internal HTTP URL of the Elastic Beanstalk Environment'
+    Value: !GetAtt FoodAppEnvironment.EndpointURL

@@ -1,25 +1,22 @@
 {
-  "name": "backend",
+  "name": "freshi-app-backend",
   "version": "1.0.0",
-  "description": "",
+  "type": "module",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.1034.0",
-    "@aws-sdk/client-dynamodb": "^3.1034.0",
-    "@aws-sdk/client-s3": "^3.1034.0",
-    "@aws-sdk/lib-dynamodb": "^3.1034.0",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "jwks-rsa": "^4.0.1",
-    "multer": "^2.1.1"
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "aws-sdk-client-mock": "^4.0.0"
   }
 }

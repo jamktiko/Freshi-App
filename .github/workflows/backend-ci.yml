@@ -1,0 +1,29 @@
+name: Backend CI Pipeline
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Run Tests & Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        
+    - name: Install Dependencies
+      working-directory: ./backend
+      run: npm install
+        
+    - name: Run Unit Tests (Mocked)
+      working-directory: ./backend
+      run: npm test
