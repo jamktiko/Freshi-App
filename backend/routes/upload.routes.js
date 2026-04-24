@@ -5,7 +5,7 @@ import express from "express";
 import multer from "multer";
 
 // Middleware that verifies Cognito JWT token
-import { authMiddleware } from "../middleware/auth.middleware.js";
+// import { authMiddleware } from "../middleware/auth.middleware.js";
 
 // Service responsible for uploading images to AWS S3
 import { uploadToS3 } from "../services/s3.service.js";
