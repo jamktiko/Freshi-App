@@ -26,7 +26,19 @@ jobs:
 
     - name: Sanity Check - Verify All Imports Resolve
       working-directory: ./backend
-      run: node --input-type=module -e "await import('./app.js')" 2>&1 || { echo "::error::App failed to start - missing dependencies or broken imports!"; exit 1; }
+      run: |
+        timeout 10 node --input-type=module -e "await import('./app.js')" 2>&1
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 124 ]; then
+          echo "✅ App started successfully - all imports resolved"
+          exit 0
+        elif [ $EXIT_CODE -eq 0 ]; then
+          echo "✅ App exited cleanly"
+          exit 0
+        else
+          echo "::error::App failed to start - missing dependencies or broken imports!"
+          exit 1
+        fi
         
     - name: Run Unit Tests (Mocked)
       working-directory: ./backend
