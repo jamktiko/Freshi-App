@@ -46,25 +46,22 @@ We implemented the foundational backend codebase required for the API and Cloud 
 - **Region Selection (Frankfurt `eu-central-1`):** We deploy to Frankfurt because it allows us to utilize the EU Cross-Region Inference Profile for Amazon Bedrock (`eu.amazon.nova-lite-v1:0`). Frankfurt guarantees sub-50ms latency to Finland, safely beating the 2-second SLA.
 - **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
 - **Streamlined Data Model:** DynamoDB is strictly configured to save the AI-extracted fields alongside an `s3ImageKey`. This key permanently links the database record to the original **Picture** of the product stored in S3, which the mobile app can load instantly via CloudFront.
-- **Optimized Access Patterns (DynamoDB GSIs):** Because DynamoDB requires exact query planning, we implemented 6 Global Secondary Indexes on the `FoodItems` table (all using `UserId` as the Partition Key for security and isolation):
-  - `ExpirationDateIndex`: Solves the core app requirement by fetching a user's items sorted chronologically by expiration date.
-  - `NameIndex`: Allows alphabetical sorting and querying by product name.
-  - `CategoryIndex`: Enables fast filtering for category views (e.g., "Dairy").
-  - `BrandIndex`: Enables filtering by brand.
-  - `OpenedDateIndex` (Sparse Index): Ultra-fast and cost-effective sparse index. Since unopened items have a `null` OpenedDate, they are excluded entirely. Querying this index _only_ returns items that are currently open, sorted by how long they have been open.
-  - `LastUpdateIndex`: Facilitates local data caching on the device. By tracking `LastUpdate` and an `IsDeleted` boolean, the app only queries delta changes since its last sync. This dramatically reduces DynamoDB read costs and improves app performance.
+- **Optimized Access Patterns (DynamoDB GSIs):** Since the Ionic mobile app caches all products locally on-device and handles all filtering/sorting client-side, we deliberately reduced the GSIs to only those required for **server-side operations**. This reduces write costs by 62.5% (every write replicates to base table + 2 GSIs instead of 7):
+  - `LastUpdateIndex`: The sync engine. The app queries "give me everything changed since timestamp X" to update its local cache with only delta changes. Combined with the `IsDeleted` soft-delete boolean, this enables efficient incremental sync.
+  - `NotificationQueryIndex`: Used exclusively by the Lambda notification function to efficiently find items approaching expiration across all users, partitioned by `NotificationStatus` and sorted by `ExpirationDate`.
+  - _Removed indexes:_ `ExpirationDateIndex`, `NameIndex`, `CategoryIndex`, `BrandIndex`, and `OpenedDateIndex` were removed because all sorting and filtering is performed client-side on the device's local cache. Keeping them would have been pure write cost waste.
+- **DynamoDB TTL (Auto-Cleanup):** Both tables use DynamoDB's native Time-To-Live feature to automatically delete stale data at zero cost:
+  - `FoodItems`: TTL is set to `expirationDate + 30 days` (Unix epoch seconds). Expired food items are automatically purged after a 30-day grace period, preventing infinite table growth.
+  - `UserDevices`: TTL is set to 90 days from the last app open. Stale FCM tokens from uninstalled apps are automatically cleaned up, preventing the notification Lambda from pushing to dead devices.
 
 #### NoSQL Physical Diagram: Access Pattern Matrix
 
-| Access Pattern (What the app needs to do) | Index Used                 | Partition Key   | Sort Key (Sorting/Filtering)  |
-| :---------------------------------------- | :------------------------- | :-------------- | :---------------------------- |
-| **Get all items for a user**              | `Main Table`               | `USER#{userId}` | `ITEM#{timestamp}`            |
-| **View items expiring soonest**           | `ExpirationDateIndex`      | `USER#{userId}` | `expirationDate` (ASC)        |
-| **Search items alphabetically**           | `NameIndex`                | `USER#{userId}` | `productName` (ASC)           |
-| **Filter by Category (e.g. Dairy)**       | `CategoryIndex`            | `USER#{userId}` | `category` (= "Dairy")        |
-| **Filter by Brand (e.g. Valio)**          | `BrandIndex`               | `USER#{userId}` | `brand` (= "Valio")           |
-| **View only OPEN items**                  | `OpenedDateIndex` (Sparse) | `USER#{userId}` | `openedDate` (ASC)            |
-| **Sync offline device changes**           | `LastUpdateIndex`          | `USER#{userId}` | `lastUpdate` (> lastSyncTime) |
+| Access Pattern (What the app needs to do) | Index Used                 | Partition Key        | Sort Key (Sorting/Filtering)  |
+| :---------------------------------------- | :------------------------- | :------------------- | :---------------------------- |
+| **Get all items for a user (initial sync)**| `Main Table`              | `UserId`             | `ItemId`                      |
+| **Sync offline device changes (delta)**   | `LastUpdateIndex`          | `UserId`             | `lastUpdate` (> lastSyncTime) |
+| **Find items expiring soon (Lambda)**     | `NotificationQueryIndex`   | `NotificationStatus` | `expirationDate` (ASC)        |
+| **Sort/filter by name, category, brand**  | _Client-side (on-device cache)_ | —            | —                             |
 
 - **Cost Optimization (SingleInstance):** Disabled Elastic Beanstalk's default Load Balancer (saving ~$15-20/month) by explicitly defining the environment as `SingleInstance` running in 1 Availability Zone.
 - **Performance Optimization (t3.small):** Upgraded the default instance type from `micro` to `t3.small` (2 vCPU, 2GB RAM) to ensure the Node.js backend has enough memory to process API requests and image handling concurrently without latency spikes.
