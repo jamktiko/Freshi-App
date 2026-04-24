@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+/* import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
 // Get the JWKS (JSON Web Key Set) from Cognito to verify JWTs
@@ -8,7 +8,7 @@ const client = jwksClient({
 
 /**
  * Gets the correct public key based on the JWT header
- */
+
 function getKey(header, callback) {
   client.getSigningKey(header.kid, (err, key) => {
     if (err) return callback(err);
@@ -20,7 +20,7 @@ function getKey(header, callback) {
 
 /**
  * Middleware: Validates the Cognito JWT token. 
- */
+
 export function authMiddleware(req, res, next) {
   // Extracts the token from the Authorization header
   const token = req.headers.authorization?.replace("Bearer ", "");
@@ -47,3 +47,4 @@ export function authMiddleware(req, res, next) {
     next();
   });
 }
+*/
