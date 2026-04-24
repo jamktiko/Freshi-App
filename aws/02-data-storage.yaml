@@ -13,14 +13,6 @@ Resources:
           AttributeType: S
         - AttributeName: ExpirationDate
           AttributeType: S
-        - AttributeName: Name
-          AttributeType: S
-        - AttributeName: Category
-          AttributeType: S
-        - AttributeName: Brand
-          AttributeType: S
-        - AttributeName: OpenedDate
-          AttributeType: S
         - AttributeName: NotificationStatus
           AttributeType: S
         - AttributeName: LastUpdate
@@ -39,46 +31,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-        - IndexName: ExpirationDateIndex
-          KeySchema:
-            - AttributeName: UserId
-              KeyType: HASH
-            - AttributeName: ExpirationDate
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-        - IndexName: NameIndex
-          KeySchema:
-            - AttributeName: UserId
-              KeyType: HASH
-            - AttributeName: Name
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-        - IndexName: CategoryIndex
-          KeySchema:
-            - AttributeName: UserId
-              KeyType: HASH
-            - AttributeName: Category
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-        - IndexName: BrandIndex
-          KeySchema:
-            - AttributeName: UserId
-              KeyType: HASH
-            - AttributeName: Brand
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-        - IndexName: OpenedDateIndex
-          KeySchema:
-            - AttributeName: UserId
-              KeyType: HASH
-            - AttributeName: OpenedDate
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
         - IndexName: LastUpdateIndex
           KeySchema:
             - AttributeName: UserId
@@ -90,6 +42,9 @@ Resources:
       BillingMode: PAY_PER_REQUEST # Serverless, cost effective, easily handles 2s SLA load
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: TTL  # Unix epoch (seconds). Set to expirationDate + 30 days by backend code.
+        Enabled: true
 
   UserDevicesTable:
     Type: AWS::DynamoDB::Table
@@ -104,6 +59,9 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: TTL  # Unix epoch (seconds). Set to 90 days from last app open by backend code.
+        Enabled: true
 
   ImageBucket:
     Type: AWS::S3::Bucket
