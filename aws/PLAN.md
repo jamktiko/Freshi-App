@@ -53,6 +53,19 @@ We implemented the foundational backend codebase required for the API and Cloud 
   - `BrandIndex`: Enables filtering by brand.
   - `OpenedDateIndex` (Sparse Index): Ultra-fast and cost-effective sparse index. Since unopened items have a `null` OpenedDate, they are excluded entirely. Querying this index _only_ returns items that are currently open, sorted by how long they have been open.
   - `LastUpdateIndex`: Facilitates local data caching on the device. By tracking `LastUpdate` and an `IsDeleted` boolean, the app only queries delta changes since its last sync. This dramatically reduces DynamoDB read costs and improves app performance.
+
+#### NoSQL Physical Diagram: Access Pattern Matrix
+
+| Access Pattern (What the app needs to do) | Index Used                 | Partition Key   | Sort Key (Sorting/Filtering)  |
+| :---------------------------------------- | :------------------------- | :-------------- | :---------------------------- |
+| **Get all items for a user**              | `Main Table`               | `USER#{userId}` | `ITEM#{timestamp}`            |
+| **View items expiring soonest**           | `ExpirationDateIndex`      | `USER#{userId}` | `expirationDate` (ASC)        |
+| **Search items alphabetically**           | `NameIndex`                | `USER#{userId}` | `productName` (ASC)           |
+| **Filter by Category (e.g. Dairy)**       | `CategoryIndex`            | `USER#{userId}` | `category` (= "Dairy")        |
+| **Filter by Brand (e.g. Valio)**          | `BrandIndex`               | `USER#{userId}` | `brand` (= "Valio")           |
+| **View only OPEN items**                  | `OpenedDateIndex` (Sparse) | `USER#{userId}` | `openedDate` (ASC)            |
+| **Sync offline device changes**           | `LastUpdateIndex`          | `USER#{userId}` | `lastUpdate` (> lastSyncTime) |
+
 - **Cost Optimization (SingleInstance):** Disabled Elastic Beanstalk's default Load Balancer (saving ~$15-20/month) by explicitly defining the environment as `SingleInstance` running in 1 Availability Zone.
 - **Performance Optimization (t3.small):** Upgraded the default instance type from `micro` to `t3.small` (2 vCPU, 2GB RAM) to ensure the Node.js backend has enough memory to process API requests and image handling concurrently without latency spikes.
 - **Dynamic Platform Versions:** Configured the template to allow manual input of the exact Elastic Beanstalk Solution Stack Name to prevent deployment failures when AWS deprecates older minor versions.
