@@ -12,14 +12,14 @@ export const routes: Routes = [
           import('../register/register.page').then((m) => m.RegisterPage),
       },
       {
-        path: 'tab2',
+        path: 'confirm',
         loadComponent: () =>
-          import('../tab2/tab2.page').then((m) => m.Tab2Page),
+          import('../confirm/confirm.page').then((m) => m.ConfirmPage),
       },
       {
-        path: 'tab3',
+        path: 'login',
         loadComponent: () =>
-          import('../tab3/tab3.page').then((m) => m.Tab3Page),
+          import('../login/login.page').then((m) => m.LoginPage),
       },
       {
         path: '',

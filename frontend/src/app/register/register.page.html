@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title> Create an accaount </ion-title>
+    <ion-title> Create an account </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -33,12 +33,18 @@
         <ion-input
           type="password"
           label="Confirm Password"
-          [formControl]="registration.controls.email"
+          [formControl]="registration.controls.passwordsGroup.controls.pconfirm"
           labelPlacement="stacked"
           placeholder="Confirm password"
         ></ion-input>
       </ion-item>
-      @if (registration.value.email) { Value: {{ registration.value.email}} }
+      @if (registration.value.passwordsGroup?.pconfirm) { Value: {{
+      registration.value.passwordsGroup?.pconfirm}} }
+      <ion-button
+        (click)="submitRegistration()"
+        [disabled]="registration.invalid"
+        >Submit</ion-button
+      >
     </ion-list>
   </form>
 </ion-content>

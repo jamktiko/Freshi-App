@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title> Confirm Email </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="confirmation">
+    <ion-list>
+      <ion-item>
+        <ion-input
+          type="email"
+          id="email"
+          [formControl]="confirmation.controls.email"
+          label="Email"
+          labelPlacement="stacked"
+          placeholder="Enter email"
+        ></ion-input>
+        @if (confirmation.value.email) { Value: {{ confirmation.value.email}} }
+      </ion-item>
+      <ion-item>
+        <ion-input
+          label="Confirmation Code"
+          [formControl]="confirmation.controls.code"
+          labelPlacement="stacked"
+          placeholder="Enter code"
+        ></ion-input>
+      </ion-item>
+      @if (confirmation.value.code) { Value: {{ confirmation.value.code}} }
+
+      <ion-button
+        (click)="submitConfirmation()"
+        [disabled]="confirmation.invalid"
+        >Submit</ion-button
+      >
+    </ion-list>
+  </form>
+</ion-content>
