@@ -1,7 +1,12 @@
 name: Backend CD Pipeline
 
 on:
-  workflow_dispatch: # Changed from 'push' to manual trigger to prevent accidental AWS deployments while in test phase
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-cd.yml'
+  workflow_dispatch: # Manual trigger kept as fallback
 
 jobs:
   deploy:
