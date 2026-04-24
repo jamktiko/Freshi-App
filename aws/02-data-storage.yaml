@@ -23,6 +23,8 @@ Resources:
           AttributeType: S
         - AttributeName: NotificationStatus
           AttributeType: S
+        - AttributeName: LastUpdate
+          AttributeType: S
       KeySchema:
         - AttributeName: UserId
           KeyType: HASH
@@ -74,6 +76,14 @@ Resources:
             - AttributeName: UserId
               KeyType: HASH
             - AttributeName: OpenedDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: LastUpdateIndex
+          KeySchema:
+            - AttributeName: UserId
+              KeyType: HASH
+            - AttributeName: LastUpdate
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
