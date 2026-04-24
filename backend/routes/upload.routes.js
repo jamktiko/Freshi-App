@@ -29,7 +29,7 @@ const upload = multer({ storage: multer.memoryStorage() });
  */
 router.post(
   "/",
-  authMiddleware,              // Ensure user is authenticated via Cognito JWT
+ // authMiddleware,              // Ensure user is authenticated via Cognito JWT
   upload.single("image"),      // Accept single file from form-data field "image"
   async (req, res) => {
 
