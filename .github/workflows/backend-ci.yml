@@ -23,6 +23,10 @@ jobs:
     - name: Install Dependencies
       working-directory: ./backend
       run: npm install
+
+    - name: Sanity Check - Verify All Imports Resolve
+      working-directory: ./backend
+      run: node --input-type=module -e "await import('./app.js')" 2>&1 || { echo "::error::App failed to start - missing dependencies or broken imports!"; exit 1; }
         
     - name: Run Unit Tests (Mocked)
       working-directory: ./backend
