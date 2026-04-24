@@ -4,7 +4,7 @@ import express from "express";
 import { analyzeText } from "../services/ai-extraction.service.js";
 
 // 🔐 Cognito authentication middleware
-import { authMiddleware } from "../middleware/auth.middleware.js";
+// import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -22,7 +22,9 @@ const router = express.Router();
  * 3. Call AI service (Bedrock)
  * 4. Return structured JSON
  */
-router.post("/", authMiddleware, async (req, res) => {
+
+//AuthMiddleware
+router.post("/",  async (req, res) => {
   try {
     const { rawText } = req.body;
 
