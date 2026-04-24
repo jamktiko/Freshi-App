@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Tab1Page } from './tab1.page';
+import { RegisterPage } from './register.page';
 
 describe('Tab1Page', () => {
   let component: Tab1Page;
