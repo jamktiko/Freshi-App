@@ -1,0 +1,50 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title> Create an account </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="registration">
+    <ion-list>
+      <ion-item>
+        <ion-input
+          type="email"
+          id="email"
+          [formControl]="registration.controls.email"
+          label="Email"
+          labelPlacement="stacked"
+          placeholder="Enter email"
+        ></ion-input>
+        @if (registration.value.email) { Value: {{ registration.value.email}} }
+      </ion-item>
+      <ion-item>
+        <ion-input
+          type="password"
+          label="Password"
+          [formControl]="registration.controls.passwordsGroup.controls.password"
+          labelPlacement="stacked"
+          placeholder="Enter password"
+        ></ion-input>
+      </ion-item>
+      @if (registration.value.passwordsGroup?.password) { Value: {{
+      registration.value.passwordsGroup?.password}} }
+      <ion-item>
+        <ion-input
+          type="password"
+          label="Confirm Password"
+          [formControl]="registration.controls.passwordsGroup.controls.pconfirm"
+          labelPlacement="stacked"
+          placeholder="Confirm password"
+        ></ion-input>
+      </ion-item>
+      @if (registration.value.passwordsGroup?.pconfirm) { Value: {{
+      registration.value.passwordsGroup?.pconfirm}} }
+      <ion-button
+        (click)="submitRegistration()"
+        [disabled]="registration.invalid"
+        >Submit</ion-button
+      >
+    </ion-list>
+  </form>
+</ion-content>
