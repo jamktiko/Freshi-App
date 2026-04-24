@@ -16,7 +16,8 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.3",
-    "jwks-rsa": "^4.0.1"
+    "jwks-rsa": "^4.0.1",
+    "multer": "^2.1.1"
   },
   "devDependencies": {
     "aws-sdk-client-mock": "^4.0.0",
