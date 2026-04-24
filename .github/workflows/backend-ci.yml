@@ -27,8 +27,8 @@ jobs:
     - name: Sanity Check - Verify All Imports Resolve
       working-directory: ./backend
       run: |
-        timeout 10 node --input-type=module -e "await import('./app.js')" 2>&1
-        EXIT_CODE=$?
+        EXIT_CODE=0
+        timeout 10 node --input-type=module -e "await import('./app.js')" 2>&1 || EXIT_CODE=$?
         if [ $EXIT_CODE -eq 124 ]; then
           echo "✅ App started successfully - all imports resolved"
           exit 0
