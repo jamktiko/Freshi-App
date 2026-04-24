@@ -109,13 +109,14 @@ Located in `.github/workflows/backend-ci.yml`.
 - Automatically runs `npm install` and the mocked Jest tests inside the `backend/` directory.
 - If a developer breaks the API logic, GitHub will block the code from merging.
 
-### Continuous Deployment (CD) - Manual Trigger
+### Continuous Deployment (CD) - Automatic on PR Merge
 
 Located in `.github/workflows/backend-cd.yml`.
 
-- **Safety First:** To prevent accidental overwrites while development occurs in separate test repos, this pipeline is set to `workflow_dispatch` (Manual Trigger).
-- **How to Deploy:** Log into GitHub, go to the **Actions** tab, select the **Backend CD Pipeline**, and click **Run workflow**.
-- **What it does:** It zips the `backend/` folder and deploys it straight to the `FoodAppBackend` Elastic Beanstalk environment.
+- **Fully Automated:** When a Pull Request is merged into `main` that touches `backend/**` files, the CD pipeline triggers automatically.
+- **Path Filtering:** Only backend code changes trigger a deploy — frontend-only PRs do **not** cause unnecessary AWS deployments.
+- **Manual Fallback:** The pipeline also supports `workflow_dispatch` (Manual Trigger) as a fallback. Go to the **Actions** tab, select the **Backend CD Pipeline**, and click **Run workflow**.
+- **What it does:** It installs dependencies, runs the Jest test suite, zips the `backend/` folder (excluding `node_modules`, `.git`, and `tests`), and deploys it straight to the `FoodAppBackend` Elastic Beanstalk environment via `einaregilsson/beanstalk-deploy@v21`.
 
 ### Required: AWS and GitHub Secrets Integration
 
@@ -132,7 +133,7 @@ For the CD pipeline to have permission to upload code to AWS, you must configure
    - Name: `AWS_SECRET_ACCESS_KEY`
    - Value: (Paste the Secret)
 
-Once this is done, every push to `main` will be live on AWS in under 2 minutes!
+Once this is done, every merged PR touching backend code will be live on AWS in under 2 minutes!
 
 ## 6. Testing Strategy & Cost-Free Mocking
 
