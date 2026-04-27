@@ -22,13 +22,14 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
     - **DynamoDB VPC Endpoint:** A free Gateway Endpoint routing DynamoDB traffic privately, saving on NAT Gateway data transfer costs.
 2.  **`aws/01-security-identity.yaml` (Name: FoodAppSecurityStack)**
     - **AWS Cognito:** Configured User Pools and App Clients to handle secure user registration, login, and JWT token management.
+    - **AWS Secrets Manager:** Automatically generates and stores a shared secret (`freshi/api-gateway-secret`) to secure the Beanstalk Application Load Balancer from direct internet access.
 3.  **`aws/02-data-storage.yaml` (Name: FoodAppDataStack)**
     - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request". Also includes a dedicated `UserDevices` table for tracking mobile push notification tokens. (Both use `DeletionPolicy: Retain` in production, but removed in dev for clean teardowns).
     - **Amazon S3:** Secure bucket for storing food images uploaded by the Android app.
     - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration.
 4.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
-    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. Configured with throttling (20 req/s steady, 50 burst).
-    - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Deployed in the **Private Subnets** inside the custom VPC for maximum security. Configured as `LoadBalanced` using an Application Load Balancer in the Public Subnets.
+    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. It also securely fetches the Secrets Manager secret at deploy time and injects it as an `x-api-gateway-secret` header. Configured with throttling (20 req/s steady, 50 burst).
+    - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Deployed in the **Private Subnets** inside the custom VPC for maximum security. Configured as `LoadBalanced` using an Application Load Balancer in the Public Subnets. The backend receives the `API_GATEWAY_SECRET` environment variable directly from Secrets Manager using CloudFormation dynamic resolution.
     - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached to the EC2 instance role. This includes:
       - DynamoDB: Full CRUD on both the main table AND all Global Secondary Indexes (`TableArn/index/*`).
       - S3: PutObject, GetObject, DeleteObject on the image bucket.
