@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Kodin ruokatarvikkeiden ylläpitosovellus - Notifications (EventBridge, Lambda, Secrets Manager)'
 
+Parameters:
+  DataStackName:
+    Type: String
+    Description: Name of the Data & Storage stack to import DynamoDB and S3 outputs from.
+    Default: FoodAppDataStack
+
 Resources:
   FirebaseSecret:
     Type: AWS::SecretsManager::Secret
@@ -31,13 +37,16 @@ Resources:
                   - dynamodb:Query
                   - dynamodb:UpdateItem
                 Resource:
-                  - !ImportValue FoodAppDataStack-DynamoDBTableArn
-                  - !Join [ "", [ !ImportValue FoodAppDataStack-DynamoDBTableArn, "/index/NotificationQueryIndex" ] ]
+                  - Fn::ImportValue: !Sub '${DataStackName}-DynamoDBTableArn'
+                  - Fn::Sub:
+                      - '${TableArn}/index/NotificationQueryIndex'
+                      - TableArn:
+                          Fn::ImportValue: !Sub '${DataStackName}-DynamoDBTableArn'
               - Effect: Allow
                 Action:
                   - dynamodb:GetItem
                 Resource:
-                  - !ImportValue FoodAppDataStack-UserDevicesTableArn
+                  - Fn::ImportValue: !Sub '${DataStackName}-UserDevicesTableArn'
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
@@ -53,8 +62,10 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          PRODUCTS_TABLE: !ImportValue FoodAppDataStack-DynamoDBTableName
-          DEVICES_TABLE: !ImportValue FoodAppDataStack-UserDevicesTableName
+          PRODUCTS_TABLE:
+            Fn::ImportValue: !Sub '${DataStackName}-DynamoDBTableName'
+          DEVICES_TABLE:
+            Fn::ImportValue: !Sub '${DataStackName}-UserDevicesTableName'
           SECRET_NAME: !Ref FirebaseSecret
       Code:
         ZipFile: |
