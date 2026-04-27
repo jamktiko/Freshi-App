@@ -13,11 +13,17 @@ ion-list {
   flex-direction: column;
   justify-items: center;
   padding: 2rem;
-  margin-top: 1rem;
+  padding-top: 5rem;
+  margin: 0 1rem;
+  text-align: center;
 }
 
 ion-header,
 ion-toolbar {
   --box-shadow: none;
   box-shadow: none;
+}
+
+h1 {
+  text-wrap: balance;
 }
