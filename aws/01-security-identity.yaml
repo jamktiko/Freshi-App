@@ -42,6 +42,17 @@ Resources:
       Domain: freshi-test
       UserPoolId: !Ref UserPool
 
+  ApiGatewaySharedSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: freshi/api-gateway-secret
+      Description: "Shared secret for API Gateway to authenticate with Beanstalk"
+      GenerateSecretString:
+        SecretStringTemplate: '{"secret": "changeme"}'
+        GenerateStringKey: "secret"
+        PasswordLength: 32
+        ExcludePunctuation: true
+
 Outputs:
   UserPoolId:
     Description: The ID of the Cognito User Pool

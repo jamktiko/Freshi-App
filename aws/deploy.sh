@@ -7,14 +7,20 @@ echo "======================================"
 echo "🚀 Deploying Freshi-App Infrastructure"
 echo "======================================"
 
-echo "[1/4] Deploying Security & Identity Stack (Cognito)..."
+echo "[1/5] Deploying Custom VPC Network Stack..."
+aws cloudformation deploy \
+    --template-file 00-vpc-network.yaml \
+    --stack-name FoodAppVpcStack \
+    --region $REGION
+
+echo "[2/5] Deploying Security & Identity Stack (Cognito)..."
 aws cloudformation deploy \
     --template-file 01-security-identity.yaml \
     --stack-name FoodAppSecurityStack \
     --region $REGION \
     --capabilities CAPABILITY_IAM
 
-echo "[2/4] Deploying Data & Storage Stack (DynamoDB, S3, CloudFront)..."
+echo "[3/5] Deploying Data & Storage Stack (DynamoDB, S3, CloudFront)..."
 aws cloudformation deploy \
     --template-file 02-data-storage.yaml \
     --stack-name FoodAppDataStack \
@@ -29,7 +35,7 @@ if [ "$PLATFORM" == "None" ] || [ -z "$PLATFORM" ]; then
 fi
 echo "Using Platform: $PLATFORM"
 
-echo "[3/4] Deploying Compute Backend Stack (API Gateway, Elastic Beanstalk)..."
+echo "[4/5] Deploying Compute Backend Stack (API Gateway, Elastic Beanstalk)..."
 aws cloudformation deploy \
     --template-file 03-compute-backend.yaml \
     --stack-name FoodAppComputeStack \
@@ -37,7 +43,7 @@ aws cloudformation deploy \
     --capabilities CAPABILITY_IAM \
     --parameter-overrides SolutionStackName="$PLATFORM"
 
-echo "[4/4] Deploying Notification Stack (EventBridge, Lambda, Secrets)..."
+echo "[5/5] Deploying Notification Stack (EventBridge, Lambda, Secrets)..."
 aws cloudformation deploy \
     --template-file 04-notifications.yaml \
     --stack-name FoodAppNotificationStack \

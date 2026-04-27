@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Kodin ruokatarvikkeiden ylläpitosovellus - Compute (Elastic Beanstalk & IAM)'
 
 Parameters:
+  VpcStackName:
+    Type: String
+    Description: Name of the VPC network stack
+    Default: FoodAppVpcStack
   DataStackName:
     Type: String
     Description: Name of the Data & Storage stack to import DynamoDB and S3 outputs from.
@@ -114,12 +118,30 @@ Resources:
         Name: WebServer
         Type: Standard
       OptionSettings:
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value:
+            Fn::ImportValue: !Sub '${VpcStackName}-VpcId'
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value:
+            Fn::ImportValue: !Sub '${VpcStackName}-PrivateSubnets'
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value:
+            Fn::ImportValue: !Sub '${VpcStackName}-PublicSubnets'
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: 'false'
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
           Value: t3.small
         - Namespace: aws:elasticbeanstalk:environment
           OptionName: EnvironmentType
-          Value: SingleInstance
+          Value: LoadBalanced
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: LoadBalancerType
+          Value: application
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
           Value: !Ref BeanstalkInstanceProfile
@@ -154,6 +176,9 @@ Resources:
           OptionName: DEVICES_TABLE
           Value:
             Fn::ImportValue: !Sub '${DataStackName}-UserDevicesTableName'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_GATEWAY_SECRET
+          Value: '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
 
   # ---------------------------------------------------------
   # API Gateway (HTTP API) to provide HTTPS & Proxy to Beanstalk
@@ -191,6 +216,7 @@ Resources:
       PayloadFormatVersion: '1.0'
       RequestParameters:
         "append:header.x-user-id": "$context.authorizer.claims.sub"
+        "append:header.x-api-gateway-secret": "{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}"
 
   HttpApiRoute:
     Type: AWS::ApiGatewayV2::Route
