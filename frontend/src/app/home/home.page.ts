@@ -25,6 +25,7 @@ import { SummaryCardComponent } from '../summary-card/summary-card.component';
   ],
 })
 export class HomePage implements OnInit {
+  number1 = 1; // number for testing
   constructor() {}
 
   ngOnInit() {}
