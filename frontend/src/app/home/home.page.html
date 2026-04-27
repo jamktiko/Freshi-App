@@ -22,4 +22,9 @@
       freshness="Expired"
     ></app-summary-card>
   </div>
+  <div class="product-list">
+    @for (product of productList(); track product.ItemId) {
+    <app-product-card [product]="product"></app-product-card>
+    }
+  </div>
 </ion-content>
