@@ -4,4 +4,20 @@ ion-list {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: #f9fafb;
+}
+
+.registrationheader {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-items: center;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+ion-header,
+ion-toolbar {
+  --box-shadow: none;
+  box-shadow: none;
 }
