@@ -6,7 +6,6 @@ import {
   DynamoDBDocumentClient,
   QueryCommand,
   PutCommand,
-  DeleteCommand,
   UpdateCommand
 } from "@aws-sdk/lib-dynamodb";
 
@@ -22,28 +21,39 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 /**
  * Fetch all items belonging to a specific user
- * Uses partition key: PK = USER#<userId>
+ * Uses partition key: UserId
  */
-export async function getItemsByUser(userId) {
+export async function getItemsByUser(userId, lastKey = undefined) {
 
   const res = await docClient.send(
     new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE,
 
       // Only fetch items for this user partition
-      KeyConditionExpression: "PK = :pk",
+      KeyConditionExpression:
+       "UserId = :uid",
+
+       // Only return items that are not marked as deleted
+      FilterExpression: "isDeleted = :false",
+       
 
       ExpressionAttributeValues: {
-        ":pk": `USER#${userId}`
-      }
+        ":uid": userId,
+        ":false": false
+      },
+      ExclusiveStartKey: lastKey // For pagination ()
     })
   );
 
-  return res.Items || [];
+  return {
+    items: res.Items || [],
+    lastKey: res.LastEvaluatedKey
+  }; // For pagination (if there are more items to fetch)
 }
 
 
 /**
+ * CREATE ITEM
  * Save a new item into DynamoDB
  */
 export async function createItem(item) {
@@ -51,7 +61,9 @@ export async function createItem(item) {
   await docClient.send(
     new PutCommand({
       TableName: process.env.DYNAMODB_TABLE,
-      Item: item
+      Item: item,
+      ConditionExpression: "attribute_not_exists(UserId) AND attribute_not_exists(ItemId)" // Ensure no item with same PK+SK exists (basic idempotency)
+
     })
   );
 
@@ -60,29 +72,45 @@ export async function createItem(item) {
 
 
 /**
+ * UPDATE ITEM
  * Update an existing item in DynamoDB
  */
 export async function updateItem(userId, itemId, updates) {
+  const now = new Date().toISOString();
 
   const res = await docClient.send(
     new UpdateCommand({
       TableName: process.env.DYNAMODB_TABLE,
 
       Key: {
-        PK: `USER#${userId}`,
-        SK: itemId
+        UserId: userId,
+        ItemId: itemId
       },
 
-      // Example update fields
-      UpdateExpression:
-        "SET productName = :p, brand = :b, expirationDate = :e",
+      /**
+       * UpdateExpression defines which attributes to update and how.
+       * 
+       * We want to update:
+       * - productName
+       * - brand
+       * - expirationDate
+       * - lastUpdate
+       */ 
+      UpdateExpression: `
+        SET productName = :p,
+            brand = :b, 
+            expirationDate = :e, 
+            lastUpdate = :lu
+      `,
 
       ExpressionAttributeValues: {
         ":p": updates.productName,
         ":b": updates.brand,
-        ":e": updates.expirationDate
+        ":e": updates.expirationDate,
+        ":lu": now
       },
 
+      // Return the updated item after the update operation
       ReturnValues: "ALL_NEW"
     })
   );
@@ -92,20 +120,87 @@ export async function updateItem(userId, itemId, updates) {
 
 
 /**
- * Delete an item from DynamoDB
+ * SOFT DELETE ITEM
+ * Mark an item as deleted in DynamoDB
+ * Keep it for sync purposes but set IsDeleted flag to true and update lastUpdate timestamp
  */
 export async function deleteItem(userId, itemId) {
+  const now = new Date().toISOString();
 
   await docClient.send(
-    new DeleteCommand({
+    new UpdateCommand({
       TableName: process.env.DYNAMODB_TABLE,
 
       Key: {
-        PK: `USER#${userId}`,
-        SK: itemId
+        UserId: userId,
+        ItemId: itemId
+      },
+
+      UpdateExpression: `
+        SET isDeleted = :d, 
+            lastUpdate = :lu
+      `,
+      ExpressionAttributeValues: {
+        ":d": true,
+        ":lu": now
       }
     })
   );
 
   return true;
+}
+
+/**
+ * DELTA SYNC (GSI: LastUpdateIndex)
+ * Fetch items that have been created, updated, or deleted since the last sync timestamp
+ * Uses GSI:
+ * - Partition Key: UserId
+ * - Sort Key: lastUpdate (ISO timestamp string)
+ * 
+ * This enables efficient mobile sync.
+ */
+export async function getUpdatedItems(userId, lastSyncTimestamp) {
+  const res = await docClient.send(
+    new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE,
+      IndexName: "LastUpdateIndex",
+
+      KeyConditionExpression: "UserId = :uid AND lastUpdate > :ls",
+
+      ExpressionAttributeValues: {
+        ":uid": userId,
+        ":ls": lastSyncTimestamp
+      }
+    })
+  );
+
+  return res.Items || [];
+}
+
+/**
+ * Notification Query (GSI: NotificationQueryIndex)
+ * Fetch items that are expiring soon and haven't been notified yet
+ * Uses GSI:
+ * - Partition Key: NotificationStatus (PENDING or SENT)
+ * - Sort Key: expirationDate (ISO date string)
+ * 
+ * This enables efficient querying for the notification Lambda to find items that need notifications.
+ */
+export async function getItemsForNotification(targetDate) {
+  const res = await docClient.send(
+    new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE,
+      IndexName: "NotificationQueryIndex",
+
+      KeyConditionExpression:
+       "notificationStatus = :ns AND expirationDate <= :date",
+
+      ExpressionAttributeValues: {
+        ":ns": "PENDING",
+        ":date": targetDate
+      }
+    })
+  );
+
+  return res.Items || [];
 }

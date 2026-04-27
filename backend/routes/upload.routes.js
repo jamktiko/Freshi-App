@@ -37,12 +37,12 @@ router.post(
       const userId = req.user.sub; // Extract user ID from decoded JWT token
 
       // Generate unique S3 key for storing uploaded image
-      const imageKey = `uploads/${userId}/${Date.now()}.jpg`;
+      const s3imageKey = `uploads/${userId}/${Date.now()}.jpg`;
 
       // Upload image buffer to S3 bucket
       await uploadToS3(
         req.file.buffer,          // binary image data
-        imageKey,                 // file path in S3
+        s3imageKey,                 // file path in S3
         req.file.mimetype         // content type (e.g. image/jpeg)
       );
 
@@ -53,7 +53,7 @@ router.post(
       res.json({
         success: true,
         data: {
-          imageKey,              // stored image reference in S3
+          S3imageKey,              // stored image reference in S3
           suggestion: aiSuggestion // AI-generated structured product info
         }
       });
