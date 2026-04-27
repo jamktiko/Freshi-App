@@ -34,4 +34,32 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+/* src/global.scss */
+
+/* src/global.scss */
+
+/* Napit */
+ion-button {
+  --background: var(--app-calltoactionbutton);
+  --color: var(--app-calltoactiontext);
+  margin: var(--app-spacing-md);
+}
+
+ion-input {
+  margin: var(--app-spacing-md);
+}
+
+/* Otsikkopalkki */
+ion-title {
+  color: var(--app-maintext);
+  font-weight: 600;
+  font-size: var(--app-title-size);
+}
+
+/*H1 otsikot */
+h1 {
+  color: var(--app-h1text);
+  font-size: var(--app-h1-size);
+}
