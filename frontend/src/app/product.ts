@@ -3,7 +3,7 @@ export interface Iproduct {
   productName: string;
   brand: string;
   category: string;
-  expirationDate: number; //time in milliseconds
+  expirationDate: string; // ISO date string
   openedDate: string;
   s3ImageKey: string;
   isDeleted: boolean;
@@ -15,7 +15,7 @@ export const mockProducts: Iproduct[] = [
     productName: 'Rasvaton Maito',
     brand: 'Valio',
     category: 'Maitotuotteet',
-    expirationDate: 1576800000000,
+    expirationDate: '2026-01-20',
     openedDate: '2026-04-27',
     s3ImageKey: 'randomtext',
     isDeleted: false,
@@ -25,7 +25,7 @@ export const mockProducts: Iproduct[] = [
     productName: 'Jogurtti',
     brand: 'Arla',
     category: 'Maitotuotteet',
-    expirationDate: 1577800000000,
+    expirationDate: '2026-01-21',
     openedDate: '2026-05-01',
     s3ImageKey: 'anotherrandom',
     isDeleted: false,
@@ -35,7 +35,7 @@ export const mockProducts: Iproduct[] = [
     productName: 'Leipä',
     brand: 'Fazer',
     category: 'Leivät',
-    expirationDate: 1578800000000,
+    expirationDate: '2026-01-22',
     openedDate: '2026-05-10',
     s3ImageKey: 'moretext',
     isDeleted: false,
@@ -45,7 +45,7 @@ export const mockProducts: Iproduct[] = [
     productName: 'Omena',
     brand: 'Luomu',
     category: 'Hedelmät',
-    expirationDate: 1579800000000,
+    expirationDate: '2026-01-23',
     openedDate: '2026-05-20',
     s3ImageKey: 'keyhere',
     isDeleted: false,
