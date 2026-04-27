@@ -5,19 +5,21 @@
 </ion-header>
 
 <ion-content>
-  <app-summary-card
-    icon="checkmark-circle-outline"
-    amount="5"
-    freshness="Fresh"
-  ></app-summary-card>
-  <app-summary-card
-    icon="time-outline"
-    amount="2"
-    freshness="Expiring"
-  ></app-summary-card>
-  <app-summary-card
-    icon="alert-circle-outline"
-    amount="1"
-    freshness="Expired"
-  ></app-summary-card>
+  <div class="summary-card-list">
+    <app-summary-card
+      icon="checkmark-circle-outline"
+      amount="5"
+      freshness="Fresh"
+    ></app-summary-card>
+    <app-summary-card
+      icon="time-outline"
+      amount="2"
+      freshness="Expiring"
+    ></app-summary-card>
+    <app-summary-card
+      icon="alert-circle-outline"
+      amount="1"
+      freshness="Expired"
+    ></app-summary-card>
+  </div>
 </ion-content>
