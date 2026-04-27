@@ -1,2 +1,31 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+/* Set variables for all modes */
+:root {
+  /* Set the background of the entire app */
+  --ion-background-color: #f9fafb;
+
+  /* Set the font family of the entire app */
+  --ion-font-family:
+    "Inter", -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
+}
+
+/* Set the color on all ion-button elements */
+:root {
+  /*  Värit */
+  --app-calltoactionbutton: #4392f1;
+  --app-maintext: #272727;
+  --app-calltoactiontext: #ffffff;
+  --app-h1text: #6a7282;
+  --app-bordercolor: #e5e7eb;
+
+  /* Spacing */
+  --app-spacing-md: 1rem;
+
+  /*  Fonttikoot */
+  --app-title-size: larger;
+  --app-h1-size: medium;
+}
