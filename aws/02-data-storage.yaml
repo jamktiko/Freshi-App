@@ -53,9 +53,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: UserId
           AttributeType: S
+        - AttributeName: DeviceToken
+          AttributeType: S
       KeySchema:
         - AttributeName: UserId
           KeyType: HASH
+        - AttributeName: DeviceToken
+          KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true

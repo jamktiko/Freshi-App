@@ -165,6 +165,22 @@ Resources:
       Description: 'Secure HTTPS API Gateway proxying to Elastic Beanstalk'
       ProtocolType: HTTP
 
+  CognitoAuthorizer:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      Name: CognitoJWTAuthorizer
+      ApiId: !Ref FoodAppHttpApi
+      AuthorizerType: JWT
+      IdentitySource:
+        - '$request.header.Authorization'
+      JwtConfiguration:
+        Audience:
+          - Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolClientId'
+        Issuer: !Sub 
+          - 'https://cognito-idp.${AWS::Region}.amazonaws.com/${PoolId}'
+          - PoolId:
+              Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolId'
+
   HttpApiIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
@@ -173,6 +189,8 @@ Resources:
       IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/{proxy}'
       IntegrationMethod: ANY
       PayloadFormatVersion: '1.0'
+      RequestParameters:
+        "append:header.x-user-id": "$context.authorizer.claims.sub"
 
   HttpApiRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -180,6 +198,8 @@ Resources:
       ApiId: !Ref FoodAppHttpApi
       RouteKey: 'ANY /{proxy+}'
       Target: !Join ['/', ['integrations', !Ref HttpApiIntegration]]
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CognitoAuthorizer
 
   HttpApiStage:
     Type: AWS::ApiGatewayV2::Stage
