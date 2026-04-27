@@ -1,37 +1,51 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title> Login </ion-title>
+    <div class="loginheader">
+      <ion-title> Log in </ion-title>
+      <h1>Log in to see your saved items and expiration dates!</h1>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <form [formGroup]="login">
     <ion-list>
-      <ion-item>
+      <ion-item lines="none">
         <ion-input
           type="email"
           id="email"
           [formControl]="login.controls.email"
           label="Email"
           labelPlacement="stacked"
+          fill="outline"
           placeholder="Enter email"
+          style="
+            --border-radius: 16px;
+            --border: var (--app-bordercolor);
+            --highlight-color-focused: #4392f1;
+          "
         ></ion-input>
         @if (login.value.email) { Value: {{ login.value.email}} }
       </ion-item>
-      <ion-item>
+      <ion-item lines="none">
         <ion-input
           type="password"
           label="password"
           [formControl]="login.controls.password"
           labelPlacement="stacked"
+          fill="outline"
           placeholder="Enter password"
+          style="
+            --border-radius: 16px;
+            --border: var (--app-bordercolor);
+            --highlight-color-focused: #4392f1;
+          "
         ></ion-input>
       </ion-item>
       @if (login.value.password) { Value: {{ login.value.password}} }
       <ion-button (click)="submitLogin()" [disabled]="login.invalid"
         >Submit</ion-button
       >
-      <ion-button (click)="submitLogout()">Logout</ion-button>
     </ion-list>
   </form>
   <ion-list>
