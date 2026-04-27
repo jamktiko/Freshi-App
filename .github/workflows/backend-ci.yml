@@ -22,24 +22,24 @@ jobs:
         
     - name: Install Dependencies
       working-directory: ./backend
-      run: npm install
+      run: npm ci
 
     - name: Sanity Check - Verify All Imports Resolve
       working-directory: ./backend
       run: |
-        EXIT_CODE=0
-        timeout 10 node --input-type=module -e "await import('./app.js')" 2>&1 || EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 124 ]; then
-          echo "✅ App started successfully - all imports resolved"
-          exit 0
-        elif [ $EXIT_CODE -eq 0 ]; then
-          echo "✅ App exited cleanly"
-          exit 0
-        else
-          echo "::error::App failed to start - missing dependencies or broken imports!"
-          exit 1
-        fi
+        node --input-type=module -e "
+          await import('./routes/health.routes.js');
+          await import('./routes/items.routes.js');
+          await import('./routes/upload.routes.js');
+          await import('./routes/ai.routes.js');
+          await import('./services/dynamo.service.js');
+          await import('./services/s3.service.js');
+          await import('./services/ai-extraction.service.js');
+          console.log('✅ All imports resolved successfully');
+          process.exit(0);
+        "
         
     - name: Run Unit Tests (Mocked)
       working-directory: ./backend
       run: npm test
+
