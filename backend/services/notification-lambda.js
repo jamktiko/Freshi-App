@@ -31,7 +31,7 @@ exports.handler = async (event) => {
     const { Items } = await docClient.send(new QueryCommand({
         TableName: process.env.PRODUCTS_TABLE,
         IndexName: 'NotificationQueryIndex',
-        KeyConditionExpression: "NotificationStatus = :status AND ExpirationDate <= :date",
+        KeyConditionExpression: "notificationStatus = :status AND expirationDate <= :date",
         ExpressionAttributeValues: {
             ":status": "PENDING",
             ":date": targetDate
