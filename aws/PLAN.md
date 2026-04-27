@@ -14,24 +14,28 @@ We have successfully transformed the raw architectural requirements into a produ
 
 ### B. Infrastructure as Code (CloudFormation)
 
-We created a modular, 4-stack CloudFormation setup located in the `aws/` directory. This modularity prevents accidental deletion of stateful data when updating compute resources. All stacks use parameterized cross-stack references via `Fn::ImportValue` for maintainability.
+We created a modular, 5-stack CloudFormation setup located in the `aws/` directory. This modularity prevents accidental deletion of stateful data when updating compute resources. All stacks use parameterized cross-stack references via `Fn::ImportValue` for maintainability.
 
-1.  **`aws/01-security-identity.yaml` (Name: FoodAppSecurityStack)**
+1.  **`aws/00-vpc-network.yaml` (Name: FoodAppVpcStack)**
+    - **Enterprise VPC:** Deploys a custom VPC with 2 Public Subnets and 2 Private Subnets.
+    - **NAT Gateway & EIP:** Allows the private subnets to securely access the internet and AWS APIs.
+    - **DynamoDB VPC Endpoint:** A free Gateway Endpoint routing DynamoDB traffic privately, saving on NAT Gateway data transfer costs.
+2.  **`aws/01-security-identity.yaml` (Name: FoodAppSecurityStack)**
     - **AWS Cognito:** Configured User Pools and App Clients to handle secure user registration, login, and JWT token management.
-2.  **`aws/02-data-storage.yaml` (Name: FoodAppDataStack)**
-    - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request" with `DeletionPolicy: Retain` to prevent accidental data loss. Also includes a dedicated `UserDevices` table (also with `DeletionPolicy: Retain`) for tracking mobile push notification tokens.
+3.  **`aws/02-data-storage.yaml` (Name: FoodAppDataStack)**
+    - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request". Also includes a dedicated `UserDevices` table for tracking mobile push notification tokens. (Both use `DeletionPolicy: Retain` in production, but removed in dev for clean teardowns).
     - **Amazon S3:** Secure bucket for storing food images uploaded by the Android app.
-    - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration (no legacy `S3OriginConfig`).
-3.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
-    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend that transparently proxies all Android app requests to the internal Elastic Beanstalk instance. Configured with throttling (20 req/s steady, 50 burst) to prevent cost abuse.
-    - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Configured as `SingleInstance` to drastically reduce costs while relying on API Gateway for secure ingress.
+    - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration.
+4.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
+    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. Configured with throttling (20 req/s steady, 50 burst).
+    - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Deployed in the **Private Subnets** inside the custom VPC for maximum security. Configured as `LoadBalanced` using an Application Load Balancer in the Public Subnets.
     - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached to the EC2 instance role. This includes:
       - DynamoDB: Full CRUD on both the main table AND all Global Secondary Indexes (`TableArn/index/*`).
       - S3: PutObject, GetObject, DeleteObject on the image bucket.
       - Amazon Bedrock: `InvokeModel` + `InvokeModelWithResponseStream` (required for the Converse API used by the backend).
       - CloudWatch: Logging and metric publishing.
     - **Environment Variables:** `DYNAMODB_TABLE`, `DEVICES_TABLE`, `S3_BUCKET`, `BEDROCK_REGION`, `BEDROCK_MODEL_ID`, `AWS_REGION`, `COGNITO_USER_POOL_ID`, and `COGNITO_REGION` are all injected automatically from cross-stack outputs.
-4.  **`aws/04-notifications.yaml` (Name: FoodAppNotificationStack)**
+5.  **`aws/04-notifications.yaml` (Name: FoodAppNotificationStack)**
     - **Amazon EventBridge:** Cron rule to trigger push notifications every morning at 9 AM Helsinki time (6 AM UTC).
     - **AWS Lambda (nodejs20.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
     - **AWS Secrets Manager:** Secure, encrypted vault holding the Firebase JSON private key (`freshi/firebase-service-account`). The placeholder value must be replaced via AWS Console with the real Firebase service account JSON.

@@ -13,6 +13,7 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+.api_gateway_secret
 
 # AWS credentials
 .aws/
