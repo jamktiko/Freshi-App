@@ -75,10 +75,11 @@ Resources:
                       - - Fn::ImportValue: !Sub '${DataStackName}-S3BucketArn'
                         - '/*'
 
-              # Access to Amazon Bedrock (Nova Lite)
+              # Access to Amazon Bedrock (Nova Lite) — Converse API needs both actions
               - Effect: Allow
                 Action:
                   - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
                 Resource:
                   - 'arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0'
                   - 'arn:aws:bedrock:*::foundation-model/eu.amazon.nova-lite-v1:0'
@@ -146,6 +147,13 @@ Resources:
           OptionName: COGNITO_USER_POOL_ID
           Value:
             Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolId'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: COGNITO_REGION
+          Value: !Ref 'AWS::Region'
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DEVICES_TABLE
+          Value:
+            Fn::ImportValue: !Sub '${DataStackName}-UserDevicesTableName'
 
   # ---------------------------------------------------------
   # API Gateway (HTTP API) to provide HTTPS & Proxy to Beanstalk
@@ -179,6 +187,9 @@ Resources:
       ApiId: !Ref FoodAppHttpApi
       StageName: '$default'
       AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 50
+        ThrottlingRateLimit: 20
 
 Outputs:
   ApiGatewayURL:

@@ -14,32 +14,53 @@ We have successfully transformed the raw architectural requirements into a produ
 
 ### B. Infrastructure as Code (CloudFormation)
 
-We created a modular, 3-part CloudFormation stack located in the `aws/` directory. This modularity prevents accidental deletion of stateful data when updating compute resources.
+We created a modular, 4-stack CloudFormation setup located in the `aws/` directory. This modularity prevents accidental deletion of stateful data when updating compute resources. All stacks use parameterized cross-stack references via `Fn::ImportValue` for maintainability.
 
-1.  **`aws/01-security-identity.yaml`**
+1.  **`aws/01-security-identity.yaml` (Name: FoodAppSecurityStack)**
     - **AWS Cognito:** Configured User Pools and App Clients to handle secure user registration, login, and JWT token management.
 2.  **`aws/02-data-storage.yaml` (Name: FoodAppDataStack)**
-    - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request". Also includes a dedicated `UserDevices` table for tracking mobile push notification tokens.
+    - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request" with `DeletionPolicy: Retain` to prevent accidental data loss. Also includes a dedicated `UserDevices` table (also with `DeletionPolicy: Retain`) for tracking mobile push notification tokens.
     - **Amazon S3:** Secure bucket for storing food images uploaded by the Android app.
-    - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images blazingly fast to the mobile app.
-3.  **`aws/03-compute-backend.yaml`**
-    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend that transparently proxies all Android app requests to the internal Elastic Beanstalk instance.
+    - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration (no legacy `S3OriginConfig`).
+3.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
+    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend that transparently proxies all Android app requests to the internal Elastic Beanstalk instance. Configured with throttling (20 req/s steady, 50 burst) to prevent cost abuse.
     - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Configured as `SingleInstance` to drastically reduce costs while relying on API Gateway for secure ingress.
-    - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached exactly to the EC2 instance role (`aws-elasticbeanstalk-ec2-role`). This includes explicitly defined permissions for DynamoDB on both the main table AND all Global Secondary Indexes (`TableArn/index/*`) to prevent query crashes. It also includes secure access to S3 (objects), Amazon Bedrock (Nova Lite), and CloudWatch.
+    - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached to the EC2 instance role. This includes:
+      - DynamoDB: Full CRUD on both the main table AND all Global Secondary Indexes (`TableArn/index/*`).
+      - S3: PutObject, GetObject, DeleteObject on the image bucket.
+      - Amazon Bedrock: `InvokeModel` + `InvokeModelWithResponseStream` (required for the Converse API used by the backend).
+      - CloudWatch: Logging and metric publishing.
+    - **Environment Variables:** `DYNAMODB_TABLE`, `DEVICES_TABLE`, `S3_BUCKET`, `BEDROCK_REGION`, `BEDROCK_MODEL_ID`, `AWS_REGION`, `COGNITO_USER_POOL_ID`, and `COGNITO_REGION` are all injected automatically from cross-stack outputs.
 4.  **`aws/04-notifications.yaml` (Name: FoodAppNotificationStack)**
     - **Amazon EventBridge:** Cron rule to trigger push notifications every morning at 9 AM Helsinki time (6 AM UTC).
-    - **AWS Lambda:** Securely pulls the Firebase credentials, executes the expiration logic against DynamoDB, and sends Google FCM Push Notifications directly to user devices.
-    - **AWS Secrets Manager:** Secure, encrypted vault holding the Firebase JSON private key (`freshi/firebase-service-account`).
+    - **AWS Lambda (nodejs20.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
+    - **AWS Secrets Manager:** Secure, encrypted vault holding the Firebase JSON private key (`freshi/firebase-service-account`). The placeholder value must be replaced via AWS Console with the real Firebase service account JSON.
 
 ### C. Node.js Backend Implementation
 
-We implemented the foundational backend codebase required for the API and Cloud integrations:
+The backend team implemented the foundational backend codebase required for the API and Cloud integrations:
 
-1.  **`backend/package.json` & `backend/server.js` (Core Server):**
-    - Created a fully deployable Node.js Express application.
-    - Includes a specialized diagnostic endpoint (`/test-aws`) that actively pings DynamoDB, S3, and Amazon Bedrock to verify that all IAM roles and network connections are functioning perfectly.
-2.  **`backend/src/services/imageAnalyzer.js` (AI Service):**
-    - Created the Node.js logic that receives local OCR text from the mobile app, interacts with Amazon Bedrock (Nova Lite model) via the Converse API for structured AI analysis, and persists the result to DynamoDB.
+1.  **`backend/app.js` (Core Server):**
+    - Express application with CORS, JSON parsing, and route handlers for health, items, uploads, and AI endpoints.
+    - Global error handler for unhandled exceptions.
+2.  **`backend/services/ai-extraction.service.js` (AI Service):**
+    - Receives OCR text from the mobile app, sends it to Amazon Bedrock (Nova Lite) via the Converse API, and returns structured JSON (product name, brand, expiration date, confidence).
+3.  **`backend/services/dynamo.service.js` (Data Service):**
+    - CRUD operations for DynamoDB using the AWS SDK v3 DocumentClient.
+4.  **`backend/services/s3.service.js` (Storage Service):**
+    - Uploads image buffers to S3 with private ACL.
+5.  **`backend/services/notification-lambda.js` (Lambda Function Code):**
+    - EventBridge-triggered Lambda that queries DynamoDB for expiring items, groups by user, fetches device tokens, and sends Firebase FCM notifications. Uses CommonJS (required for Lambda deployment separate from the ESM backend).
+6.  **`backend/middleware/auth.middleware.js` (Authentication):**
+    - Cognito JWT verification via JWKS. Currently commented out during development — **must be re-enabled before production**.
+
+### D. Frontend Implementation (Ionic/Angular)
+
+The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile application:
+
+1.  **Authentication flow:** Register, Confirm email, and Login pages using AWS Amplify SDK and Cognito.
+2.  **Tab-based navigation:** Bottom tab bar with Register, Confirm, and Login tabs.
+3.  **Core feature UI (item management, camera/OCR):** Not yet implemented — pending frontend development.
 
 ## 3. Key Technical Decisions & Optimizations
 
@@ -53,15 +74,31 @@ We implemented the foundational backend codebase required for the API and Cloud 
 - **DynamoDB TTL (Auto-Cleanup):** Both tables use DynamoDB's native Time-To-Live feature to automatically delete stale data at zero cost:
   - `FoodItems`: TTL is set to `expirationDate + 30 days` (Unix epoch seconds). Expired food items are automatically purged after a 30-day grace period, preventing infinite table growth.
   - `UserDevices`: TTL is set to 90 days from the last app open. Stale FCM tokens from uninstalled apps are automatically cleaned up, preventing the notification Lambda from pushing to dead devices.
+- **DeletionPolicy: Retain:** Both DynamoDB tables have `DeletionPolicy: Retain` so that a `cloudformation delete-stack` does not destroy user data.
+- **API Gateway Throttling:** The HTTP API stage is configured with rate limiting (20 req/s, 50 burst) to prevent cost abuse from excessive Bedrock API calls.
 
 #### NoSQL Physical Diagram: Access Pattern Matrix
 
 | Access Pattern (What the app needs to do) | Index Used                 | Partition Key        | Sort Key (Sorting/Filtering)  |
 | :---------------------------------------- | :------------------------- | :------------------- | :---------------------------- |
 | **Get all items for a user (initial sync)**| `Main Table`              | `UserId`             | `ItemId`                      |
-| **Sync offline device changes (delta)**   | `LastUpdateIndex`          | `UserId`             | `lastUpdate` (> lastSyncTime) |
-| **Find items expiring soon (Lambda)**     | `NotificationQueryIndex`   | `NotificationStatus` | `expirationDate` (ASC)        |
+| **Sync offline device changes (delta)**   | `LastUpdateIndex`          | `UserId`             | `LastUpdate` (> lastSyncTime) |
+| **Find items expiring soon (Lambda)**     | `NotificationQueryIndex`   | `NotificationStatus` | `ExpirationDate` (ASC)        |
 | **Sort/filter by name, category, brand**  | _Client-side (on-device cache)_ | —            | —                             |
+
+#### DynamoDB Key Schema — Backend Must Match
+
+The CloudFormation table defines these exact attribute names:
+
+| Attribute         | Type   | Usage                                                  |
+| :---------------- | :----- | :----------------------------------------------------- |
+| `UserId`          | String | Partition key (main table + LastUpdateIndex)            |
+| `ItemId`          | String | Sort key (main table)                                  |
+| `ExpirationDate`  | String | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`|
+| `NotificationStatus` | String | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
+| `LastUpdate`      | String | Sort key (LastUpdateIndex), ISO 8601 timestamp         |
+
+> **⚠️ IMPORTANT:** Backend code MUST use these exact attribute names when writing to DynamoDB. Do NOT use `PK`/`SK` or any other naming convention — the GSIs depend on these specific names.
 
 - **Cost Optimization (SingleInstance):** Disabled Elastic Beanstalk's default Load Balancer (saving ~$15-20/month) by explicitly defining the environment as `SingleInstance` running in 1 Availability Zone.
 - **Performance Optimization (t3.small):** Upgraded the default instance type from `micro` to `t3.small` (2 vCPU, 2GB RAM) to ensure the Node.js backend has enough memory to process API requests and image handling concurrently without latency spikes.
@@ -83,7 +120,11 @@ To instantly deploy the entire production environment:
 1. Navigate to the `aws/` directory in your terminal.
 2. Make sure the script is executable: `chmod +x deploy.sh`
 3. Run: `./deploy.sh`
-4. _What it does:_ The script dynamically fetches the latest Node.js 24 Beanstalk platform and deploys the Security, Data, and Compute CloudFormation stacks in perfect sequential order.
+4. _What it does:_ The script dynamically fetches the latest Node.js 24 Beanstalk platform and deploys all four CloudFormation stacks (Security → Data → Compute → Notifications) in sequential order, respecting cross-stack dependencies.
+
+### Updating Existing Infrastructure
+
+All changes to CloudFormation templates can be deployed as **in-place updates** using the same `./deploy.sh` script. CloudFormation automatically creates a change set, shows what will change, and applies it. No teardown is required for configuration changes.
 
 ### Shutting Down the Infrastructure
 
@@ -92,7 +133,9 @@ To destroy all resources and stop all AWS billing:
 1. Navigate to the `aws/` directory in your terminal.
 2. Make sure the script is executable: `chmod +x teardown.sh`
 3. Run: `./teardown.sh`
-4. _What it does:_ The script automatically locates your S3 bucket, safely deletes all uploaded images (AWS blocks bucket deletion if images exist), and then systematically deletes the three CloudFormation stacks.
+4. _What it does:_ The script automatically locates your S3 bucket, safely deletes all uploaded images (AWS blocks bucket deletion if images exist), and then systematically deletes the four CloudFormation stacks in reverse dependency order.
+
+> **Note:** DynamoDB tables have `DeletionPolicy: Retain` and will NOT be deleted by the teardown script. To permanently delete them, use the AWS Console or CLI manually. This is a safety measure to prevent accidental data loss.
 
 ## 5. CI/CD Pipeline & GitHub-AWS Integration
 
@@ -103,8 +146,10 @@ The `Freshi-App` repository is fully equipped with both Continuous Integration (
 Located in `.github/workflows/backend-ci.yml`.
 
 - Triggers on Pull Requests and pushes to `main`/`dev`.
-- Automatically runs `npm install` and the mocked Jest tests inside the `backend/` directory.
-- If a developer breaks the API logic, GitHub will block the code from merging.
+- Uses `npm ci` for deterministic, lockfile-based dependency installation.
+- Runs an **import sanity check** that individually imports every route and service module to catch missing dependencies before they reach production.
+- Runs the mocked Jest test suite.
+- If any step fails, GitHub blocks the code from merging.
 
 ### Continuous Deployment (CD) - Automatic on PR Merge
 
@@ -113,14 +158,14 @@ Located in `.github/workflows/backend-cd.yml`.
 - **Fully Automated:** When a Pull Request is merged into `main` that touches `backend/**` files, the CD pipeline triggers automatically.
 - **Path Filtering:** Only backend code changes trigger a deploy — frontend-only PRs do **not** cause unnecessary AWS deployments.
 - **Manual Fallback:** The pipeline also supports `workflow_dispatch` (Manual Trigger) as a fallback. Go to the **Actions** tab, select the **Backend CD Pipeline**, and click **Run workflow**.
-- **What it does:** It installs dependencies, runs the Jest test suite, zips the `backend/` folder (excluding `node_modules`, `.git`, and `tests`), and deploys it straight to the `FoodAppBackend` Elastic Beanstalk environment via `einaregilsson/beanstalk-deploy@v21`.
+- **Pipeline Steps:** Install dependencies (`npm ci`) → Import sanity check → Jest tests → Zip backend (excluding `node_modules`, `.git`, `tests`) → Deploy to Elastic Beanstalk via `einaregilsson/beanstalk-deploy@v21`.
 
 ### Required: AWS and GitHub Secrets Integration
 
 For the CD pipeline to have permission to upload code to AWS, you must configure GitHub Secrets.
 
 1. Log into AWS Console -> IAM -> Users.
-2. Create a user (e.g., `GitHubActionsDeployer`) and attach the policy: `AdministratorAccess-AWSElasticBeanstalk` (or create a custom restricted policy).
+2. Create a user (e.g., `GitHubActionsDeployer`) and attach a custom policy with permissions scoped to Elastic Beanstalk deploy actions and S3 artifact upload (avoid `AdministratorAccess` — use least privilege).
 3. Generate an **Access Key** for this user.
 4. Open your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
 5. Add a New Repository Secret:
@@ -132,37 +177,48 @@ For the CD pipeline to have permission to upload code to AWS, you must configure
 
 Once this is done, every merged PR touching backend code will be live on AWS in under 2 minutes!
 
-## 6. Testing Strategy & Cost-Free Mocking
+### Important: Lockfile Versioning
 
-To guarantee the 99.5% uptime requirement without racking up AWS Bedrock or DynamoDB charges during testing, we will implement a strictly **mocked** testing strategy using **Jest** and **Supertest**.
+The `package-lock.json` file is committed to the repository. Both CI and CD pipelines use `npm ci` (not `npm install`) to ensure deterministic, reproducible builds. If you add a new dependency, always commit the updated `package-lock.json`.
 
-### A. Unit Tests (Cost-Free AWS Mocking)
+## 6. Testing Strategy: "Pre-Wiring" with Mocks and Skip/Todo
 
-- **Goal:** Test individual functions without making real AWS API calls.
-- **AWS Mocking Strategy:** We use `aws-sdk-client-mock` to intercept AWS SDK v3 calls. This completely blocks real requests from reaching Amazon Bedrock, ensuring testing remains **100% free**.
-- **Test Cases:**
-  - Verify `analyzeText()` successfully processes fake JSON injected by the mock.
-  - Verify the system gracefully catches and handles invalid JSON (simulating a Bedrock hallucination).
+Testing a product while it is actively being built requires a specific strategy so we don't break the CI/CD pipelines. We have successfully implemented a **"Pre-Wired" Testing Strategy** using Jest (Backend) and Playwright (Frontend). 
 
-### B. Integration Tests (API Endpoints)
+### The Methodology: How we test missing code
+Instead of writing commented-out code (which rots and gets forgotten), we pre-write the exact testing specifications and use testing flags to keep the CI/CD pipelines green:
+1. **`test.todo('description')`**: Used when the target code (like an API route) doesn't exist yet. Jest logs it as a literal "to-do" task for the developer. CI passes.
+2. **`test.skip('description', ...)`**: Used when we have written the actual test code (like an E2E journey), but the UI isn't ready. Jest skips execution but remembers the test exists. CI passes.
 
-- **Goal:** Test the Express router and HTTP responses.
-- **Tool:** `supertest` allows us to send fake HTTP requests to our Express app locally.
-- **Test Cases:**
-  - `GET /items` without a JWT token -> Expect `401 Unauthorized`.
-  - `POST /items` with valid payload -> Expect `201 Created` (using mocked DynamoDB).
+When developers build the missing features, they simply remove `.todo` or `.skip` to activate the test.
 
-### C. End-to-End (E2E) Tests
+### A. Unit Tests (Backend)
+- **Goal:** Test pure logic and functions in absolute isolation.
+- **Status:** **✅ Fully Active**. We built `backend/utils/expiry.js` (pure date math without AWS dependencies) and have active, passing tests in `expiry.test.js` using Jest fake timers.
+- **Cost-Free AWS Mocking:** For tests that touch AWS (like `ai-extraction.test.js`), we use `aws-sdk-client-mock`. This intercepts calls to Amazon Bedrock, ensuring zero cost and instantaneous execution. Currently, the Bedrock mock test is `.skip`ped pending the backend developer finalizing the AI service logic.
 
-- **Goal:** Test the entire system exactly as a real user would experience it.
-- **Execution:** These will be run manually against the real AWS environment. This is the _only_ backend testing phase that will hit the real Bedrock API.
+### B. Integration Tests (Backend API)
+- **Goal:** Test the Express router HTTP responses (Login -> Create -> Delete flow).
+- **Status:** **📝 Scaffolded via `.todo()`**. The file `items-api.test.js` is built with a list of `test.todo()` placeholders that exactly match the product specification.
+- **Future Execution:** Once the backend developer builds the CRUD routes, they will replace the `todo`s with Supertest calls that mock DynamoDB.
 
-### D. Frontend Testing (Android)
+### C. End-to-End (E2E) Tests (Frontend Browser)
+- **Goal:** Simulate a complete user journey exactly as a human would experience it.
+- **Status:** **⏭️ Scaffolded via `.skip()`**. We chose **Playwright** as the E2E framework. The complete user journey (Register -> Add photo -> Sort -> Logout) is fully pre-written in `frontend/e2e/user-journey.spec.ts`.
+- **How it works:** We guessed the HTML IDs (e.g., `#add-product-btn`). The frontend team must use these IDs when building the UI. Because the UI doesn't exist yet, the entire test block is wrapped in `test.skip()`.
 
-- **Goal:** Ensure the mobile application UI, Edge OCR processing, and AWS API integrations work flawlessly on the client device.
-- **Implementation Phase:** Frontend testing (using frameworks like Espresso or Appium) will be implemented _after_ the frontend developers build the initial user interface.
-- **Scope:** Tests will verify that the camera opens, the local OCR successfully extracts text strings, the app correctly authenticates with Cognito, and the app gracefully handles network failures when calling the API Gateway.
+### D. Frontend CI Pipeline (`frontend-ci.yml`)
+- We have created a dedicated GitHub Actions workflow for the frontend.
+- It triggers automatically on changes to the `frontend/` directory.
+- It installs Playwright and executes the test suite. Because our E2E tests are `.skip`ped, the pipeline succeeds and stays green, proving the infrastructure works before the product is even finished.
 
-## 7. Current Project Status: Ready for Development
+## 7. Current Project Status
 
-All foundational planning, cloud infrastructure (IaC), CI/CD scaffolding, and backend testing strategies are **100% complete and approved**. The production repository (`Freshi-App`) has been scaffolded with the initial AWS Mock testing framework. The project is officially ready for the development team to begin writing the frontend and backend application code!
+| Area | Status | Owner |
+| :--- | :----- | :---- |
+| CloudFormation (4 stacks) | ✅ Complete & validated | Infra/DevOps |
+| CI/CD Pipelines (CI + CD) | ✅ Complete | Infra/DevOps |
+| Testing Infrastructure & Strategy | ✅ Complete (Jest + Playwright configured) | Infra/DevOps |
+| Backend routes & services | 🟡 Scaffolded — needs auth re-enable, key schema fix, CRUD routes | Backend dev |
+| Frontend auth flow | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
+| Frontend core features | 🔴 Not started — item list, camera, OCR UI | Frontend dev |
