@@ -1,8 +1,8 @@
-/**
+/*
  * Calculates the expiry status based on a given expiration date.
  * @param {string} expirationDate - The expiration date (e.g., 'YYYY-MM-DD')
  * @returns {string} 'expired', 'expiring_soon', or 'fresh'
- */
+
 export function checkExpiry(expirationDate) {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize to start of day
@@ -16,3 +16,4 @@ export function checkExpiry(expirationDate) {
   if (daysLeft <= 7) return 'expiring_soon';
   return 'fresh';
 }
+*/
