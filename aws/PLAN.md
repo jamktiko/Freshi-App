@@ -65,9 +65,16 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 
 1.  **Authentication flow:** Register, Confirm email, and Login pages using AWS Amplify SDK and Cognito.
 2.  **Tab-based navigation:** Bottom tab bar with Register, Confirm, and Login tabs.
-3.  **Core feature UI (item management, camera/OCR):** Not yet implemented — pending frontend development.
+3.  **New Component Architecture:** Skeleton folders created for `home`, `product-card`, and `summary-card` views, paving the way for the primary item list UI.
+4.  **Local Storage (Waitlisting Data):** Developed `StorageService` using Capacitor Preferences to handle writing/reading AI-extracted products to and from the device's native local storage. Fully covered by offline Jasmine unit tests.
+5.  **Search & Filtering Mechanism:** Implemented an Angular Pipe `ProductFilterPipe` for highly efficient client-side text searching (by Name, Brand, or Category) and sorting out expired items without needing to query the server or write slow frontend UI tests.
 
-## 3. Key Technical Decisions & Optimizations
+## 4. Key Technical Decisions & Optimizations
+
+- **Test-Driven Development (TDD) Foundation:** We've laid the groundwork for robust security testing by implementing strict mock testing boundaries.
+  - **AWS SDK Mocking:** We inject dummy `AWS_REGION` values inside GitHub Actions and use `aws-sdk-client-mock`. This allows tests to run continuously in CI/CD without making any real AWS API calls or incurring AWS billing charges.
+  - **Stubbed Backend Tests:** Using Jest `.skip()`, we mapped out exact authorization logic parameters against missing/invalid JWT tokens.
+  - **Golden Path E2E Testing:** Playwright testing is reserved only for a single critical user journey (`e2e/user-journey.spec.ts`) encompassing Registration -> Sign In -> Scan Product -> View Summary. Smaller functionalities (like local storage wrapping and list filtering) are tested with lightweight Angular/Jasmine unit tests instead of heavy UI rendering DOM checks.
 
 - **Region Selection (Frankfurt `eu-central-1`):** We deploy to Frankfurt because it allows us to utilize the EU Cross-Region Inference Profile for Amazon Bedrock (`eu.amazon.nova-lite-v1:0`). Frankfurt guarantees sub-50ms latency to Finland, safely beating the 2-second SLA.
 - **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
@@ -84,24 +91,24 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 
 #### NoSQL Physical Diagram: Access Pattern Matrix
 
-| Access Pattern (What the app needs to do) | Index Used                 | Partition Key        | Sort Key (Sorting/Filtering)  |
-| :---------------------------------------- | :------------------------- | :------------------- | :---------------------------- |
-| **Get all items for a user (initial sync)**| `Main Table`              | `UserId`             | `ItemId`                      |
-| **Sync offline device changes (delta)**   | `LastUpdateIndex`          | `UserId`             | `LastUpdate` (> lastSyncTime) |
-| **Find items expiring soon (Lambda)**     | `NotificationQueryIndex`   | `NotificationStatus` | `ExpirationDate` (ASC)        |
-| **Sort/filter by name, category, brand**  | _Client-side (on-device cache)_ | —            | —                             |
+| Access Pattern (What the app needs to do)   | Index Used                      | Partition Key        | Sort Key (Sorting/Filtering)  |
+| :------------------------------------------ | :------------------------------ | :------------------- | :---------------------------- |
+| **Get all items for a user (initial sync)** | `Main Table`                    | `UserId`             | `ItemId`                      |
+| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `UserId`             | `LastUpdate` (> lastSyncTime) |
+| **Find items expiring soon (Lambda)**       | `NotificationQueryIndex`        | `NotificationStatus` | `ExpirationDate` (ASC)        |
+| **Sort/filter by name, category, brand**    | _Client-side (on-device cache)_ | —                    | —                             |
 
 #### DynamoDB Key Schema — Backend Must Match
 
 The CloudFormation table defines these exact attribute names:
 
-| Attribute         | Type   | Usage                                                  |
-| :---------------- | :----- | :----------------------------------------------------- |
-| `UserId`          | String | Partition key (main table + LastUpdateIndex)            |
-| `ItemId`          | String | Sort key (main table)                                  |
-| `ExpirationDate`  | String | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`|
+| Attribute            | Type   | Usage                                                              |
+| :------------------- | :----- | :----------------------------------------------------------------- |
+| `UserId`             | String | Partition key (main table + LastUpdateIndex)                       |
+| `ItemId`             | String | Sort key (main table)                                              |
+| `ExpirationDate`     | String | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`            |
 | `NotificationStatus` | String | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
-| `LastUpdate`      | String | Sort key (LastUpdateIndex), ISO 8601 timestamp         |
+| `LastUpdate`         | String | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
 
 > **⚠️ IMPORTANT:** Backend code MUST use these exact attribute names when writing to DynamoDB. Do NOT use `PK`/`SK` or any other naming convention — the GSIs depend on these specific names.
 
@@ -188,42 +195,48 @@ The `package-lock.json` file is committed to the repository. Both CI and CD pipe
 
 ## 6. Testing Strategy: "Pre-Wiring" with Mocks and Skip/Todo
 
-Testing a product while it is actively being built requires a specific strategy so we don't break the CI/CD pipelines. We have successfully implemented a **"Pre-Wired" Testing Strategy** using Jest (Backend) and Playwright (Frontend). 
+Testing a product while it is actively being built requires a specific strategy so we don't break the CI/CD pipelines. We have successfully implemented a **"Pre-Wired" Testing Strategy** using Jest (Backend) and Playwright (Frontend).
 
 ### The Methodology: How we test missing code
+
 Instead of writing commented-out code (which rots and gets forgotten), we pre-write the exact testing specifications and use testing flags to keep the CI/CD pipelines green:
+
 1. **`test.todo('description')`**: Used when the target code (like an API route) doesn't exist yet. Jest logs it as a literal "to-do" task for the developer. CI passes.
 2. **`test.skip('description', ...)`**: Used when we have written the actual test code (like an E2E journey), but the UI isn't ready. Jest skips execution but remembers the test exists. CI passes.
 
 When developers build the missing features, they simply remove `.todo` or `.skip` to activate the test.
 
 ### A. Unit Tests (Backend)
+
 - **Goal:** Test pure logic and functions in absolute isolation.
 - **Status:** **✅ Fully Active**. We built `backend/utils/expiry.js` (pure date math without AWS dependencies) and have active, passing tests in `expiry.test.js` using Jest fake timers.
 - **Cost-Free AWS Mocking:** For tests that touch AWS (like `ai-extraction.test.js`), we use `aws-sdk-client-mock`. This intercepts calls to Amazon Bedrock, ensuring zero cost and instantaneous execution. Currently, the Bedrock mock test is `.skip`ped pending the backend developer finalizing the AI service logic.
 
 ### B. Integration Tests (Backend API)
+
 - **Goal:** Test the Express router HTTP responses (Login -> Create -> Delete flow).
 - **Status:** **📝 Scaffolded via `.todo()`**. The file `items-api.test.js` is built with a list of `test.todo()` placeholders that exactly match the product specification.
 - **Future Execution:** Once the backend developer builds the CRUD routes, they will replace the `todo`s with Supertest calls that mock DynamoDB.
 
 ### C. End-to-End (E2E) Tests (Frontend Browser)
+
 - **Goal:** Simulate a complete user journey exactly as a human would experience it.
 - **Status:** **⏭️ Scaffolded via `.skip()`**. We chose **Playwright** as the E2E framework. The complete user journey (Register -> Add photo -> Sort -> Logout) is fully pre-written in `frontend/e2e/user-journey.spec.ts`.
 - **How it works:** We guessed the HTML IDs (e.g., `#add-product-btn`). The frontend team must use these IDs when building the UI. Because the UI doesn't exist yet, the entire test block is wrapped in `test.skip()`.
 
 ### D. Frontend CI Pipeline (`frontend-ci.yml`)
+
 - We have created a dedicated GitHub Actions workflow for the frontend.
 - It triggers automatically on changes to the `frontend/` directory.
 - It installs Playwright and executes the test suite. Because our E2E tests are `.skip`ped, the pipeline succeeds and stays green, proving the infrastructure works before the product is even finished.
 
 ## 7. Current Project Status
 
-| Area | Status | Owner |
-| :--- | :----- | :---- |
-| CloudFormation (4 stacks) | ✅ Complete & validated | Infra/DevOps |
-| CI/CD Pipelines (CI + CD) | ✅ Complete | Infra/DevOps |
-| Testing Infrastructure & Strategy | ✅ Complete (Jest + Playwright configured) | Infra/DevOps |
-| Backend routes & services | 🟡 Scaffolded — needs auth re-enable, key schema fix, CRUD routes | Backend dev |
-| Frontend auth flow | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
-| Frontend core features | 🔴 Not started — item list, camera, OCR UI | Frontend dev |
+| Area                              | Status                                                             | Owner        |
+| :-------------------------------- | :----------------------------------------------------------------- | :----------- |
+| CloudFormation (4 stacks)         | ✅ Complete & validated                                            | Infra/DevOps |
+| CI/CD Pipelines (CI + CD)         | ✅ Complete                                                        | Infra/DevOps |
+| Testing Infrastructure & Strategy | ✅ Complete (Jest + Playwright configured)                         | Infra/DevOps |
+| Backend routes & services         | 🟡 Scaffolded — needs auth re-enable, key schema fix, CRUD routes  | Backend dev  |
+| Frontend auth flow                | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
+| Frontend core features            | 🔴 Not started — item list, camera, OCR UI                         | Frontend dev |
