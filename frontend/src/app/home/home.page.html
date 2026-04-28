@@ -41,7 +41,7 @@
           {{productList().length}} items</span
         >
       </h3>
-      <ion-button>Filters</ion-button>
+      <ion-button class="filtersbutton">Filters</ion-button>
     </div>
     @for (product of productList(); track product.ItemId) {
     <app-product-card [product]="product"></app-product-card>

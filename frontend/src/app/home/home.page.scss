@@ -8,6 +8,15 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+}
+
+.product-list-subtitle {
+  font-size: var(--app-h1-size);
+  color: var(--app-h1text);
+  margin-left: 0.5rem;
 }
 
 .homeheader {
@@ -39,15 +48,18 @@ ion-title {
 .Fresh {
   border-radius: var(--app-borderradius);
   background-color: var(--app-freshcolor);
+  box-shadow: var(--app-boxshadow);
 }
 
 .expiring {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiringcolor);
+  box-shadow: var(--app-boxshadow);
 }
 .expired {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor);
+  box-shadow: var(--app-boxshadow);
 }
 .searchbar {
   --background: var(--background);
@@ -56,7 +68,7 @@ ion-title {
   --icon-color: var(--maintext);
   --border-radius: 12px;
   padding-top: 2rem;
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
   padding-left: 1rem;
   padding-right: 1rem;
 }

@@ -26,9 +26,12 @@
   --app-expiredcolor: #ffc9c9;
   --app-borderradius: 16px;
   /* Spacing */
-  --app-spacing-md: 1rem;
+  --app-spacing-md: 2rem;
 
   /*  Fonttikoot */
-  --app-title-size: Larger;
-  --app-h1-size: medium;
+  --app-title-size: 2rem;
+  --app-h1-size: 1.15rem;
+  --app-b-size: 1.6rem;
+
+  --app-boxshadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
