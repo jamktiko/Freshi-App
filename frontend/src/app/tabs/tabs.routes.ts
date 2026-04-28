@@ -32,6 +32,11 @@ export const routes: Routes = [
           import('../welcome/welcome.page').then((m) => m.WelcomePage),
       },
       {
+        path: 'settings',
+        loadComponent: () =>
+          import('../settings/settings.page').then((m) => m.SettingsPage),
+      },
+      {
         path: '',
         redirectTo: '/tabs/register',
         pathMatch: 'full',
