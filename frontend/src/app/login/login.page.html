@@ -9,8 +9,9 @@
 
 <form [formGroup]="login">
   <ion-list>
-    <ion-item lines="none">
+    <ion-item lines="none" class="field-row">
       <ion-input
+        class="freshi-input"
         type="email"
         id="email"
         [formControl]="login.controls.email"
@@ -21,13 +22,15 @@
         style="
           --border-radius: 16px;
           --border: var (--app-bordercolor);
+          --border-width: 2px;
           --highlight-color-focused: #4392f1;
         "
       ></ion-input>
       @if (login.value.email) { Value: {{ login.value.email}} }
     </ion-item>
-    <ion-item lines="none">
+    <ion-item lines="none" class="field-row">
       <ion-input
+        class="freshi-input"
         type="password"
         label="Password"
         [formControl]="login.controls.password"
@@ -37,6 +40,7 @@
         style="
           --border-radius: 16px;
           --border: var (--app-bordercolor);
+          --border-width: 2px;
           --highlight-color-focused: #4392f1;
         "
       ></ion-input>
