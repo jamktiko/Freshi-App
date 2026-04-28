@@ -22,7 +22,18 @@
       freshness="Expired"
     ></app-summary-card>
   </div>
+  <ion-searchbar placeholder="Search products"></ion-searchbar>
+
   <div class="product-list">
+    <div class="product-list-header">
+      <h3>
+        <b>Your items</b>
+        <span class="product-list-subtitle">
+          {{productList().length}} items</span
+        >
+      </h3>
+      <ion-button>Filters</ion-button>
+    </div>
     @for (product of productList(); track product.ItemId) {
     <app-product-card [product]="product"></app-product-card>
     }

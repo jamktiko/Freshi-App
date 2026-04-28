@@ -25,6 +25,20 @@ import {
   ],
 })
 export class ProductCardComponent implements OnInit {
+  months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
   product = input<Iproduct>();
   lifeLeft = signal<number>(0); // How many days until expires
   expirationDate = signal<string>('');
@@ -39,7 +53,7 @@ export class ProductCardComponent implements OnInit {
   ngOnInit() {
     this.lifeLeft.set(this.getDaysLeft(this.product()!.expirationDate));
     this.expirationDate.set(
-      `${new Date(this.product()!.expirationDate).getDate()}.${new Date(this.product()!.expirationDate).getMonth()}.`,
+      `${this.months[new Date(this.product()!.expirationDate).getMonth()]} ${new Date(this.product()!.expirationDate).getDate()}`,
     ); // Set date to dd.mm.
   }
   // Sets the chip color to green, yellow or red

@@ -6,6 +6,8 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
+  IonSearchbar,
+  IonButton,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { Iproduct, mockProducts } from '../product';
@@ -16,6 +18,8 @@ import { ProductCardComponent } from '../product-card/product-card.component';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonButton,
+    IonSearchbar,
     IonContent,
     IonHeader,
     IonTitle,
