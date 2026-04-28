@@ -9,26 +9,26 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <form [formGroup]="confirmation">
-    <ion-list>
-      <ion-item lines="none">
-        <ion-input
-          label="Confirmation Code"
-          [formControl]="confirmation.controls.code"
-          labelPlacement="stacked"
-          fill="outline"
-          placeholder="Enter code"
-          style="
-            --border-radius: 16px;
-            --border: var (--app-bordercolor);
-            --highlight-color-focused: #4392f1;
-          "
-        ></ion-input>
-      </ion-item>
-      @if (confirmation.value.code) { Value: {{ confirmation.value.code}} }
+<form [formGroup]="confirmation">
+  <ion-list>
+    <ion-item lines="none" class="field-row">
+      <ion-input
+        class="freshi-input"
+        label="Confirmation Code"
+        [formControl]="confirmation.controls.code"
+        labelPlacement="stacked"
+        fill="outline"
+        placeholder="Enter code"
+        style="
+          --border-radius: 16px;
+          --border: var (--app-bordercolor);
+          --highlight-color-focused: #4392f1;
+          --border-width: 2px;
+        "
+      ></ion-input>
+    </ion-item>
+    @if (confirmation.value.code) { Value: {{ confirmation.value.code}} }
 
-      <ion-button (click)="submitConfirmation()">Submit</ion-button>
-    </ion-list>
-  </form>
-</ion-content>
+    <ion-button (click)="submitConfirmation()">Submit</ion-button>
+  </ion-list>
+</form>

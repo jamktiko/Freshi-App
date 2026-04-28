@@ -1,3 +1,9 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 ion-list {
   height: 100%;
   display: flex;
@@ -21,4 +27,26 @@ ion-header,
 ion-toolbar {
   --box-shadow: none;
   box-shadow: none;
+}
+
+/* --- THE FIX --- */
+
+.field-row {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 12px;
+  width: 80%;
+}
+
+.freshi-input {
+  --border-radius: 16px;
+  --border: var(--app-bordercolor);
+  --border-width: 2px;
+  --highlight-color-focused: #4392f1;
+
+  /* Real CSS border-radius on the host element */
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }

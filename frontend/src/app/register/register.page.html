@@ -1,71 +1,61 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <div class="registrationheader">
-      <ion-title> Sign up for Freshi! </ion-title>
+      <ion-title>Sign up for Freshi!</ion-title>
       <h1>Create an account to make the most of your food!</h1>
     </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <form [formGroup]="registration">
-    <ion-list>
-      <ion-item lines="none">
-        <ion-input
-          type="email"
-          id="email"
-          [formControl]="registration.controls.email"
-          label="Email"
-          labelPlacement="stacked"
-          fill="outline"
-          placeholder="Enter email"
-          style="
-            --border-radius: 16px;
-            --border: var (--app-bordercolor);
-            --highlight-color-focused: #4392f1;
-          "
-        ></ion-input>
-        @if (registration.value.email) { Value: {{ registration.value.email}} }
-      </ion-item>
-      <ion-item lines="none">
-        <ion-input
-          type="password"
-          label="Password"
-          [formControl]="registration.controls.passwordsGroup.controls.password"
-          labelPlacement="stacked"
-          fill="outline"
-          placeholder="Enter password"
-          style="
-            --border-radius: 16px;
-            --border: var (--app-bordercolor);
-            --highlight-color-focused: #4392f1;
-          "
-        ></ion-input>
-      </ion-item>
-      @if (registration.value.passwordsGroup?.password) { Value: {{
-      registration.value.passwordsGroup?.password}} }
-      <ion-item lines="none">
-        <ion-input
-          type="password"
-          label="Confirm Password"
-          [formControl]="registration.controls.passwordsGroup.controls.pconfirm"
-          labelPlacement="stacked"
-          fill="outline"
-          placeholder="Confirm password"
-          style="
-            --border-radius: 16px;
-            --border: var (--app-bordercolor);
-            --highlight-color-focused: #4392f1;
-          "
-        ></ion-input>
-      </ion-item>
-      @if (registration.value.passwordsGroup?.pconfirm) { Value: {{
-      registration.value.passwordsGroup?.pconfirm}} }
-      <ion-button
-        (click)="submitRegistration()"
-        [disabled]="registration.invalid"
-        >Submit</ion-button
-      >
-    </ion-list>
-  </form>
-</ion-content>
+<form [formGroup]="registration">
+  <ion-list>
+    <ion-item lines="none" class="field-row">
+      <ion-input
+        class="freshi-input"
+        type="email"
+        id="email"
+        [formControl]="registration.controls.email"
+        label="Email"
+        labelPlacement="stacked"
+        fill="outline"
+        placeholder="Enter email"
+      ></ion-input>
+      @if (registration.value.email) { Value: {{ registration.value.email }} }
+    </ion-item>
+
+    <ion-item lines="none" class="field-row">
+      <ion-input
+        class="freshi-input"
+        type="password"
+        label="Password"
+        [formControl]="registration.controls.passwordsGroup.controls.password"
+        labelPlacement="stacked"
+        fill="outline"
+        placeholder="Enter password"
+      ></ion-input>
+    </ion-item>
+    @if (registration.value.passwordsGroup?.password) { Value: {{
+    registration.value.passwordsGroup?.password }} }
+
+    <ion-item lines="none" class="field-row">
+      <ion-input
+        class="freshi-input"
+        type="password"
+        label="Confirm Password"
+        [formControl]="registration.controls.passwordsGroup.controls.pconfirm"
+        labelPlacement="stacked"
+        fill="outline"
+        placeholder="Confirm password"
+      ></ion-input>
+    </ion-item>
+    @if (registration.value.passwordsGroup?.pconfirm) { Value: {{
+    registration.value.passwordsGroup?.pconfirm }} }
+
+    <ion-button
+      (click)="submitRegistration()"
+      [disabled]="registration.invalid"
+    >
+      Submit
+    </ion-button>
+  </ion-list>
+</form>
