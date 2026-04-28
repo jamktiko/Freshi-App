@@ -2,7 +2,7 @@ name: Backend CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
     paths:
       - 'backend/**'
       - '.github/workflows/backend-cd.yml'
@@ -12,52 +12,59 @@ jobs:
   deploy:
     name: Deploy to AWS Elastic Beanstalk
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js 24
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        
-    - name: Install Dependencies
-      working-directory: ./backend
-      run: npm ci
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Sanity Check - Verify All Imports Resolve
-      working-directory: ./backend
-      run: |
-        node --input-type=module -e "
-          await import('./routes/health.routes.js');
-          await import('./routes/items.routes.js');
-          await import('./routes/upload.routes.js');
-          await import('./routes/ai.routes.js');
-          await import('./services/dynamo.service.js');
-          await import('./services/s3.service.js');
-          await import('./services/ai-extraction.service.js');
-          console.log('✅ All imports resolved successfully');
-          process.exit(0);
-        "
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
-    - name: Run Unit Tests (Mocked)
-      working-directory: ./backend
-      run: npm test
-        
-    - name: Create Deployment Package
-      working-directory: ./backend
-      run: |
-        zip -r deploy.zip . -x "node_modules/*" "*.git*" "tests/*"
-        
-    - name: Deploy to Elastic Beanstalk
-      uses: einaregilsson/beanstalk-deploy@v21
-      with:
-        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: FoodAppBackend
-        environment_name: FoodAppEnv
-        version_label: "github-action-${{ github.sha }}"
-        region: eu-central-1
-        deployment_package: backend/deploy.zip
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm ci || npm install
 
+      - name: Sanity Check - Verify All Imports Resolve
+        working-directory: ./backend
+        env:
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+        run: |
+          node --input-type=module -e "
+            await import('./routes/health.routes.js');
+            await import('./routes/items.routes.js');
+            await import('./routes/upload.routes.js');
+            await import('./routes/ai.routes.js');
+            await import('./services/dynamo.service.js');
+            await import('./services/s3.service.js');
+            await import('./services/ai-extraction.service.js');
+            console.log('✅ All imports resolved successfully');
+            process.exit(0);
+          "
+
+      - name: Run Unit Tests (Mocked)
+        working-directory: ./backend
+        env:
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+        run: npm test
+
+      - name: Create Deployment Package
+        working-directory: ./backend
+        run: |
+          zip -r deploy.zip . -x "node_modules/*" "*.git*" "tests/*"
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: FoodAppBackend
+          environment_name: FoodAppEnv
+          version_label: 'github-action-${{ github.sha }}'
+          region: eu-central-1
+          deployment_package: backend/deploy.zip
