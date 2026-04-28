@@ -2,44 +2,51 @@ name: Backend CI Pipeline
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: ['main', 'dev']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   test:
     name: Run Tests & Checks
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js 24
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        
-    - name: Install Dependencies
-      working-directory: ./backend
-      run: npm ci
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Sanity Check - Verify All Imports Resolve
-      working-directory: ./backend
-      run: |
-        node --input-type=module -e "
-          await import('./routes/health.routes.js');
-          await import('./routes/items.routes.js');
-          await import('./routes/upload.routes.js');
-          await import('./routes/ai.routes.js');
-          await import('./services/dynamo.service.js');
-          await import('./services/s3.service.js');
-          await import('./services/ai-extraction.service.js');
-          console.log('✅ All imports resolved successfully');
-          process.exit(0);
-        "
-        
-    - name: Run Unit Tests (Mocked)
-      working-directory: ./backend
-      run: npm test
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm ci || npm install
+
+      - name: Sanity Check - Verify All Imports Resolve
+        working-directory: ./backend
+        env:
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+        run: |
+          node --input-type=module -e "
+            await import('./routes/health.routes.js');
+            await import('./routes/items.routes.js');
+            await import('./routes/upload.routes.js');
+            await import('./routes/ai.routes.js');
+            await import('./services/dynamo.service.js');
+            await import('./services/s3.service.js');
+            await import('./services/ai-extraction.service.js');
+            console.log('✅ All imports resolved successfully');
+            process.exit(0);
+          "
+
+      - name: Run Unit Tests (Mocked)
+        working-directory: ./backend
+        env:
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+        run: npm test

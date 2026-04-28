@@ -32,12 +32,13 @@ import { passwordMatchValidator } from '../passwordValidation';
     IonToolbar,
     IonTitle,
     IonContent,
-    ExploreContainerComponent,
     ReactiveFormsModule,
   ],
 })
 export class RegisterPage {
   cognito = inject(Cognito);
+
+  // Registration form initialization
   registration = new FormGroup(
     {
       email: new FormControl('', [Validators.email, Validators.required]),
@@ -54,6 +55,7 @@ export class RegisterPage {
 
   constructor() {}
 
+  // Registering user base on registration form input
   submitRegistration() {
     if (
       typeof this.registration.value.email === 'string' &&

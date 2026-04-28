@@ -1,0 +1,50 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <div class="homeheader">
+      <ion-title>Freshi</ion-title>
+      <h1>Save your cash, skip the trash!</h1>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="summary-card-list">
+    <app-summary-card
+      class="Fresh"
+      icon="checkmark-circle-outline"
+      amount="5"
+      freshness="Fresh"
+    ></app-summary-card>
+    <app-summary-card
+      class="expiring"
+      icon="time-outline"
+      amount="2"
+      freshness="Expiring"
+    ></app-summary-card>
+    <app-summary-card
+      class="expired"
+      icon="alert-circle-outline"
+      amount="1"
+      freshness="Expired"
+    ></app-summary-card>
+  </div>
+  <ion-searchbar
+    class="searchbar"
+    placeholder="Search products"
+  ></ion-searchbar>
+
+  <div class="product-list">
+    <div class="product-list-header">
+      <h3>
+        <b>Your items</b>
+        <span class="product-list-subtitle">
+          {{productList().length}} items</span
+        >
+      </h3>
+      <ion-button class="filtersbutton">Filters</ion-button>
+    </div>
+    @for (product of productList(); track product.ItemId) {
+    <app-product-card [product]="product"></app-product-card>
+    }
+  </div>
+</ion-content>

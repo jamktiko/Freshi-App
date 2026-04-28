@@ -1,3 +1,5 @@
+/// AWS Cognito authentication and authorization service
+
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environment/environment.prod';
 import { Amplify } from 'aws-amplify';
@@ -17,6 +19,7 @@ import { sessionStorage } from 'aws-amplify/utils';
 })
 export class Cognito {
   constructor() {
+    // Confiruring AWS Amplify to work with AWS cognito
     Amplify.configure({
       Auth: {
         Cognito: {
@@ -34,6 +37,7 @@ export class Cognito {
     });
   }
 
+  // User registration function using email and password
   async registerUser(user: IUser) {
     try {
       const { isSignUpComplete, userId, nextStep } = await signUp(user);
@@ -44,6 +48,8 @@ export class Cognito {
       return { success: false };
     }
   }
+
+  // User registration confirmation with email code
   async confirmUser(email: string, code: string) {
     try {
       const { isSignUpComplete, nextStep } = await confirmSignUp({
@@ -54,6 +60,8 @@ export class Cognito {
       alert(error);
     }
   }
+
+  // User login with email and password
   async loginUser(email: string, password: string) {
     try {
       const { nextStep } = await signIn({
@@ -65,6 +73,8 @@ export class Cognito {
       alert(error);
     }
   }
+
+  // User logout
   async logoutUser() {
     try {
       signOut();
@@ -72,6 +82,7 @@ export class Cognito {
       alert(error);
     }
   }
+  // Get user tokens
   async getTokens() {
     try {
       const session = await fetchAuthSession();
@@ -85,6 +96,8 @@ export class Cognito {
       return { idToken: 'error', accessToken: 'error' };
     }
   }
+
+  // Get user info
   async getUser() {
     try {
       const { username, userId, signInDetails } = await getCurrentUser();

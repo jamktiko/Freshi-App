@@ -1,0 +1,74 @@
+.summary-card-list {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.product-list-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+}
+
+.product-list-subtitle {
+  font-size: var(--app-h1-size);
+  color: var(--app-h1text);
+  margin-left: 0.5rem;
+}
+
+.homeheader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  text-align: left;
+}
+
+ion-header,
+ion-toolbar {
+  --box-shadow: none;
+  box-shadow: none;
+}
+
+ion-title {
+  text-align: left;
+  padding: 0;
+}
+
+.homeheader h1 {
+  margin: 4px 0 0 0; /* vähän tilaa mutta ei liikaa */
+}
+
+.Fresh {
+  border-radius: var(--app-borderradius);
+  background-color: var(--app-freshcolor);
+  box-shadow: var(--app-boxshadow);
+}
+
+.expiring {
+  border-radius: var(--app-borderradius);
+  background-color: var(--app-expiringcolor);
+  box-shadow: var(--app-boxshadow);
+}
+.expired {
+  border-radius: var(--app-borderradius);
+  background-color: var(--app-expiredcolor);
+  box-shadow: var(--app-boxshadow);
+}
+.searchbar {
+  --background: var(--background);
+  --color: var(--maintext);
+  --placeholder-color: var(--maintext);
+  --icon-color: var(--maintext);
+  --border-radius: 12px;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

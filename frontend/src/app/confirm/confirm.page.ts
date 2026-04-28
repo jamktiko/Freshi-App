@@ -32,11 +32,12 @@ import { Cognito } from '../cognito';
     IonTitle,
     IonContent,
     ReactiveFormsModule,
-    ExploreContainerComponent,
   ],
 })
 export class ConfirmPage {
   cognito = inject(Cognito);
+
+  // User registration confirmation form.
   confirmation = new FormGroup({
     email: new FormControl('', [Validators.email, Validators.required]),
     code: new FormControl('', [Validators.required]),
@@ -44,6 +45,7 @@ export class ConfirmPage {
 
   constructor() {}
 
+  // Confirms user base on confirmation form details
   submitConfirmation() {
     if (
       typeof this.confirmation.value.email === 'string' &&

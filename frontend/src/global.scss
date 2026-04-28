@@ -44,7 +44,8 @@
 ion-button {
   --background: var(--app-calltoactionbutton);
   --color: var(--app-calltoactiontext);
-  margin: var(--app-spacing-md);
+  --margin: var(--app-spacing-md);
+  --border-radius: var(--app-borderradius);
 }
 
 ion-input {
@@ -62,4 +63,9 @@ ion-title {
 h1 {
   color: var(--app-h1text);
   font-size: var(--app-h1-size);
+}
+
+b {
+  font-size: var(--app-b-size);
+  color: var(--app-maintext);
 }
