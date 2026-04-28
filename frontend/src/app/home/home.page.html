@@ -47,4 +47,19 @@
     <app-product-card [product]="product"></app-product-card>
     }
   </div>
+  <ion-fab
+    id="add-product-modal"
+    slot="fixed"
+    vertical="bottom"
+    horizontal="center"
+  >
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-modal trigger="add-product-modal">
+    <ng-template>
+      <app-add-product></app-add-product>
+    </ng-template>
+  </ion-modal>
 </ion-content>
