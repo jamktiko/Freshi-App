@@ -38,7 +38,10 @@ import { getCurrentUser } from 'aws-amplify/auth';
 export class LoginPage {
   IDToken = signal('test');
   AccessToken = signal('test');
+
   cognito = inject(Cognito);
+
+  // Form for logging in user
   login = new FormGroup({
     email: new FormControl('', [Validators.email, Validators.required]),
     password: new FormControl('', [Validators.required]),
@@ -46,6 +49,7 @@ export class LoginPage {
 
   constructor() {}
 
+  // Logs user in with login form
   submitLogin() {
     if (
       typeof this.login.value.email === 'string' &&
@@ -56,9 +60,13 @@ export class LoginPage {
       alert('Email or password is invalid!');
     }
   }
+
+  // Logs user out
   submitLogout() {
     this.cognito.logoutUser();
   }
+
+  // Get user tokens for testing
   async printTokens() {
     const tokens = await this.cognito.getTokens();
     this.AccessToken.set(tokens.accessToken.toString());

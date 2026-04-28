@@ -1,3 +1,4 @@
+/// Validator for password matching
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 export const passwordMatchValidator: ValidatorFn = (
