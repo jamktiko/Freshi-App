@@ -230,8 +230,8 @@ Resources:
       IntegrationMethod: ANY
       PayloadFormatVersion: '1.0'
       RequestParameters:
-        'append:header.x-user-id': '$context.authorizer.claims.sub'
-        'append:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
+        'overwrite:header.x-authenticated-user-id': '$context.authorizer.jwt.claims.sub'
+        'overwrite:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
 
   HttpApiRoute:
     Type: AWS::ApiGatewayV2::Route
