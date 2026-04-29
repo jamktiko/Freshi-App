@@ -12,7 +12,7 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Properties:
       Name: freshi/firebase-service-account
-      Description: "Firebase service account JSON for FCM"
+      Description: 'Firebase service account JSON for FCM'
       SecretString: '{"type":"service_account","project_id":"update-this-in-console"}'
 
   NotificationLambdaRole:
@@ -56,7 +56,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: FreshiNotificationSender
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Role: !GetAtt NotificationLambdaRole.Arn
       Handler: index.handler
       Timeout: 30
@@ -79,12 +79,12 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Name: DailyFirebaseNotificationTrigger
-      Description: "Triggers the notification Lambda daily at 9 AM Helsinki time (6 AM UTC)"
-      ScheduleExpression: "cron(0 6 * * ? *)"
+      Description: 'Triggers the notification Lambda daily at 9 AM Helsinki time (6 AM UTC)'
+      ScheduleExpression: 'cron(0 6 * * ? *)'
       State: ENABLED
       Targets:
         - Arn: !GetAtt NotificationLambda.Arn
-          Id: "TargetFunctionV1"
+          Id: 'TargetFunctionV1'
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
