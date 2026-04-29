@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAuth } from '../middleware/authMiddleware.js'; // Uncomment this line to enable authentication for item routes
+import { requireAuth } from '../middleware/auth.middleware.js'; // Uncomment this line to enable authentication for item routes
 
 import {
 getDevicesForUser, 
