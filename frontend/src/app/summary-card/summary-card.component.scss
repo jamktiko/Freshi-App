@@ -11,16 +11,18 @@
 
 .number {
   font-size: var(--app-b-size);
-  color: var(--app-maintext);
-  font-weight: 600;
+  color: #373737;
+  font-weight: 450;
 }
 
 .status {
-  font-size: medium;
+  font-size: var(--app-h2-size);
+  color: #373737;
   padding-bottom: 0.5rem;
 }
 
 .icon {
   font-size: var(--app-b-size);
+  color: #373737;
   padding-top: 0.5rem;
 }

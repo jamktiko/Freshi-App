@@ -1,7 +1,9 @@
 <ion-card class="itemcard">
   <ion-card-header>
-    <ion-card-title>{{ product()?.productName }}</ion-card-title>
-    <ion-card-subtitle
+    <ion-card-title class="cardtitle">{{
+      product()?.productName
+    }}</ion-card-title>
+    <ion-card-subtitle class="iteminfo"
       >{{ product()?.brand }} • {{ product()?.category }}</ion-card-subtitle
     >
   </ion-card-header>
@@ -18,7 +20,7 @@
           <span>{{ lifeLeft() }} days left</span>
         }
       </ion-chip>
-      <span>{{ expirationDate() }}</span>
+      <span class="expirationdate">{{ expirationDate() }}</span>
     </div>
   </ion-card-content>
 </ion-card>
