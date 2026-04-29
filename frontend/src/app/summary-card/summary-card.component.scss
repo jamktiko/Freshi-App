@@ -3,7 +3,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
-  background-color: grey;
-  width: 25%;
-  height: 10em;
+  background-color: rgb(143, 122, 122);
+  width: 30%;
+  max-height: 9rem;
+  min-height: 8rem;
+}
+
+.number {
+  font-size: var(--app-b-size);
+  color: var(--app-maintext);
+  font-weight: 600;
+}
+
+.status {
+  font-size: medium;
+  padding-bottom: 0.5rem;
+}
+
+.icon {
+  font-size: var(--app-b-size);
+  padding-top: 0.5rem;
 }
