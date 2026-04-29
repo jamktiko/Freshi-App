@@ -28,7 +28,7 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
     - **Amazon S3:** Secure bucket for storing food images uploaded by the Android app.
     - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration.
 4.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
-    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. It also securely fetches the Secrets Manager secret at deploy time and injects it as an `x-api-gateway-secret` header. Configured with throttling (20 req/s steady, 50 burst).
+    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. It securely handles **CORS (Cross-Origin Resource Sharing)** centrally, eliminating the need for backend CORS middleware. It also securely fetches the Secrets Manager secret at deploy time and injects it as an `x-api-gateway-secret` header. Configured with throttling (20 req/s steady, 50 burst).
     - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Deployed in the **Private Subnets** inside the custom VPC for maximum security. Configured as `LoadBalanced` using an Application Load Balancer in the Public Subnets. The backend receives the `API_GATEWAY_SECRET` environment variable directly from Secrets Manager using CloudFormation dynamic resolution.
     - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached to the EC2 instance role. This includes:
       - DynamoDB: Full CRUD on both the main table AND all Global Secondary Indexes (`TableArn/index/*`).
@@ -38,7 +38,7 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
     - **Environment Variables:** `DYNAMODB_TABLE`, `DEVICES_TABLE`, `S3_BUCKET`, `BEDROCK_REGION`, `BEDROCK_MODEL_ID`, `AWS_REGION`, `COGNITO_USER_POOL_ID`, and `COGNITO_REGION` are all injected automatically from cross-stack outputs.
 5.  **`aws/04-notifications.yaml` (Name: FoodAppNotificationStack)**
     - **Amazon EventBridge:** Cron rule to trigger push notifications every morning at 9 AM Helsinki time (6 AM UTC).
-    - **AWS Lambda (nodejs20.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
+    - **AWS Lambda (nodejs22.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
     - **AWS Secrets Manager:** Secure, encrypted vault holding the Firebase JSON private key (`freshi/firebase-service-account`). The placeholder value must be replaced via AWS Console with the real Firebase service account JSON.
 
 ### C. Node.js Backend Implementation
@@ -46,7 +46,7 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
 The backend team implemented the foundational backend codebase required for the API and Cloud integrations:
 
 1.  **`backend/app.js` (Core Server):**
-    - Express application with CORS, JSON parsing, and route handlers for health, items, uploads, and AI endpoints.
+    - Express application with JSON parsing, and route handlers for health, items, uploads, and AI endpoints (CORS is handled globally by AWS API Gateway).
     - Global error handler for unhandled exceptions.
 2.  **`backend/services/ai-extraction.service.js` (AI Service):**
     - Receives OCR text from the mobile app, sends it to Amazon Bedrock (Nova Lite) via the Converse API, and returns structured JSON (product name, brand, expiration date, confidence).
