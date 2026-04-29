@@ -1,5 +1,5 @@
 import express from 'express';
-//import authMiddleware from '../middleware/authMiddleware.js'; // Uncomment this line to enable authentication for item routes
+import { requireAuth } from '../middleware/authMiddleware.js'; // Uncomment this line to enable authentication for item routes
 
 import {
 getDevicesForUser, 
@@ -10,6 +10,7 @@ refreshDevice
 from '../services/UserDevices.service.js';
 
 const router = express.Router();
+router.use(requireAuth); // Apply authentication middleware to all device routes
 
 /** 
  * Register / Update a device for a user
@@ -25,13 +26,7 @@ router.post(
 
     async (req, res) => {
         try {
-            const userId = req.user?.sub || "test-user"; // Use "test-user" if authentication is not set up yet
-            //authMiddleware, // Uncomment this line to enable authentication for item routes
-            if (!userId) {
-                return res.status(401).json({
-                     error: "Unauthorized" 
-                });
-            }
+            const userId = req.user.sub; // Use the authenticated user's ID
 
             const { deviceId, fcmToken, deviceType } = req.body;
             if (!deviceId || !fcmToken) {
@@ -39,17 +34,25 @@ router.post(
                     error: "Missing required fields" 
                 });
             }
+            //Basic validation to ensure deviceId and fcmToken are strings
+            if (typeof deviceId !== "string" || typeof fcmToken !== "string") {
+                return res.status(400).json({
+                    error: "deviceId and fcmToken must be strings"
+                });
+            }
+            //Save or update the device information in the database
             const device = await saveDevice({
                 userId, 
                 deviceId,
                 fcmToken,
                 deviceType
             });
-
+            //Return the saved device information in the response
             return res.json({
                 success: true,
                 data: device
             });
+            //Error handling
         }  catch (err) {
             console.error("Error saving device:", err);
 
@@ -68,7 +71,7 @@ router.get(
     "/",
     async (req, res) => {
         try {
-            const userId = req.user?.sub || "test-user"; // Use "test-user" if authentication is not set up yet through cognito/agw
+            const userId = req.user.sub; // Use the authenticated user's ID
             //devices for the user from the database
             const devices  = await getDevicesForUser(userId);
             return res.json({
@@ -93,7 +96,7 @@ router.delete(
     "/:deviceId",
     async (req, res) => {
         try {
-            const userId = req.user?.sub || "test-user";
+            const userId = req.user.sub; // Use the authenticated user's ID
             const { deviceId } = req.params;
 
             await deleteDevice(userId, deviceId);
@@ -119,7 +122,7 @@ router.put(
     "/:deviceId/refresh",
     async (req, res) => {
         try {
-            const userId = req.user?.sub || "test-user";
+            const userId = req.user.sub; // Use the authenticated user's ID
             const { deviceId } = req.params;
 
             // Refresh the device's last active time and TTL in the database

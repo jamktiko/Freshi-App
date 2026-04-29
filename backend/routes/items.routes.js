@@ -1,5 +1,5 @@
 import express from "express";
-//import { authMiddleware } from "../middleware/auth.middleware.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 import { 
   createItem,
@@ -11,6 +11,8 @@ import {
 
 const router = express.Router();
 
+router.use(requireAuth); // Apply authentication middleware to all item routes
+
 /**
  * Helper for getting userid
  * During development, we return a default test user
@@ -18,7 +20,7 @@ const router = express.Router();
 */
 
 function getUserId(req) {
-  return req.user?.sub || "test-user"; // Use "test-user" if authentication is not set up yet
+  return req.user.sub; // requireAuth middleware will populate req.user with the decoded JWT token, which contains the user's sub (unique identifier)
 }
 
 //authMiddleware, // Uncomment this line to enable authentication for item routes
@@ -31,7 +33,6 @@ function getUserId(req) {
  */
 router.post(
   "/", 
-  //Authmiddleware, // Uncomment this line to enable authentication for item routes
   async (req, res) => {
   try {
     //Extract user ID from authentucation token
