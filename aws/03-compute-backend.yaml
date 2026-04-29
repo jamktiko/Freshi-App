@@ -189,6 +189,21 @@ Resources:
       Name: FoodAppApi
       Description: 'Secure HTTPS API Gateway proxying to Elastic Beanstalk'
       ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - x-api-key
+        MaxAge: 300
 
   CognitoAuthorizer:
     Type: AWS::ApiGatewayV2::Authorizer
@@ -201,7 +216,7 @@ Resources:
       JwtConfiguration:
         Audience:
           - Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolClientId'
-        Issuer: !Sub 
+        Issuer: !Sub
           - 'https://cognito-idp.${AWS::Region}.amazonaws.com/${PoolId}'
           - PoolId:
               Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolId'
@@ -215,8 +230,8 @@ Resources:
       IntegrationMethod: ANY
       PayloadFormatVersion: '1.0'
       RequestParameters:
-        "append:header.x-user-id": "$context.authorizer.claims.sub"
-        "append:header.x-api-gateway-secret": "{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}"
+        'append:header.x-user-id': '$context.authorizer.claims.sub'
+        'append:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
 
   HttpApiRoute:
     Type: AWS::ApiGatewayV2::Route

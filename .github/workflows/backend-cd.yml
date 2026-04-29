@@ -68,3 +68,24 @@ jobs:
           version_label: 'github-action-${{ github.sha }}'
           region: eu-central-1
           deployment_package: backend/deploy.zip
+
+      - name: Deploy Notification Lambda
+        working-directory: ./backend
+        run: |
+          # Create a separate package for Lambda
+          mkdir -p lambda_pkg
+          cp services/notification-lambda.js lambda_pkg/index.js
+          cp package.json lambda_pkg/
+          cp package-lock.json lambda_pkg/
+          cd lambda_pkg
+          npm ci --production --ignore-scripts
+          zip -r ../lambda_deploy.zip .
+          cd ..
+          aws lambda update-function-code \
+            --function-name FreshiNotificationSender \
+            --zip-file fileb://lambda_deploy.zip \
+            --region eu-central-1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-central-1
