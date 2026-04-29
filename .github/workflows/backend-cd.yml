@@ -68,6 +68,7 @@ jobs:
           version_label: 'github-action-${{ github.sha }}'
           region: eu-central-1
           deployment_package: backend/deploy.zip
+          use_existing_version_if_available: true
 
       - name: Deploy Notification Lambda
         working-directory: ./backend
