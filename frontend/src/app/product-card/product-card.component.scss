@@ -10,3 +10,8 @@ ion-card {
   justify-content: space-evenly;
   align-items: flex-end;
 }
+
+.itemcard {
+  box-shadow: var(--app-boxshadow);
+  border-radius: var(--app-borderradius);
+}
