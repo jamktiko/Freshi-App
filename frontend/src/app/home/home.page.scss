@@ -1,8 +1,10 @@
 .summary-card-list {
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 .product-list-header {
   display: flex;
