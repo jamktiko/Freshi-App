@@ -226,7 +226,7 @@ Resources:
     Properties:
       ApiId: !Ref FoodAppHttpApi
       IntegrationType: HTTP_PROXY
-      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}'
+      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/{proxy}'
       IntegrationMethod: ANY
       PayloadFormatVersion: '1.0'
       RequestParameters:
