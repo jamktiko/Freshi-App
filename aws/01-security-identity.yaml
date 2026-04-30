@@ -46,10 +46,10 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Properties:
       Name: freshi/api-gateway-secret
-      Description: "Shared secret for API Gateway to authenticate with Beanstalk"
+      Description: 'Shared secret for API Gateway to authenticate with Beanstalk'
       GenerateSecretString:
         SecretStringTemplate: '{"secret": "changeme"}'
-        GenerateStringKey: "secret"
+        GenerateStringKey: 'secret'
         PasswordLength: 32
         ExcludePunctuation: true
 
@@ -58,19 +58,19 @@ Outputs:
     Description: The ID of the Cognito User Pool
     Value: !Ref UserPool
     Export:
-      Name: !Sub "${AWS::StackName}-UserPoolId"
+      Name: !Sub '${AWS::StackName}-UserPoolId'
   UserPoolClientId:
     Description: The ID of the Cognito User Pool Client
     Value: !Ref UserPoolClient
     Export:
-      Name: !Sub "${AWS::StackName}-UserPoolClientId"
+      Name: !Sub '${AWS::StackName}-UserPoolClientId'
   UserPoolArn:
     Description: The ARN of the Cognito User Pool
     Value: !GetAtt UserPool.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-UserPoolArn"
+      Name: !Sub '${AWS::StackName}-UserPoolArn'
   UserPoolDomainName:
     Description: The Cognito Hosted UI Domain Name
     Value: !Ref UserPoolDomain
     Export:
-      Name: !Sub "${AWS::StackName}-UserPoolDomainName"
+      Name: !Sub '${AWS::StackName}-UserPoolDomainName'

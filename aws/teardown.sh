@@ -41,14 +41,15 @@ aws cloudformation delete-stack --stack-name FoodAppDataStack --region $REGION
 aws cloudformation wait stack-delete-complete --stack-name FoodAppDataStack --region $REGION
 echo "✅ Data Stack Deleted."
 
-echo "[4/5] Deleting Security Identity Stack..."
+# echo "[4/5] Deleting Security Identity Stack..."
 # Force-delete the secret so it doesn't cause soft-delete conflicts on redeploys
-echo "Force-deleting API Gateway Secret..."
-aws secretsmanager delete-secret --secret-id freshi/api-gateway-secret --force-delete-without-recovery --region $REGION || true
-
-aws cloudformation delete-stack --stack-name FoodAppSecurityStack --region $REGION
-aws cloudformation wait stack-delete-complete --stack-name FoodAppSecurityStack --region $REGION
-echo "✅ Security Stack Deleted."
+# echo "Force-deleting API Gateway Secret..."
+# aws secretsmanager delete-secret --secret-id freshi/api-gateway-secret --force-delete-without-recovery --region $REGION || true
+# 
+# aws cloudformation delete-stack --stack-name FoodAppSecurityStack --region $REGION
+# aws cloudformation wait stack-delete-complete --stack-name FoodAppSecurityStack --region $REGION
+# echo "✅ Security Stack Deleted."
+echo "⚠️  [4/5] SKIPPED: Security Identity Stack (Preserved so User Pool, Client ID, and Developer Users remain static!)"
 
 echo "[5/5] Deleting Custom VPC Network Stack... (Takes a few minutes to detach NAT Gateway)"
 aws cloudformation delete-stack --stack-name FoodAppVpcStack --region $REGION
