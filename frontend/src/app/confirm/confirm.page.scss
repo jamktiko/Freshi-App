@@ -29,6 +29,10 @@ ion-toolbar {
   box-shadow: none;
 }
 
+ion-toolbar {
+  text-wrap: balance;
+}
+
 /* --- THE FIX --- */
 
 .field-row {
@@ -38,6 +42,13 @@ ion-toolbar {
   --inner-padding-end: 0;
   margin-bottom: 12px;
   width: 90%;
+}
+
+@media (min-width: 750px) {
+  .field-row {
+    width: 100%;
+    max-width: 420px;
+  }
 }
 
 .freshi-input {
