@@ -6,9 +6,19 @@
   justify-content: center;
 }
 
+.welcome {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  width: 80%;
+}
+
 .account {
   font-size: var(--app-h1-size);
   color: var(--app-h1text);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
 h1 {
@@ -16,6 +26,23 @@ h1 {
   color: var(--app-maintext);
   padding: 2rem;
   font-weight: 600;
+}
+
+@media (min-width: 500px) {
+  .welcome {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+.registrationbutton {
+  --border-radius: 16px;
+  --border: var(--app-bordercolor);
+  --highlight-color-focused: #4392f1;
+
+  /* Real CSS border-radius on the host element */
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .loginbutton {
@@ -27,4 +54,12 @@ h1 {
   --border-color: var(--app-calltoactionbutton);
   --border-width: 1px;
   --border-style: solid;
+
+  --border-radius: 16px;
+  --border: var(--app-bordercolor);
+  --highlight-color-focused: #4392f1;
+
+  /* Real CSS border-radius on the host element */
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
