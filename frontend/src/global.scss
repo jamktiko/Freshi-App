@@ -69,3 +69,10 @@ b {
   font-size: var(--app-b-size);
   color: var(--app-maintext);
 }
+
+p {
+  font-size: var(--app-title-size);
+  color: var(--app-maintext);
+  font-weight: 600;
+  margin: 0;
+}
