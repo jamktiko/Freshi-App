@@ -214,6 +214,8 @@ Resources:
       IdentitySource:
         - '$request.header.Authorization'
       JwtConfiguration:
+        Audience:
+          - Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolClientId'
         Issuer: !Sub
           - 'https://cognito-idp.${AWS::Region}.amazonaws.com/${PoolId}'
           - PoolId:
