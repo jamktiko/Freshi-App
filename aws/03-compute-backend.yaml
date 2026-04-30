@@ -228,6 +228,7 @@ Resources:
       IntegrationType: HTTP_PROXY
       IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}'
       IntegrationMethod: ANY
+      PayloadFormatVersion: '1.0'
       RequestParameters:
         'overwrite:header.x-user-id': '$context.authorizer.jwt.claims.sub'
         'overwrite:header.x-api-gateway-secret': "'{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'"
