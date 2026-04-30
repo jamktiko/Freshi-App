@@ -214,8 +214,6 @@ Resources:
       IdentitySource:
         - '$request.header.Authorization'
       JwtConfiguration:
-        Audience:
-          - Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolClientId'
         Issuer: !Sub
           - 'https://cognito-idp.${AWS::Region}.amazonaws.com/${PoolId}'
           - PoolId:
@@ -241,6 +239,44 @@ Resources:
       Target: !Join ['/', ['integrations', !Ref HttpApiIntegration]]
       AuthorizationType: JWT
       AuthorizerId: !Ref CognitoAuthorizer
+
+  PublicHttpApiIntegrationRoot:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/'
+      IntegrationMethod: GET
+      PayloadFormatVersion: '1.0'
+      RequestParameters:
+        'overwrite:header.x-api-gateway-secret': "'{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'"
+
+  PublicHttpApiIntegrationHealth:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/health'
+      IntegrationMethod: GET
+      PayloadFormatVersion: '1.0'
+      RequestParameters:
+        'overwrite:header.x-api-gateway-secret': "'{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'"
+
+  HttpApiRootRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      RouteKey: 'GET /'
+      Target: !Join ['/', ['integrations', !Ref PublicHttpApiIntegrationRoot]]
+      AuthorizationType: NONE
+
+  HttpApiHealthRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      RouteKey: 'GET /health'
+      Target: !Join ['/', ['integrations', !Ref PublicHttpApiIntegrationHealth]]
+      AuthorizationType: NONE
 
   HttpApiStage:
     Type: AWS::ApiGatewayV2::Stage
