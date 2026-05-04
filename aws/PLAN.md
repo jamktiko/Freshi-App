@@ -50,7 +50,7 @@ The backend team implemented the foundational backend codebase required for the 
     - Express application with JSON parsing, and route handlers for health, items, uploads, and AI endpoints (CORS is handled globally by AWS API Gateway).
     - Global error handler for unhandled exceptions.
 2.  **`backend/services/ai-extraction.service.js` (AI Service):**
-    - Receives OCR text from the mobile app, sends it to Amazon Bedrock (Nova Lite) via the Converse API, and returns structured JSON (product name, brand, expiration date, confidence).
+    - Receives OCR text from the mobile app, sends it to Amazon Bedrock (Nova 2 Lite) via the Converse API, and returns structured JSON (product name, brand, expiration date, confidence).
 3.  **`backend/services/dynamo.service.js` (Data Service):**
     - CRUD operations for DynamoDB using the AWS SDK v3 DocumentClient.
 4.  **`backend/services/s3.service.js` (Storage Service):**
@@ -77,8 +77,8 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
   - **Stubbed Backend Tests:** Using Jest `.skip()`, we mapped out exact authorization logic parameters against missing/invalid JWT tokens.
   - **Golden Path E2E Testing:** Playwright testing is reserved only for a single critical user journey (`e2e/user-journey.spec.ts`) encompassing Registration -> Sign In -> Scan Product -> View Summary. Smaller functionalities (like local storage wrapping and list filtering) are tested with lightweight Angular/Jasmine unit tests instead of heavy UI rendering DOM checks.
 
-- **Region Selection (Frankfurt `eu-central-1`):** We deploy to Frankfurt because it allows us to utilize the EU Cross-Region Inference Profile for Amazon Bedrock (`eu.amazon.nova-lite-v1:0`). Frankfurt guarantees sub-50ms latency to Finland, safely beating the 2-second SLA.
-- **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
+- **Region Selection (Frankfurt `eu-central-1`):** We deploy to Frankfurt because it allows us to utilize the EU Cross-Region Inference Profile for Amazon Bedrock (`eu.amazon.nova-2-lite-v1:0`). Frankfurt guarantees sub-50ms latency to Finland, safely beating the 2-second SLA.
+- **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova 2 Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
 - **Streamlined Data Model:** DynamoDB is strictly configured to save the AI-extracted fields alongside an `s3ImageKey`. This key permanently links the database record to the original **Picture** of the product stored in S3, which the mobile app can load instantly via CloudFront.
 - **Optimized Access Patterns (DynamoDB GSIs):** Since the Ionic mobile app caches all products locally on-device and handles all filtering/sorting client-side, we deliberately reduced the GSIs to only those required for **server-side operations**. This reduces write costs by 62.5% (every write replicates to base table + 2 GSIs instead of 7):
   - `LastUpdateIndex`: The sync engine. The app queries "give me everything changed since timestamp X" to update its local cache with only delta changes. Combined with the `IsDeleted` soft-delete boolean, this enables efficient incremental sync.
@@ -244,3 +244,7 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 | Backend routes & services         | 🟡 Scaffolded — needs auth re-enable, key schema fix, CRUD routes  | Backend dev  |
 | Frontend auth flow                | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
 | Frontend core features            | 🔴 Not started — item list, camera, OCR UI                         | Frontend dev |
+
+## 8. Security stack takedown
+
+aws cloudformation delete-stack --stack-name FoodAppSecurityStack
