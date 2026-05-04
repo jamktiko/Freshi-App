@@ -6,9 +6,11 @@ export const authGuard: CanActivateFn = async (route, state) => {
   const router = inject(Router);
 
   try {
+    // IF User is logged in, let in
     await getCurrentUser();
     return true;
   } catch (error) {
+    // IF User is NOT logged in, return to welcome page
     router.navigate(['/tabs/welcome']);
     return false;
   }
