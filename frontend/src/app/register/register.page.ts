@@ -19,6 +19,7 @@ import {
 import { Cognito } from '../cognito';
 import { passwordMatchValidator } from '../passwordValidation';
 import { Router } from '@angular/router';
+import { autoSignIn } from 'aws-amplify/auth';
 
 @Component({
   selector: 'app-register',
@@ -58,12 +59,14 @@ export class RegisterPage {
   constructor() {}
 
   // Registering user base on registration form input
-  submitRegistration() {
+  async submitRegistration() {
+    // Check if email and password are of type string
     if (
       typeof this.registration.value.email === 'string' &&
       typeof this.registration.value.passwordsGroup?.password === 'string'
     ) {
-      this.cognito.registerUser({
+      // Register credentials to aws cognito
+      const register = await this.cognito.registerUser({
         username: this.registration.value.email,
         password: this.registration.value.passwordsGroup.password,
         options: {
@@ -72,8 +75,35 @@ export class RegisterPage {
           },
         },
       });
-      this.cognito.registrationEmail = this.registration.value.email;
-      this.router.navigate(['/tabs/confirm']);
+      // If registration succeeded
+      if (register.success && register.nextStep?.signUpStep) {
+        // REMOVE THIS CONSOLE LOG LATER
+        console.log(
+          'Next registration step is: ' + register.nextStep.signUpStep,
+        );
+
+        this.cognito.registrationEmail = this.registration.value.email;
+
+        // Next step depends on what aws cognito returns upon registration
+        switch (register.nextStep.signUpStep) {
+          case 'CONFIRM_SIGN_UP':
+            this.router.navigate(['/tabs/confirm']);
+            break;
+          case 'DONE':
+            this.router.navigate(['/tabs/login']);
+            break;
+          case 'COMPLETE_AUTO_SIGN_IN':
+            try {
+              const { nextStep } = await autoSignIn();
+              if (nextStep.signInStep === 'DONE') {
+                this.router.navigate(['/tabs/home']);
+              }
+            } catch (error) {
+              alert(error);
+              this.router.navigate(['/tabs/login']);
+            }
+        }
+      }
     } else {
       alert('Email or password is invalid!');
     }

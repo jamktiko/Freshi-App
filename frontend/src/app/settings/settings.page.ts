@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -18,6 +18,8 @@ import {
   IonLabel,
   IonText,
 } from '@ionic/angular/standalone';
+import { Cognito } from '../cognito';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-settings',
@@ -45,6 +47,8 @@ import {
   ],
 })
 export class SettingsPage implements OnInit {
+  cognito = inject(Cognito);
+  router = inject(Router);
   paletteToggle = false;
   constructor() {}
 
@@ -57,5 +61,15 @@ export class SettingsPage implements OnInit {
   // Add or remove the "ion-palette-dark" class on the html element
   toggleDarkPalette(shouldAdd: boolean) {
     document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
+  }
+
+  // Log the user out
+  async logOut() {
+    try {
+      await this.cognito.logoutUser();
+      this.router.navigate(['/tabs/welcome']);
+    } catch (error) {
+      alert(error);
+    }
   }
 }

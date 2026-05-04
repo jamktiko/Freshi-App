@@ -57,8 +57,10 @@ export class Cognito {
         username: email,
         confirmationCode: code,
       });
+      return { success: true, isSignUpComplete, nextStep };
     } catch (error) {
       alert(error);
+      return { success: false };
     }
   }
 
@@ -70,8 +72,10 @@ export class Cognito {
         password: password,
       });
       cognitoUserPoolsTokenProvider.setKeyValueStorage(sessionStorage);
+      return { success: true, nextStep };
     } catch (error) {
       alert(error);
+      return { success: false };
     }
   }
 

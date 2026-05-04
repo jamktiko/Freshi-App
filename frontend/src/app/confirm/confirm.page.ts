@@ -17,6 +17,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Cognito } from '../cognito';
+import { Router } from '@angular/router';
+import { autoSignIn } from 'aws-amplify/auth';
 
 @Component({
   selector: 'app-Confirm',
@@ -35,6 +37,7 @@ import { Cognito } from '../cognito';
   ],
 })
 export class ConfirmPage {
+  router = inject(Router);
   cognito = inject(Cognito);
 
   // User registration confirmation form.
@@ -45,12 +48,38 @@ export class ConfirmPage {
   constructor() {}
 
   // Confirms user base on confirmation form details
-  submitConfirmation() {
+  async submitConfirmation() {
+    // Check if type of code is a string
     if (typeof this.confirmation.value.code === 'string') {
-      this.cognito.confirmUser(
+      // Confirm email with code to aws cognito
+      const confirmation = await this.cognito.confirmUser(
         this.cognito.registrationEmail,
         this.confirmation.value.code,
       );
+
+      // Get next step from aws cognito
+      if (confirmation.success && confirmation.nextStep) {
+        // REMOVE THIS CONSOLE LOG LATER
+        console.log(
+          'Next registration step is: ' + confirmation.nextStep.signUpStep,
+        );
+
+        switch (confirmation.nextStep.signUpStep) {
+          case 'DONE':
+            this.router.navigate(['/tabs/login']);
+            break;
+          case 'CONFIRM_SIGN_UP':
+            try {
+              const { nextStep } = await autoSignIn();
+              if (nextStep.signInStep === 'DONE') {
+                this.router.navigate(['/tabs/home']);
+              }
+            } catch (error) {
+              alert(error);
+              this.router.navigate(['/tabs/login']);
+            }
+        }
+      }
     } else {
       alert('Email or code is invalid!');
     }
