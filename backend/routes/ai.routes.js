@@ -60,7 +60,7 @@ router.post("/",  async (req, res) => {
       });
     }
 
-    // 🤖 Call AI service (Bedrock Nova Lite)
+    // 🤖 Call AI service (Bedrock Nova 2 Lite)
     const result = await analyzeText(rawText);
 
     // 📤 Return AI response to frontend

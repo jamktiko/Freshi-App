@@ -1,4 +1,4 @@
-// Import AWS Bedrock runtime client used to call foundation models (e.g. Nova Lite)
+// Import AWS Bedrock runtime client used to call foundation models (e.g. Nova 2 Lite)
 import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 
 // Create a Bedrock client instance configured with AWS region from environment variables
@@ -107,7 +107,7 @@ ${rawOcrText}
   // Send request to Amazon Bedrock model
   const res = await bedrock.send(
     new ConverseCommand({
-      modelId: process.env.BEDROCK_MODEL_ID, // AI model identifier (Nova Lite)
+      modelId: process.env.BEDROCK_MODEL_ID, // AI model identifier (Nova 2 Lite)
       messages: [
         {
           role: "user", // user role message sent to LLM
