@@ -8,7 +8,12 @@ export interface Iproduct {
   s3ImageKey: string;
   isDeleted: boolean;
 }
-
+export interface IaddProduct {
+  name: string;
+  brand: string;
+  category: string;
+  expiration: string;
+}
 export const mockProducts: Iproduct[] = [
   {
     ItemId: '1',

@@ -71,3 +71,6 @@ Thumbs.db
 
 # environment
 /src/environment
+
+# Ionic
+/android
