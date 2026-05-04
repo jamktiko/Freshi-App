@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -15,7 +15,7 @@ import {
   ModalController,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
-import { Iproduct, mockProducts } from '../product';
+import { Iproduct, mockProducts, IaddProduct } from '../product';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { AddProductComponent } from '../add-product/add-product.component';
 @Component({
@@ -41,6 +41,13 @@ import { AddProductComponent } from '../add-product/add-product.component';
 })
 export class HomePage implements OnInit {
   productList = signal<Iproduct[]>([...mockProducts]);
+  sortedList = computed<Iproduct[]>(() => {
+    return [...this.productList()].sort(
+      (a, b) =>
+        new Date(a.expirationDate).getTime() -
+        new Date(b.expirationDate).getTime(),
+    );
+  });
   number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
   constructor() {}
@@ -54,8 +61,24 @@ export class HomePage implements OnInit {
 
     const { data, role } = await modal.onWillDismiss();
 
+    // Saves added product
+    // CURRENTLY SAVES ONLY TO AN ARRAY
     if (role === 'confirm') {
-      // Add code to add product here!
+      try {
+        const newProduct: Iproduct = {
+          ItemId: crypto.randomUUID(),
+          productName: data.name,
+          brand: data.brand,
+          category: data.category,
+          expirationDate: data.expiration,
+          openedDate: '',
+          s3ImageKey: '',
+          isDeleted: false,
+        };
+        this.productList.update((oldList) => [...oldList, newProduct]);
+      } catch (error) {
+        alert('Error adding new product: ' + error);
+      }
     }
   }
 
