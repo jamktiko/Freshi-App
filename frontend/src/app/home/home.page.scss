@@ -64,7 +64,7 @@ ion-title {
   box-shadow: var(--app-boxshadow);
 }
 .searchbar {
-  --background: var(--background);
+  --background: var(--app-calltoactiontext);
   --color: var(--maintext);
   --placeholder-color: var(--maintext);
   --icon-color: var(--maintext);
@@ -88,5 +88,5 @@ ion-title {
 }
 
 .productcard {
-  background-color: var(--app-calltoactiontext);
+  background-color: var(--app-calltoactionbutton);
 }
