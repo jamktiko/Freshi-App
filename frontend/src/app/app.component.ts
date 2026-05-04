@@ -12,6 +12,7 @@ import {
   timeOutline,
   checkmarkCircleOutline,
   add,
+  arrowBack,
 } from 'ionicons/icons';
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ export class AppComponent {
       timeOutline,
       checkmarkCircleOutline,
       add,
+      arrowBack,
     });
   }
 }

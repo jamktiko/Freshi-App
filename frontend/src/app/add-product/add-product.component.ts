@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -7,6 +7,8 @@ import {
   IonTitle,
   IonButton,
   IonIcon,
+  IonModal,
+  ModalController,
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -21,15 +23,16 @@ import {
     IonButtons,
     IonHeader,
     IonToolbar,
+    IonModal,
   ],
 })
 export class AddProductComponent implements OnInit {
-  @ViewChild(IonModal) modal!: IonModal;
-
-  cancel() {
-    this.modal.dismiss(null, 'cancel');
-  }
+  name!: string;
+  private modalCtrl = inject(ModalController);
   constructor() {}
+  cancel() {
+    return this.modalCtrl.dismiss(null, 'cancel');
+  }
 
   ngOnInit() {}
 }

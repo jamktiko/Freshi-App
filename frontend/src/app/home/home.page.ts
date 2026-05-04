@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -12,6 +12,7 @@ import {
   IonIcon,
   IonFab,
   IonModal,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { Iproduct, mockProducts } from '../product';
@@ -23,7 +24,6 @@ import { AddProductComponent } from '../add-product/add-product.component';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
-    IonModal,
     IonFab,
     IonIcon,
     IonFabButton,
@@ -37,13 +37,27 @@ import { AddProductComponent } from '../add-product/add-product.component';
     FormsModule,
     SummaryCardComponent,
     ProductCardComponent,
-    AddProductComponent,
   ],
 })
 export class HomePage implements OnInit {
   productList = signal<Iproduct[]>([...mockProducts]);
   number1 = 1; // number for testing
+  private modalCtrl = inject(ModalController);
   constructor() {}
+
+  // Opens a modal with the add-product component
+  async addProductModal() {
+    const modal = await this.modalCtrl.create({
+      component: AddProductComponent,
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      // Add code to add product here!
+    }
+  }
 
   ngOnInit() {}
 }

@@ -53,13 +53,8 @@
     vertical="bottom"
     horizontal="center"
   >
-    <ion-fab-button>
+    <ion-fab-button (click)="addProductModal()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <ion-modal trigger="add-product-modal">
-    <ng-template>
-      <app-add-product></app-add-product>
-    </ng-template>
-  </ion-modal>
 </ion-content>
