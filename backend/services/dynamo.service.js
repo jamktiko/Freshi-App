@@ -31,7 +31,7 @@ export async function getItemsByUser(userId, lastKey = undefined) {
 
       // Only fetch items for this user partition
       KeyConditionExpression:
-       "UserId = :uid",
+       "userId = :uid",
 
        // Only return items that are not marked as deleted
       FilterExpression: "isDeleted = :false",
@@ -62,7 +62,7 @@ export async function createItem(item) {
     new PutCommand({
       TableName: process.env.DYNAMODB_TABLE,
       Item: item,
-      ConditionExpression: "attribute_not_exists(UserId) AND attribute_not_exists(ItemId)" // Ensure no item with same PK+SK exists (basic idempotency)
+      ConditionExpression: "attribute_not_exists(userId) AND attribute_not_exists(itemId)" // Ensure no item with same PK+SK exists (basic idempotency)
 
     })
   );
@@ -83,8 +83,8 @@ export async function updateItem(userId, itemId, updates) {
       TableName: process.env.DYNAMODB_TABLE,
 
       Key: {
-        UserId: userId,
-        ItemId: itemId
+        userId: userId,
+        itemId: itemId
       },
 
       /**
@@ -132,8 +132,8 @@ export async function deleteItem(userId, itemId) {
       TableName: process.env.DYNAMODB_TABLE,
 
       Key: {
-        UserId: userId,
-        ItemId: itemId
+        userId: userId,
+        itemId: itemId
       },
 
       UpdateExpression: `
@@ -165,7 +165,7 @@ export async function getUpdatedItems(userId, lastSyncTimestamp) {
       TableName: process.env.DYNAMODB_TABLE,
       IndexName: "LastUpdateIndex",
 
-      KeyConditionExpression: "UserId = :uid AND lastUpdate > :ls",
+      KeyConditionExpression: "userId = :uid AND lastUpdate > :ls",
 
       ExpressionAttributeValues: {
         ":uid": userId,
