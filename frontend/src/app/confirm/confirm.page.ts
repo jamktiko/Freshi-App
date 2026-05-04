@@ -9,7 +9,7 @@ import {
   IonItem,
   IonButton,
 } from '@ionic/angular/standalone';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+
 import {
   ReactiveFormsModule,
   FormControl,
@@ -31,8 +31,7 @@ import { autoSignIn } from 'aws-amplify/auth';
     IonList,
     IonHeader,
     IonToolbar,
-    IonTitle,
-    IonContent,
+
     ReactiveFormsModule,
   ],
 })
@@ -42,7 +41,11 @@ export class ConfirmPage {
 
   // User registration confirmation form.
   confirmation = new FormGroup({
-    code: new FormControl('', [Validators.required]),
+    code: new FormControl('', [
+      Validators.required,
+      Validators.minLength(6),
+      Validators.maxLength(6),
+    ]),
   });
 
   constructor() {}

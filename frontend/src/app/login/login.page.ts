@@ -9,7 +9,7 @@ import {
   IonInput,
   IonButton,
 } from '@ionic/angular/standalone';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+
 import { Cognito } from '../cognito';
 import {
   FormControl,
@@ -31,8 +31,7 @@ import { Router } from '@angular/router';
     IonInput,
     IonHeader,
     IonToolbar,
-    IonTitle,
-    IonContent,
+
     ReactiveFormsModule,
   ],
 })

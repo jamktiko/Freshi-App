@@ -9,7 +9,7 @@ import {
   IonInput,
   IonButton,
 } from '@ionic/angular/standalone';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+
 import {
   ReactiveFormsModule,
   FormControl,
@@ -32,8 +32,7 @@ import { autoSignIn } from 'aws-amplify/auth';
     IonItem,
     IonHeader,
     IonToolbar,
-    IonTitle,
-    IonContent,
+
     ReactiveFormsModule,
   ],
 })

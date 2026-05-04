@@ -21,6 +21,9 @@
   </ion-list>
   <ion-list-header>Account</ion-list-header>
   <ion-list>
+    <ion-item>
+      <ion-label> Username: {{user()}} </ion-label>
+    </ion-item>
     <ion-button expand="block" (click)="logOut()">Log out</ion-button>
   </ion-list>
 </ion-content>

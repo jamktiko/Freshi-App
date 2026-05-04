@@ -29,7 +29,7 @@ import { AddProductComponent } from '../add-product/add-product.component';
     IonIcon,
     IonFabButton,
     IonButton,
-    IonButtons,
+
     IonSearchbar,
     IonContent,
     IonHeader,
