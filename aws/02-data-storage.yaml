@@ -7,35 +7,35 @@ Resources:
     Properties:
       TableName: FoodItems
       AttributeDefinitions:
-        - AttributeName: UserId
+        - AttributeName: userId
           AttributeType: S
-        - AttributeName: ItemId
+        - AttributeName: itemId
           AttributeType: S
-        - AttributeName: ExpirationDate
+        - AttributeName: expirationDate
           AttributeType: S
-        - AttributeName: NotificationStatus
+        - AttributeName: notificationStatus
           AttributeType: S
-        - AttributeName: LastUpdate
+        - AttributeName: lastUpdate
           AttributeType: S
       KeySchema:
-        - AttributeName: UserId
+        - AttributeName: userId
           KeyType: HASH
-        - AttributeName: ItemId
+        - AttributeName: itemId
           KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: NotificationQueryIndex
           KeySchema:
-            - AttributeName: NotificationStatus
+            - AttributeName: notificationStatus
               KeyType: HASH
-            - AttributeName: ExpirationDate
+            - AttributeName: expirationDate
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
         - IndexName: LastUpdateIndex
           KeySchema:
-            - AttributeName: UserId
+            - AttributeName: userId
               KeyType: HASH
-            - AttributeName: LastUpdate
+            - AttributeName: lastUpdate
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
@@ -43,7 +43,7 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       TimeToLiveSpecification:
-        AttributeName: TTL  # Unix epoch (seconds). Set to expirationDate + 30 days by backend code.
+        AttributeName: ttl  # Unix epoch (seconds). Set to expirationDate + 30 days by backend code.
         Enabled: true
 
   UserDevicesTable:
@@ -51,20 +51,20 @@ Resources:
     Properties:
       TableName: UserDevices
       AttributeDefinitions:
-        - AttributeName: UserId
+        - AttributeName: userId
           AttributeType: S
-        - AttributeName: DeviceToken
+        - AttributeName: deviceToken
           AttributeType: S
       KeySchema:
-        - AttributeName: UserId
+        - AttributeName: userId
           KeyType: HASH
-        - AttributeName: DeviceToken
+        - AttributeName: deviceToken
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
       TimeToLiveSpecification:
-        AttributeName: TTL  # Unix epoch (seconds). Set to 90 days from last app open by backend code.
+        AttributeName: ttl  # Unix epoch (seconds). Set to 90 days from last app open by backend code.
         Enabled: true
 
   ImageBucket:
