@@ -79,14 +79,14 @@ Resources:
                       - - Fn::ImportValue: !Sub '${DataStackName}-S3BucketArn'
                         - '/*'
 
-              # Access to Amazon Bedrock (Nova Lite) — Converse API needs both actions
+              # Access to Amazon Bedrock (Nova 2 Lite) — Converse API needs both actions
               - Effect: Allow
                 Action:
                   - bedrock:InvokeModel
                   - bedrock:InvokeModelWithResponseStream
                 Resource:
-                  - 'arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0'
-                  - 'arn:aws:bedrock:*::foundation-model/eu.amazon.nova-lite-v1:0'
+                  - 'arn:aws:bedrock:*::foundation-model/amazon.nova-2-lite-v1:0'
+                  - 'arn:aws:bedrock:*::foundation-model/eu.amazon.nova-2-lite-v1:0'
               # Access to CloudWatch
               - Effect: Allow
                 Action:
@@ -161,7 +161,7 @@ Resources:
           Value: 'eu-central-1'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: BEDROCK_MODEL_ID
-          Value: 'eu.amazon.nova-lite-v1:0'
+          Value: 'eu.amazon.nova-2-lite-v1:0'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: AWS_REGION
           Value: !Ref 'AWS::Region'
