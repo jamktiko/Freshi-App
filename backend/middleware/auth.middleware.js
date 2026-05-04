@@ -51,6 +51,9 @@ export function authMiddleware(req, res, next) {
 export function requireAuth(req, res, next) {
   const userId = req.headers["x-user-id"];
 
+  console.log("x-user-id:", req.headers["x-user-id"]);
+  console.log("headers:", req.headers);
+
   if (!userId) {
     return res.status(401).json({
       error: "Unauthorized"
@@ -60,6 +63,21 @@ export function requireAuth(req, res, next) {
   req.user = {
     sub: userId
   };
+
+  next();
+}
+
+// Function to require API Gateway secret.
+// This helps ensure only requests coming through API Gateway are accepted.
+export function requireApiGatewaySecret(req, res, next) {
+  const secret = req.headers["x-api-gateway-secret"];
+
+  if (secret !== process.env.API_GATEWAY_SECRET) {
+    return res.status(403).json({
+      success: false,
+      error: "Forbidden"
+    });
+  }
 
   next();
 }
