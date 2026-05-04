@@ -73,4 +73,20 @@ ion-title {
   padding-bottom: 1.5rem;
   padding-left: 1rem;
   padding-right: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--ion-background-color);
+  padding-top: 2rem;
+}
+
+@media (min-width: 750px) {
+  .homepage {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+.productcard {
+  background-color: var(--app-calltoactiontext);
 }
