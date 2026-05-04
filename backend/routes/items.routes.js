@@ -114,6 +114,9 @@ router.post(
       TTL: ttl //ttl for automatic deletion after 30 days past expiration
     };
 
+    console.log("DYNAMODB_TABLE:", process.env.DYNAMODB_TABLE);
+    console.log("Saving item:", item);
+
     // Save the new item to DynamoDB
     const saved = await createItem(item);
 
@@ -123,8 +126,11 @@ router.post(
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Save failed" });
+    console.error("Save item error", err);
+    res.status(500).json({
+    error: "Save failed",
+    details: err.message
+   });
   }
 });
 
