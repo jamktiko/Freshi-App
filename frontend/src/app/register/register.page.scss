@@ -64,6 +64,7 @@ p {
   --border: var(--app-bordercolor);
   --border-width: 2px;
   --highlight-color-focused: #4392f1;
+  background-color: var(--app-calltoactiontext);
 
   /* Real CSS border-radius on the host element */
   border-radius: 16px;

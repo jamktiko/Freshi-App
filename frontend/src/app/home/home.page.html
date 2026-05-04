@@ -2,7 +2,7 @@
   <ion-header [translucent]="true">
     <ion-toolbar>
       <div class="homeheader">
-        <ion-title>Freshi</ion-title>
+        <ion-title> Freshi</ion-title>
         <h1>Save your cash, skip the trash!</h1>
       </div>
     </ion-toolbar>
@@ -41,7 +41,7 @@
         >
       </h3>
       <ion-button class="filtersbutton">Filters</ion-button>
-    </div class="productcard">
+    </div>
     @for (product of productList(); track product.ItemId) {
     <app-product-card [product]="product"></app-product-card>
     }

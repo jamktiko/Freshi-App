@@ -6,6 +6,7 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
+  IonButtons,
   IonSearchbar,
   IonButton,
 } from '@ionic/angular/standalone';
@@ -19,6 +20,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
   standalone: true,
   imports: [
     IonButton,
+    IonButtons,
     IonSearchbar,
     IonContent,
     IonHeader,

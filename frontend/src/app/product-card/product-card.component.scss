@@ -3,6 +3,7 @@ ion-card {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  background-color: var(--app-calltoactiontext);
 }
 .expiration-status {
   display: flex;
