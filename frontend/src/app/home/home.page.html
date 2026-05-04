@@ -41,10 +41,8 @@
         >
       </h3>
       <ion-button class="filtersbutton">Filters</ion-button>
-
-    </div class="productcard">
+    </div>
     @for (product of sortedList(); track product.ItemId) {
-
 
     <app-product-card [product]="product"></app-product-card>
     }
