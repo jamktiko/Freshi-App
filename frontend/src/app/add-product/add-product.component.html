@@ -1,0 +1,69 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Add item</ion-title>
+
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()"
+        ><ion-icon name="arrow-back"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <form [formGroup]="productForm">
+    <ion-list>
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          id="name"
+          [formControl]="productForm.controls.name"
+          label="Product Name"
+          labelPlacement="stacked"
+          fill="outline"
+          placeholder="e.g., Organic Strawberries"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          label="Brand"
+          [formControl]="productForm.controls.brand"
+          labelPlacement="stacked"
+          fill="outline"
+          placeholder="e.g., Fresh Farms"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          label="Category"
+          [formControl]="productForm.controls.category"
+          labelPlacement="stacked"
+          fill="outline"
+          placeholder="e.g., Fruit, Dairy"
+        ></ion-input>
+      </ion-item>
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          type="date"
+          label="Expiration date"
+          [formControl]="productForm.controls.expiration"
+          labelPlacement="stacked"
+          fill="outline"
+          placeholder="t"
+        ></ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        (click)="submitProduct()"
+        [disabled]="productForm.invalid"
+      >
+        Submit
+      </ion-button>
+    </ion-list>
+  </form>
+</ion-content>
