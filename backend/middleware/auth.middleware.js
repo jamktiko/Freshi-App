@@ -49,10 +49,27 @@ export function authMiddleware(req, res, next) {
 }
 */
 export function requireAuth(req, res, next) {
-  const userId = req.headers["x-user-id"];
+  // First, check if x-user-id is provided (useful for local manual testing)
+  let userId = req.headers["x-user-id"];
 
-  console.log("x-user-id:", req.headers["x-user-id"]);
-  console.log("headers:", req.headers);
+  // If not provided, extract the 'sub' directly from the Cognito ID token payload 
+  // (API Gateway has already validated the signature, so decoding the payload is safe)
+  if (!userId) {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
+      const token = authHeader.substring(7);
+      try {
+        const payloadBase64 = token.split(".")[1];
+        if (payloadBase64) {
+          const payloadJson = Buffer.from(payloadBase64, "base64").toString("utf-8");
+          const payload = JSON.parse(payloadJson);
+          userId = payload.sub;
+        }
+      } catch (err) {
+        console.error("Failed to decode token payload:", err);
+      }
+    }
+  }
 
   if (!userId) {
     return res.status(401).json({
