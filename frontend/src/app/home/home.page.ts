@@ -19,6 +19,8 @@ import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { Iproduct, mockProducts, IaddProduct } from '../product';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { AddProductComponent } from '../add-product/add-product.component';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -42,6 +44,7 @@ import { AddProductComponent } from '../add-product/add-product.component';
   ],
 })
 export class HomePage implements OnInit {
+  router = inject(Router);
   productList = signal<Iproduct[]>([...mockProducts]);
   sortedList = computed<Iproduct[]>(() => {
     return [...this.productList()].sort(

@@ -12,6 +12,7 @@ import {
 } from '@ionic/angular/standalone';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { Router } from '@angular/router';
+import { Cognito } from '../cognito';
 
 @Component({
   selector: 'app-welcome',
@@ -31,8 +32,15 @@ import { Router } from '@angular/router';
   ],
 })
 export class WelcomePage implements OnInit {
+  cognito = inject(Cognito);
   router = inject(Router);
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    // IF user is logged in, go to home
+    try {
+      getCurrentUser();
+      this.router.navigate(['/tabs/home']);
+    } catch (error) {}
+  }
 }

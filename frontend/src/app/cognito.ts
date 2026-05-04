@@ -71,7 +71,7 @@ export class Cognito {
         username: email,
         password: password,
       });
-      cognitoUserPoolsTokenProvider.setKeyValueStorage(sessionStorage);
+
       return { success: true, nextStep };
     } catch (error) {
       alert(error);
