@@ -94,22 +94,24 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 
 | Access Pattern (What the app needs to do)   | Index Used                      | Partition Key        | Sort Key (Sorting/Filtering)  |
 | :------------------------------------------ | :------------------------------ | :------------------- | :---------------------------- |
-| **Get all items for a user (initial sync)** | `Main Table`                    | `UserId`             | `ItemId`                      |
-| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `UserId`             | `LastUpdate` (> lastSyncTime) |
-| **Find items expiring soon (Lambda)**       | `NotificationQueryIndex`        | `NotificationStatus` | `ExpirationDate` (ASC)        |
+| **Get all items for a user (initial sync)** | `Main Table`                    | `userId`             | `itemId`                      |
+| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `userId`             | `lastUpdate` (> lastSyncTime) |
+| **Find items expiring soon (Lambda)**       | `NotificationQueryIndex`        | `notificationStatus` | `expirationDate` (ASC)        |
 | **Sort/filter by name, category, brand**    | _Client-side (on-device cache)_ | —                    | —                             |
 
 #### DynamoDB Key Schema — Backend Must Match
 
 The CloudFormation table defines these exact attribute names:
 
-| Attribute            | Type   | Usage                                                              |
-| :------------------- | :----- | :----------------------------------------------------------------- |
-| `UserId`             | String | Partition key (main table + LastUpdateIndex)                       |
-| `ItemId`             | String | Sort key (main table)                                              |
-| `ExpirationDate`     | String | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`            |
-| `NotificationStatus` | String | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
-| `LastUpdate`         | String | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
+| Attribute            | Type    | Usage                                                              |
+| :------------------- | :------ | :----------------------------------------------------------------- |
+| `userId`             | String  | Partition key (main table + LastUpdateIndex)                       |
+| `itemId`             | String  | Sort key (main table)                                              |
+| `expirationDate`     | String  | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`            |
+| `notificationStatus` | String  | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
+| `lastUpdate`         | String  | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
+| `isDeleted`          | Boolean | Soft delete flag used for client-side delta syncing                |
+| `ttl`                | Number  | Unix epoch (seconds) for automatic expiration cleanup              |
 
 > **⚠️ IMPORTANT:** Backend code MUST use these exact attribute names when writing to DynamoDB. Do NOT use `PK`/`SK` or any other naming convention — the GSIs depend on these specific names.
 
