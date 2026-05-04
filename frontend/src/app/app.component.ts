@@ -13,6 +13,7 @@ import {
   checkmarkCircleOutline,
   add,
   arrowBack,
+  settings,
 } from 'ionicons/icons';
 @Component({
   selector: 'app-root',
@@ -38,6 +39,7 @@ export class AppComponent {
       checkmarkCircleOutline,
       add,
       arrowBack,
+      settings,
     });
   }
 }

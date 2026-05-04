@@ -4,9 +4,16 @@ import express from "express";
 import { analyzeText } from "../services/ai-extraction.service.js";
 
 // 🔐 Cognito authentication middleware
-// import { authMiddleware } from "../middleware/auth.middleware.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
+
+router.use(requireAuth); // Apply authentication middleware to all AI routes
+
+
+function getUserId(req) {
+  return req.user.sub; // requireAuth middleware will populate req.user with the decoded JWT token, which contains the user's sub (unique identifier)
+}
 
 /**
  * 🤖 AI TEST ENDPOINT
@@ -26,6 +33,15 @@ const router = express.Router();
 //AuthMiddleware
 router.post("/",  async (req, res) => {
   try {
+    const userId = getUserId(req); // Extract user ID from authenticated token (populated by requireAuth middleware)
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+         error: "Unauthorized" 
+      });
+    }
+
     const { rawText } = req.body;
 
     // Validate input exists
@@ -44,7 +60,7 @@ router.post("/",  async (req, res) => {
       });
     }
 
-    // 🤖 Call AI service (Bedrock Nova Lite)
+    // 🤖 Call AI service (Bedrock Nova 2 Lite)
     const result = await analyzeText(rawText);
 
     // 📤 Return AI response to frontend

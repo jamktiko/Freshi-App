@@ -28,7 +28,8 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
     - **Amazon S3:** Secure bucket for storing food images uploaded by the Android app.
     - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration.
 4.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
-    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. It also securely fetches the Secrets Manager secret at deploy time and injects it as an `x-api-gateway-secret` header. Configured with throttling (20 req/s steady, 50 burst).
+    - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** (validating both ID Tokens and Access Tokens via Audience verification against the App Client ID) so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. It securely handles **CORS (Cross-Origin Resource Sharing)** centrally, eliminating the need for backend CORS middleware. It also securely fetches the Secrets Manager secret at deploy time and injects it as an `x-api-gateway-secret` header (with proper quoting for static values). Both headers use the `overwrite:header` mapping format (along with `$context.authorizer.jwt.claims.sub`) to prevent request spoofing. Configured with throttling (20 req/s steady, 50 burst). The integration securely proxies HTTP traffic directly to the backend load balancer over port 80.
+      - **Public Routes:** `GET /` and `GET /health` are explicitly allowed through the API Gateway without JWT authentication (`AuthorizationType: NONE`) so that uptime monitoring tools can reach them safely. All other wildcard routes (`ANY /{proxy+}`) remain permanently locked.
     - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Deployed in the **Private Subnets** inside the custom VPC for maximum security. Configured as `LoadBalanced` using an Application Load Balancer in the Public Subnets. The backend receives the `API_GATEWAY_SECRET` environment variable directly from Secrets Manager using CloudFormation dynamic resolution.
     - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached to the EC2 instance role. This includes:
       - DynamoDB: Full CRUD on both the main table AND all Global Secondary Indexes (`TableArn/index/*`).
@@ -38,7 +39,7 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
     - **Environment Variables:** `DYNAMODB_TABLE`, `DEVICES_TABLE`, `S3_BUCKET`, `BEDROCK_REGION`, `BEDROCK_MODEL_ID`, `AWS_REGION`, `COGNITO_USER_POOL_ID`, and `COGNITO_REGION` are all injected automatically from cross-stack outputs.
 5.  **`aws/04-notifications.yaml` (Name: FoodAppNotificationStack)**
     - **Amazon EventBridge:** Cron rule to trigger push notifications every morning at 9 AM Helsinki time (6 AM UTC).
-    - **AWS Lambda (nodejs20.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
+    - **AWS Lambda (nodejs22.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
     - **AWS Secrets Manager:** Secure, encrypted vault holding the Firebase JSON private key (`freshi/firebase-service-account`). The placeholder value must be replaced via AWS Console with the real Firebase service account JSON.
 
 ### C. Node.js Backend Implementation
@@ -46,10 +47,10 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
 The backend team implemented the foundational backend codebase required for the API and Cloud integrations:
 
 1.  **`backend/app.js` (Core Server):**
-    - Express application with CORS, JSON parsing, and route handlers for health, items, uploads, and AI endpoints.
+    - Express application with JSON parsing, and route handlers for health, items, uploads, and AI endpoints (CORS is handled globally by AWS API Gateway).
     - Global error handler for unhandled exceptions.
 2.  **`backend/services/ai-extraction.service.js` (AI Service):**
-    - Receives OCR text from the mobile app, sends it to Amazon Bedrock (Nova Lite) via the Converse API, and returns structured JSON (product name, brand, expiration date, confidence).
+    - Receives OCR text from the mobile app, sends it to Amazon Bedrock (Nova 2 Lite) via the Converse API, and returns structured JSON (product name, brand, expiration date, confidence).
 3.  **`backend/services/dynamo.service.js` (Data Service):**
     - CRUD operations for DynamoDB using the AWS SDK v3 DocumentClient.
 4.  **`backend/services/s3.service.js` (Storage Service):**
@@ -76,8 +77,8 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
   - **Stubbed Backend Tests:** Using Jest `.skip()`, we mapped out exact authorization logic parameters against missing/invalid JWT tokens.
   - **Golden Path E2E Testing:** Playwright testing is reserved only for a single critical user journey (`e2e/user-journey.spec.ts`) encompassing Registration -> Sign In -> Scan Product -> View Summary. Smaller functionalities (like local storage wrapping and list filtering) are tested with lightweight Angular/Jasmine unit tests instead of heavy UI rendering DOM checks.
 
-- **Region Selection (Frankfurt `eu-central-1`):** We deploy to Frankfurt because it allows us to utilize the EU Cross-Region Inference Profile for Amazon Bedrock (`eu.amazon.nova-lite-v1:0`). Frankfurt guarantees sub-50ms latency to Finland, safely beating the 2-second SLA.
-- **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
+- **Region Selection (Frankfurt `eu-central-1`):** We deploy to Frankfurt because it allows us to utilize the EU Cross-Region Inference Profile for Amazon Bedrock (`eu.amazon.nova-2-lite-v1:0`). Frankfurt guarantees sub-50ms latency to Finland, safely beating the 2-second SLA.
+- **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova 2 Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
 - **Streamlined Data Model:** DynamoDB is strictly configured to save the AI-extracted fields alongside an `s3ImageKey`. This key permanently links the database record to the original **Picture** of the product stored in S3, which the mobile app can load instantly via CloudFront.
 - **Optimized Access Patterns (DynamoDB GSIs):** Since the Ionic mobile app caches all products locally on-device and handles all filtering/sorting client-side, we deliberately reduced the GSIs to only those required for **server-side operations**. This reduces write costs by 62.5% (every write replicates to base table + 2 GSIs instead of 7):
   - `LastUpdateIndex`: The sync engine. The app queries "give me everything changed since timestamp X" to update its local cache with only delta changes. Combined with the `IsDeleted` soft-delete boolean, this enables efficient incremental sync.
@@ -93,22 +94,24 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 
 | Access Pattern (What the app needs to do)   | Index Used                      | Partition Key        | Sort Key (Sorting/Filtering)  |
 | :------------------------------------------ | :------------------------------ | :------------------- | :---------------------------- |
-| **Get all items for a user (initial sync)** | `Main Table`                    | `UserId`             | `ItemId`                      |
-| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `UserId`             | `LastUpdate` (> lastSyncTime) |
-| **Find items expiring soon (Lambda)**       | `NotificationQueryIndex`        | `NotificationStatus` | `ExpirationDate` (ASC)        |
+| **Get all items for a user (initial sync)** | `Main Table`                    | `userId`             | `itemId`                      |
+| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `userId`             | `lastUpdate` (> lastSyncTime) |
+| **Find items expiring soon (Lambda)**       | `NotificationQueryIndex`        | `notificationStatus` | `expirationDate` (ASC)        |
 | **Sort/filter by name, category, brand**    | _Client-side (on-device cache)_ | —                    | —                             |
 
 #### DynamoDB Key Schema — Backend Must Match
 
 The CloudFormation table defines these exact attribute names:
 
-| Attribute            | Type   | Usage                                                              |
-| :------------------- | :----- | :----------------------------------------------------------------- |
-| `UserId`             | String | Partition key (main table + LastUpdateIndex)                       |
-| `ItemId`             | String | Sort key (main table)                                              |
-| `ExpirationDate`     | String | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`            |
-| `NotificationStatus` | String | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
-| `LastUpdate`         | String | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
+| Attribute            | Type    | Usage                                                              |
+| :------------------- | :------ | :----------------------------------------------------------------- |
+| `userId`             | String  | Partition key (main table + LastUpdateIndex)                       |
+| `itemId`             | String  | Sort key (main table)                                              |
+| `expirationDate`     | String  | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`            |
+| `notificationStatus` | String  | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
+| `lastUpdate`         | String  | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
+| `isDeleted`          | Boolean | Soft delete flag used for client-side delta syncing                |
+| `ttl`                | Number  | Unix epoch (seconds) for automatic expiration cleanup              |
 
 > **⚠️ IMPORTANT:** Backend code MUST use these exact attribute names when writing to DynamoDB. Do NOT use `PK`/`SK` or any other naming convention — the GSIs depend on these specific names.
 
@@ -145,7 +148,8 @@ To destroy all resources and stop all AWS billing:
 1. Navigate to the `aws/` directory in your terminal.
 2. Make sure the script is executable: `chmod +x teardown.sh`
 3. Run: `./teardown.sh`
-4. _What it does:_ The script automatically locates your S3 bucket, safely deletes all uploaded images (AWS blocks bucket deletion if images exist), and then systematically deletes the four CloudFormation stacks in reverse dependency order.
+4. _What it does:_ The script automatically locates your S3 bucket, safely deletes all uploaded images (AWS blocks bucket deletion if images exist), and then systematically deletes the CloudFormation stacks.
+   - **Note on Security Stack:** The `teardown.sh` script is explicitly configured to _skip_ deleting the Security Identity stack (`FoodAppSecurityStack`). This solves the developer complaint around Cognito: by preserving the User Pool during teardowns, the **App Client ID and Developer Users remain 100% static**. Backend and frontend developers no longer need to recreate users or update `.env` variables every time the ephemeral infrastructure is destroyed to save costs overnight.
 
 > **Note:** DynamoDB tables have `DeletionPolicy: Retain` and will NOT be deleted by the teardown script. To permanently delete them, use the AWS Console or CLI manually. This is a safety measure to prevent accidental data loss.
 
@@ -240,3 +244,7 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 | Backend routes & services         | 🟡 Scaffolded — needs auth re-enable, key schema fix, CRUD routes  | Backend dev  |
 | Frontend auth flow                | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
 | Frontend core features            | 🔴 Not started — item list, camera, OCR UI                         | Frontend dev |
+
+## 8. Security stack takedown
+
+aws cloudformation delete-stack --stack-name FoodAppSecurityStack

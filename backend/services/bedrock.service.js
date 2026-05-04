@@ -19,7 +19,7 @@ export const analyzeOCRText = async (rawOcrText) => {
 
     try {
         const response = await bedrock.send(new ConverseCommand({
-            modelId: process.env.BEDROCK_MODEL_ID || "eu.amazon.nova-lite-v1:0",
+            modelId: process.env.BEDROCK_MODEL_ID || "eu.amazon.nova-2-lite-v1:0",
             messages: [{ role: "user", content: [{ text: promptText }] }]
         }));
         

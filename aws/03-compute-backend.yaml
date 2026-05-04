@@ -79,14 +79,14 @@ Resources:
                       - - Fn::ImportValue: !Sub '${DataStackName}-S3BucketArn'
                         - '/*'
 
-              # Access to Amazon Bedrock (Nova Lite) — Converse API needs both actions
+              # Access to Amazon Bedrock (Nova 2 Lite) — Converse API needs both actions
               - Effect: Allow
                 Action:
                   - bedrock:InvokeModel
                   - bedrock:InvokeModelWithResponseStream
                 Resource:
-                  - 'arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0'
-                  - 'arn:aws:bedrock:*::foundation-model/eu.amazon.nova-lite-v1:0'
+                  - 'arn:aws:bedrock:*::foundation-model/amazon.nova-2-lite-v1:0'
+                  - 'arn:aws:bedrock:*::foundation-model/eu.amazon.nova-2-lite-v1:0'
               # Access to CloudWatch
               - Effect: Allow
                 Action:
@@ -161,7 +161,7 @@ Resources:
           Value: 'eu-central-1'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: BEDROCK_MODEL_ID
-          Value: 'eu.amazon.nova-lite-v1:0'
+          Value: 'eu.amazon.nova-2-lite-v1:0'
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: AWS_REGION
           Value: !Ref 'AWS::Region'
@@ -189,6 +189,21 @@ Resources:
       Name: FoodAppApi
       Description: 'Secure HTTPS API Gateway proxying to Elastic Beanstalk'
       ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - x-api-key
+        MaxAge: 300
 
   CognitoAuthorizer:
     Type: AWS::ApiGatewayV2::Authorizer
@@ -201,7 +216,7 @@ Resources:
       JwtConfiguration:
         Audience:
           - Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolClientId'
-        Issuer: !Sub 
+        Issuer: !Sub
           - 'https://cognito-idp.${AWS::Region}.amazonaws.com/${PoolId}'
           - PoolId:
               Fn::ImportValue: !Sub '${SecurityStackName}-UserPoolId'
@@ -215,8 +230,8 @@ Resources:
       IntegrationMethod: ANY
       PayloadFormatVersion: '1.0'
       RequestParameters:
-        "append:header.x-user-id": "$context.authorizer.claims.sub"
-        "append:header.x-api-gateway-secret": "{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}"
+        'overwrite:header.x-user-id': '$context.authorizer.jwt.claims.sub'
+        'overwrite:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
 
   HttpApiRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -226,6 +241,44 @@ Resources:
       Target: !Join ['/', ['integrations', !Ref HttpApiIntegration]]
       AuthorizationType: JWT
       AuthorizerId: !Ref CognitoAuthorizer
+
+  PublicHttpApiIntegrationRoot:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/'
+      IntegrationMethod: GET
+      PayloadFormatVersion: '1.0'
+      RequestParameters:
+        'overwrite:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
+
+  PublicHttpApiIntegrationHealth:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Sub 'http://${FoodAppEnvironment.EndpointURL}/health'
+      IntegrationMethod: GET
+      PayloadFormatVersion: '1.0'
+      RequestParameters:
+        'overwrite:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
+
+  HttpApiRootRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      RouteKey: 'GET /'
+      Target: !Join ['/', ['integrations', !Ref PublicHttpApiIntegrationRoot]]
+      AuthorizationType: NONE
+
+  HttpApiHealthRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      RouteKey: 'GET /health'
+      Target: !Join ['/', ['integrations', !Ref PublicHttpApiIntegrationHealth]]
+      AuthorizationType: NONE
 
   HttpApiStage:
     Type: AWS::ApiGatewayV2::Stage

@@ -1,18 +1,25 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 ion-list {
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  padding: 0 16px;
 }
 
 .registrationheader {
   display: flex;
   align-items: center;
   flex-direction: column;
-  justify-items: center;
+  justify-content: center;
   padding: 2rem;
-  padding-top: 5rem;
   margin: 0 1rem;
   text-align: center;
 }
@@ -25,4 +32,40 @@ ion-toolbar {
 
 h1 {
   text-wrap: balance;
+}
+
+p {
+  font-size: var(--app-title-size);
+  color: var(--app-maintext);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* --- THE FIX --- */
+
+.field-row {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 12px;
+  width: 90%;
+}
+
+@media (min-width: 750px) {
+  .field-row {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+.freshi-input {
+  --border-radius: 16px;
+  --border: var(--app-bordercolor);
+  --border-width: 2px;
+  --highlight-color-focused: #4392f1;
+
+  /* Real CSS border-radius on the host element */
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }

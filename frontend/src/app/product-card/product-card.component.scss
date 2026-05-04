@@ -9,4 +9,22 @@ ion-card {
   flex-direction: column;
   justify-content: space-evenly;
   align-items: flex-end;
+  padding-top: 0.5rem;
+}
+
+.cardtitle {
+  font-size: var(--app-h1-size);
+}
+
+.iteminfo {
+  font-size: var(--app-h2-size);
+}
+
+.itemcard {
+  box-shadow: var(--app-boxshadow);
+  border-radius: var(--app-borderradius);
+}
+
+.expirationdate {
+  padding-right: 0.5rem;
 }

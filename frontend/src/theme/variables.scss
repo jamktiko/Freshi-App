@@ -21,17 +21,18 @@
   --app-calltoactiontext: #ffffff;
   --app-h1text: #6a7282;
   --app-bordercolor: #e5e7eb;
-  --app-freshcolor: #bfffd5;
-  --app-expiringcolor: #fee685;
-  --app-expiredcolor: #ffc9c9;
+  --app-freshcolor: #ade76b;
+  --app-expiringcolor: #ffe064;
+  --app-expiredcolor: #ffb5b5;
   --app-borderradius: 16px;
   /* Spacing */
-  --app-spacing-md: 2rem;
+  --app-spacing-md: 1rem;
 
   /*  Fonttikoot */
   --app-title-size: 2rem;
   --app-h1-size: 1.15rem;
+  --app-h2-size: 0.9rem;
   --app-b-size: 1.6rem;
 
-  --app-boxshadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --app-boxshadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }

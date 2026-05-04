@@ -1,13 +1,12 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <div class="homeheader">
-      <ion-title>Freshi</ion-title>
-      <h1>Save your cash, skip the trash!</h1>
-    </div>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
+<ion-content class="homepage">
+  <ion-header [translucent]="true">
+    <ion-toolbar>
+      <div class="homeheader">
+        <ion-title>Freshi</ion-title>
+        <h1>Save your cash, skip the trash!</h1>
+      </div>
+    </ion-toolbar>
+  </ion-header>
   <div class="summary-card-list">
     <app-summary-card
       class="Fresh"
@@ -42,8 +41,11 @@
         >
       </h3>
       <ion-button class="filtersbutton">Filters</ion-button>
-    </div>
+
+    </div class="productcard">
     @for (product of sortedList(); track product.ItemId) {
+
+
     <app-product-card [product]="product"></app-product-card>
     }
   </div>
