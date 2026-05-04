@@ -45,7 +45,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/tabs/register',
+    redirectTo: '/tabs/welcome',
     pathMatch: 'full',
   },
 ];

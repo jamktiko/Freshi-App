@@ -18,6 +18,7 @@ import {
 } from '@angular/forms';
 import { Cognito } from '../cognito';
 import { passwordMatchValidator } from '../passwordValidation';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -36,6 +37,7 @@ import { passwordMatchValidator } from '../passwordValidation';
   ],
 })
 export class RegisterPage {
+  router = inject(Router);
   cognito = inject(Cognito);
 
   // Registration form initialization
@@ -70,6 +72,8 @@ export class RegisterPage {
           },
         },
       });
+      this.cognito.registrationEmail = this.registration.value.email;
+      this.router.navigate(['/tabs/confirm']);
     } else {
       alert('Email or password is invalid!');
     }

@@ -39,7 +39,6 @@ export class ConfirmPage {
 
   // User registration confirmation form.
   confirmation = new FormGroup({
-    email: new FormControl('', [Validators.email, Validators.required]),
     code: new FormControl('', [Validators.required]),
   });
 
@@ -47,12 +46,9 @@ export class ConfirmPage {
 
   // Confirms user base on confirmation form details
   submitConfirmation() {
-    if (
-      typeof this.confirmation.value.email === 'string' &&
-      typeof this.confirmation.value.code === 'string'
-    ) {
+    if (typeof this.confirmation.value.code === 'string') {
       this.cognito.confirmUser(
-        this.confirmation.value.email,
+        this.cognito.registrationEmail,
         this.confirmation.value.code,
       );
     } else {
