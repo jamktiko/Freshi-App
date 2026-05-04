@@ -100,8 +100,8 @@ router.post(
      * Other attributes: imageKey, productName, brand, expirationDate, confidence, createdAt
      */
     const item = {
-      UserId: userId, // Partition Key for querying items by user
-      ItemId: itemId,
+      userId: userId, // Partition Key for querying items by user
+      itemId: itemId,
       S3imageKey, // S3 key for the uploaded image (if applicable)
       productName, // Required product name field from image recognition
       brand, // Optional brand field from image recognition
