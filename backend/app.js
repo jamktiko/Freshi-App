@@ -1,6 +1,7 @@
 //app.js - Main entry point for the FoodApp backend
 //Import express and cors modules, and route handlers for health, items, auth, and AI endpoints. Set up middleware for CORS and JSON parsing, define routes, and add a global error handler. Finally, start the server on the specified port.
 import express from "express";
+import { requireApiGatewaySecret } from "./middleware/auth.middleware.js";
 //import cors from "cors"; //Cors is handled by API Gateway in production, but we might need it for local development and testing
 
 import healthRoutes from "./routes/health.routes.js";
@@ -19,6 +20,15 @@ const app = express();
 
 //Json parses
 app.use(express.json());
+//Allow to use /health and default endpoint without API Gateway secret for easier health checks and testing. All other routes will require the secret for added security.
+app.use((req, res, next) => {
+  if (req.path === "/health" || req.path === "/") {
+    return next(); // skip secret check
+  }
+  // For all other routes, require the API Gateway secret to ensure only authorized requests are accepted
+  return requireApiGatewaySecret(req, res, next);
+});
+
 
 //debugging Api gateway 
 app.use((req, res, next) => {
