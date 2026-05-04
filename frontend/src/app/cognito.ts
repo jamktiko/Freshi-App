@@ -18,6 +18,7 @@ import { sessionStorage } from 'aws-amplify/utils';
   providedIn: 'root',
 })
 export class Cognito {
+  registrationEmail = '';
   constructor() {
     // Confiruring AWS Amplify to work with AWS cognito
     Amplify.configure({
