@@ -20,6 +20,14 @@ const app = express();
 //Json parses
 app.use(express.json());
 
+//debugging Api gateway 
+app.use((req, res, next) => {
+  console.log("METHOD:", req.method);
+  console.log("ORIGINAL URL:", req.originalUrl);
+  console.log("PATH:", req.path);
+  next();
+});
+
 // 🌐 ROUTES
 app.use("/health", healthRoutes);
 app.use("/items", itemsRoutes);
