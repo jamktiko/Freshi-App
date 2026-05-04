@@ -231,7 +231,7 @@ Resources:
       PayloadFormatVersion: '1.0'
       RequestParameters:
         'overwrite:header.x-user-id': '$context.authorizer.jwt.claims.sub'
-        'overwrite:header.x-api-gateway-secret': "'{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'"
+        'overwrite:header.x-api-gateway-secret': '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
 
   HttpApiRoute:
     Type: AWS::ApiGatewayV2::Route
