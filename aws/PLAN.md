@@ -79,7 +79,7 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
   - _Removed indexes:_ `NotificationQueryIndex` (notifications are now completely offline/local via Capacitor on the device), `ExpirationDateIndex`, `NameIndex`, `CategoryIndex`, `BrandIndex`, and `OpenedDateIndex` were removed because all sorting and filtering is performed client-side on the device's local cache. Keeping them would have been pure write cost waste.
 - **DynamoDB TTL (Auto-Cleanup):** The table uses DynamoDB's native Time-To-Live feature to automatically delete stale data at zero cost:
   - `FoodItems`: TTL is set to `expirationDate + 30 days` (Unix epoch seconds). Expired food items are automatically purged after a 30-day grace period, preventing infinite table growth.
-- **DeletionPolicy: Retain:** The DynamoDB table has `DeletionPolicy: Retain` so that a `cloudformation delete-stack` does not destroy user data.
+- **DeletionPolicy (Dev Mode):** The DynamoDB table currently does **not** have `DeletionPolicy: Retain` in the template to allow for clean teardowns during development. Running the teardown script **will** destroy the table and its data.
 - **API Gateway Throttling:** The HTTP API stage is configured with rate limiting (20 req/s, 50 burst) to prevent cost abuse from excessive Bedrock API calls.
 
 #### NoSQL Physical Diagram: Access Pattern Matrix
@@ -140,7 +140,7 @@ To destroy all resources and stop all AWS billing:
 4. _What it does:_ The script automatically locates your S3 bucket, safely deletes all uploaded images (AWS blocks bucket deletion if images exist), and then systematically deletes the CloudFormation stacks.
    - **Note on Security Stack:** The `teardown.sh` script is explicitly configured to _skip_ deleting the Security Identity stack (`FoodAppSecurityStack`). This solves the developer complaint around Cognito: by preserving the User Pool during teardowns, the **App Client ID and Developer Users remain 100% static**. Backend and frontend developers no longer need to recreate users or update `.env` variables every time the ephemeral infrastructure is destroyed to save costs overnight.
 
-> **Note:** DynamoDB tables have `DeletionPolicy: Retain` and will NOT be deleted by the teardown script. To permanently delete them, use the AWS Console or CLI manually. This is a safety measure to prevent accidental data loss.
+> **Note:** DynamoDB tables currently do NOT have `DeletionPolicy: Retain` in the CloudFormation template. The teardown script will delete the database and all its contents. Add `DeletionPolicy: Retain` to `02-data-storage.yaml` before moving to production to prevent accidental data loss.
 
 ## 5. CI/CD Pipeline & GitHub-AWS Integration
 
@@ -230,7 +230,7 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 | CloudFormation (4 stacks)         | ✅ Complete & validated                                            | Infra/DevOps |
 | CI/CD Pipelines (CI + CD)         | ✅ Complete                                                        | Infra/DevOps |
 | Testing Infrastructure & Strategy | ✅ Complete (Jest + Playwright configured)                         | Infra/DevOps |
-| Backend routes & services         | 🟡 Scaffolded — needs auth re-enable, key schema fix, CRUD routes  | Backend dev  |
+| Backend routes & services         | 🟢 In Progress — routes and services exist, under active development | Backend dev  |
 | Frontend auth flow                | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
 | Frontend core features            | 🔴 Not started — item list, camera, OCR UI                         | Frontend dev |
 
