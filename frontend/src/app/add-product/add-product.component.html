@@ -10,6 +10,14 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
+  <div class="image-frame">
+    @if (imagePath() === null) {
+      <ion-button (click)="takePhoto()">OTA KUVA!</ion-button>
+    } @else {
+      <ion-img [src]="imagePath()"></ion-img>
+    }
+  </div>
+
   <form [formGroup]="productForm">
     <ion-list>
       <ion-item lines="none" class="field-row">

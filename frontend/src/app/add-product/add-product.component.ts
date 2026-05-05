@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -17,14 +17,18 @@ import {
   IonInput,
   IonItem,
   IonContent,
+  IonImg,
 } from '@ionic/angular/standalone';
 import { Iproduct } from '../product';
+import { CameraService } from '../camera-service';
+import { signIn } from 'aws-amplify/auth';
 
 @Component({
   selector: 'app-add-product',
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.scss'],
   imports: [
+    IonImg,
     IonItem,
     IonInput,
     IonList,
@@ -39,6 +43,10 @@ import { Iproduct } from '../product';
   ],
 })
 export class AddProductComponent implements OnInit {
+  camera = inject(CameraService);
+
+  imagePath = signal<string | null>(null);
+
   name!: string;
   private modalCtrl = inject(ModalController);
 
@@ -57,6 +65,13 @@ export class AddProductComponent implements OnInit {
   submitProduct() {
     console.log(this.productForm.value);
     return this.modalCtrl.dismiss(this.productForm.value, 'confirm');
+  }
+
+  async takePhoto() {
+    const photo = await this.camera.takePhoto();
+    if (photo?.webPath) {
+      this.imagePath.set(photo?.webPath);
+    }
   }
 
   ngOnInit() {}
