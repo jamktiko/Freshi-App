@@ -1,0 +1,104 @@
+.ion-no-border {
+  padding-top: 1rem;
+}
+
+.back {
+  padding: 1rem;
+}
+
+.appearance {
+  background-color: #ffffff;
+  border-radius: var(--app-borderradius);
+  margin-bottom: 1rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  box-shadow: var(--app-boxshadow);
+  overflow: hidden;
+}
+
+.appearance ion-list-header {
+  background: #ffffff;
+  min-height: auto;
+  padding-left: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+  color: var(--app-maintext);
+  font-size: var(--app-h1-size);
+  font-weight: 500;
+}
+
+.appearance-list {
+  background: #ffffff;
+  --background: #ffffff;
+  margin: 0;
+  padding-left: 1rem;
+  padding-right: 2rem;
+}
+
+.appearance-item {
+  --background: #ffffff;
+  --inner-background: #ffffff;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.account {
+  background-color: #ffffff;
+  border-radius: var(--app-borderradius);
+  margin-left: 1rem;
+  margin-right: 1rem;
+  box-shadow: var(--app-boxshadow);
+  overflow: hidden;
+}
+
+.account ion-list-header {
+  background: #ffffff;
+  min-height: auto;
+  padding-left: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: var(--app-maintext);
+  font-size: var(--app-h1-size);
+  font-weight: 500;
+}
+
+.account-list {
+  background: #ffffff;
+  --background: #ffffff;
+  margin: 0;
+  padding-left: 1rem;
+  padding-right: 2rem;
+}
+
+.account-item {
+  --background: #ffffff;
+  --inner-background: #ffffff;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.toggle {
+  font-size: var(--app-p-size);
+  color: var(--app-maintext);
+}
+
+.username {
+  font-size: var(--app-p-size);
+  color: var(--app-maintext);
+  font-weight: 400;
+  margin: 0;
+  font-size: 16px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.user-value {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+}
