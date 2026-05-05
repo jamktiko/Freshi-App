@@ -1,29 +1,38 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button default-href="/tabs/home"></ion-back-button>
+      <ion-back-button class="back" default-href="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Display</ion-title>
+    <b>Settings</b>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list-header>Appearance</ion-list-header>
-  <ion-list [inset]="true">
-    <ion-item>
-      <ion-toggle
-        [(ngModel)]="paletteToggle"
-        (ionChange)="toggleChange($event)"
-        justify="space-between"
-        >Dark Mode</ion-toggle
-      >
-    </ion-item>
-  </ion-list>
-  <ion-list-header>Account</ion-list-header>
-  <ion-list>
-    <ion-item>
-      <ion-label> Username: {{user()}} </ion-label>
-    </ion-item>
-    <ion-button expand="block" (click)="logOut()">Log out</ion-button>
-  </ion-list>
+  <div class="appearance">
+    <ion-list-header>Appearance</ion-list-header>
+    <ion-list [inset]="true" class="appearance-list">
+      <ion-item class="appearance-item">
+        <ion-toggle
+          class="toggle"
+          [(ngModel)]="paletteToggle"
+          (ionChange)="toggleChange($event)"
+          justify="space-between"
+          >Dark Mode</ion-toggle
+        >
+      </ion-item>
+    </ion-list>
+  </div>
+  <div class="account">
+    <ion-list-header>Account</ion-list-header>
+
+    <ion-list class="account-list">
+      <ion-item class="account-item" lines="none">
+        <div class="user-info">
+          <h2 class="username">Username</h2>
+          <ion-label class="user-value"> {{user()}} </ion-label>
+        </div>
+      </ion-item>
+      <ion-button expand="block" (click)="logOut()">Log out</ion-button>
+    </ion-list>
+  </div>
 </ion-content>

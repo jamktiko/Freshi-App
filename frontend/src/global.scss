@@ -48,6 +48,10 @@ ion-button {
   --border-radius: var(--app-borderradius);
 }
 
+ion-fab-button {
+  --background: var(--app-calltoactionbutton);
+}
+
 ion-input {
   margin: var(--app-spacing-md);
 }
