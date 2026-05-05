@@ -27,8 +27,9 @@
         "
       ></ion-input>
     </ion-item>
-    @if (confirmation.value.code) { Value: {{ confirmation.value.code}} }
 
-    <ion-button (click)="submitConfirmation()">Submit</ion-button>
+    <ion-button [disabled]="confirmation.invalid" (click)="submitConfirmation()"
+      >Submit</ion-button
+    >
   </ion-list>
 </form>

@@ -4,15 +4,6 @@
       <ion-back-button default-href="/tabs/home"></ion-back-button>
     </ion-buttons>
     <ion-title>Display</ion-title>
-    <ion-buttons slot="end">
-      <ion-button color="dark">
-        <ion-icon
-          slot="icon-only"
-          ios="person-circle-outline"
-          md="person-circle"
-        ></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -27,5 +18,12 @@
         >Dark Mode</ion-toggle
       >
     </ion-item>
+  </ion-list>
+  <ion-list-header>Account</ion-list-header>
+  <ion-list>
+    <ion-item>
+      <ion-label> Username: {{user()}} </ion-label>
+    </ion-item>
+    <ion-button expand="block" (click)="logOut()">Log out</ion-button>
   </ion-list>
 </ion-content>

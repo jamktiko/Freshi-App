@@ -9,7 +9,7 @@ import {
   IonInput,
   IonButton,
 } from '@ionic/angular/standalone';
-import { ExploreContainerComponent } from '../explore-container/explore-container.component';
+
 import { Cognito } from '../cognito';
 import {
   FormControl,
@@ -18,6 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { getCurrentUser } from 'aws-amplify/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -30,8 +31,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
     IonInput,
     IonHeader,
     IonToolbar,
-    IonTitle,
-    IonContent,
+
     ReactiveFormsModule,
   ],
 })
@@ -39,6 +39,7 @@ export class LoginPage {
   IDToken = signal('test');
   AccessToken = signal('test');
 
+  router = inject(Router);
   cognito = inject(Cognito);
 
   // Form for logging in user
@@ -50,12 +51,21 @@ export class LoginPage {
   constructor() {}
 
   // Logs user in with login form
-  submitLogin() {
+  async submitLogin() {
     if (
       typeof this.login.value.email === 'string' &&
       typeof this.login.value.password === 'string'
     ) {
-      this.cognito.loginUser(this.login.value.email, this.login.value.password);
+      const login = await this.cognito.loginUser(
+        this.login.value.email,
+        this.login.value.password,
+      );
+      if (login.success && login.nextStep) {
+        switch (login.nextStep.signInStep) {
+          case 'DONE':
+            this.router.navigate(['/tabs/home']);
+        }
+      }
     } else {
       alert('Email or password is invalid!');
     }

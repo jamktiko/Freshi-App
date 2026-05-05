@@ -1,6 +1,6 @@
 /// AWS Cognito authentication and authorization service
 
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { environment } from 'src/environment/environment.prod';
 import { Amplify } from 'aws-amplify';
 import {
@@ -57,8 +57,10 @@ export class Cognito {
         username: email,
         confirmationCode: code,
       });
+      return { success: true, isSignUpComplete, nextStep };
     } catch (error) {
       alert(error);
+      return { success: false };
     }
   }
 
@@ -69,9 +71,11 @@ export class Cognito {
         username: email,
         password: password,
       });
-      cognitoUserPoolsTokenProvider.setKeyValueStorage(sessionStorage);
+
+      return { success: true, nextStep };
     } catch (error) {
       alert(error);
+      return { success: false };
     }
   }
 

@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { TabsPage } from './tabs.page';
+import { authGuard } from '../auth-guard';
+import { loggedInGuard } from '../logged-in-guard';
 
 export const routes: Routes = [
   {
@@ -25,6 +27,7 @@ export const routes: Routes = [
         path: 'home',
         loadComponent: () =>
           import('../home/home.page').then((m) => m.HomePage),
+        canActivate: [authGuard],
       },
       {
         path: 'welcome',
@@ -35,6 +38,7 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () =>
           import('../settings/settings.page').then((m) => m.SettingsPage),
+        canActivate: [authGuard],
       },
       {
         path: '',
