@@ -28,6 +28,7 @@
     ></app-summary-card>
   </div>
   <ion-searchbar
+    [(ngModel)]="productSearch"
     class="searchbar"
     placeholder="Search products"
   ></ion-searchbar>
@@ -42,7 +43,7 @@
       </h3>
       <ion-button class="filtersbutton">Filters</ion-button>
     </div>
-    @for (product of sortedList(); track product.ItemId) {
+    @for (product of productList(); track product.ItemId) {
 
     <app-product-card [product]="product"></app-product-card>
     }

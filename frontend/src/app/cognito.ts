@@ -112,8 +112,7 @@ export class Cognito {
         signInDetails: signInDetails,
       };
     } catch (error) {
-      alert(error);
-      return { error: 'Virhe' };
+      return false;
     }
   }
 }
