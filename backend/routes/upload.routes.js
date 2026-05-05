@@ -87,7 +87,9 @@ router.post(
       console.error(err);
 
       // Return generic error to client (avoid leaking internal details)
-      res.status(500).json({ error: "Upload failed" });
+      res.status(500).json({ error: "Upload failed",
+        details: err.message
+       });
     }
   }
 );
