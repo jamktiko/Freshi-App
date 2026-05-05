@@ -1,3 +1,4 @@
+/*
 import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 
 const bedrock = new BedrockRuntimeClient({ region: process.env.BEDROCK_REGION || "eu-central-1" });
@@ -32,3 +33,4 @@ export const analyzeOCRText = async (rawOcrText) => {
 };
 
 export { bedrock }; // Export client strictly for mocked testing purposes
+*/
