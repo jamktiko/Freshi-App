@@ -1,4 +1,4 @@
-// DynamoDB low-level client
+/* // DynamoDB low-level client
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 // DynamoDB DocumentClient for working with normal JS objects
@@ -12,18 +12,18 @@ import {
 
 /** 
  * Initialize DynamoDB client
- */
+ 
 const dynamoDBClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 /**
  * Wrap with DocumentClient for easier handling of JSON objects in DynamoDB operations
- */
+
 const docClient = DynamoDBDocumentClient.from(dynamoDBClient);
 
 /**
  * TTL configuration
  * Devices expire after 90 days of inactivity
- */
+
 const DEVICE_TTL_DAYS = 90;
 
 /**
@@ -32,7 +32,7 @@ const DEVICE_TTL_DAYS = 90;
  * The way this works is:
  * -if same device (deviceId) already exists for the user, we update the record with new token and refresh TTL
  * -if new device, we create a new record for it
- */
+
 export async function saveDevice ({
     userId,
     deviceId,
@@ -43,7 +43,7 @@ export async function saveDevice ({
 
     /**
      * TTL in seconds (required by DynamoDB)
-    */
+
     const ttl = Math.floor(
         (now.getTime() + 
         DEVICE_TTL_DAYS * 24 * 60 * 60 * 1000) / 1000);
@@ -73,7 +73,7 @@ export async function saveDevice ({
  * 
  * This function retrieves all devices registered for a specific user.
  * 
- */
+
 
 export async function getDevicesForUser (userId) {
     const res = await docClient.send(
@@ -98,7 +98,7 @@ export async function getDevicesForUser (userId) {
  * 
  * This function deletes a specific device for a user based on the deviceId.
  * Called when a user logs out from a device or wants to remove it from their account.
- */
+
 export async function deleteDevice(userId, deviceId) {
     await docClient.send(
         new DeleteCommand({
@@ -121,7 +121,7 @@ export async function deleteDevice(userId, deviceId) {
  * Refresh: 
  * -lastActiveDate to current time
  * -refresh TTL to extend the device's validity in DynamoDB
- */
+
 export async function refreshDevice(userId, deviceId) {
     const now = new Date();
 
@@ -158,7 +158,7 @@ export async function refreshDevice(userId, deviceId) {
  * GET TOKENS ONLY
  * 
  * Returns only FCM tokens for a user's devices, used when sending push notifications.
- */
+
 export async function getUserPushTokens (userId) {
     const devices = await getDevicesForUser(userId);
 
@@ -167,3 +167,4 @@ export async function getUserPushTokens (userId) {
         .map(device => device.fcmToken) // Return an array of tokens
         .filter(Boolean); // Filter out any falsy values
 }
+*/

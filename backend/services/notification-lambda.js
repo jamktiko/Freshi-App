@@ -1,3 +1,5 @@
+/*
+
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, QueryCommand, GetCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
@@ -84,3 +86,5 @@ exports.handler = async (event) => {
     console.log("All notifications processed successfully.");
     return { statusCode: 200, body: 'Notifications sent' };
 };
+
+*/

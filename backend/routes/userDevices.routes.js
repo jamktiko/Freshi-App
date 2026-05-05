@@ -1,4 +1,4 @@
-import express from 'express';
+/* import express from 'express';
 import { requireAuth } from '../middleware/auth.middleware.js'; // Uncomment this line to enable authentication for item routes
 
 import {
@@ -19,7 +19,7 @@ router.use(requireAuth); // Apply authentication middleware to all device routes
  * -when app starts on a device to register it for the user
  * -when user logs in on a new device to add it to their account
  * -when user refreshes the app to update the last active time and TTL
- */
+
 
 router.post(
     "/", 
@@ -66,7 +66,7 @@ router.post(
 /**
  * GET USER DEVICES
  * 
- */
+
 router.get(
     "/",
     async (req, res) => {
@@ -91,7 +91,7 @@ router.get(
 /**
  * Delete a device (e.g. when user logs out from a device)
  * 
- */
+
 router.delete(
     "/:deviceId",
     async (req, res) => {
@@ -117,7 +117,7 @@ router.delete(
 /**
  * Refresh device activity (e.g. when user opens the app to update last active time and TTL)
  *  
- */
+
 router.put(
     "/:deviceId/refresh",
     async (req, res) => {
@@ -141,3 +141,5 @@ router.put(
 );
 
 export default router;
+
+*/

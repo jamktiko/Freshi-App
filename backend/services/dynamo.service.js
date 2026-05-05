@@ -186,10 +186,13 @@ export async function getUpdatedItems(userId, lastSyncTimestamp) {
  * 
  * This enables efficient querying for the notification Lambda to find items that need notifications.
  */
+/*
 export async function getItemsForNotification(targetDate) {
   const res = await docClient.send(
     new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE,
+
+      
       IndexName: "NotificationQueryIndex",
 
       KeyConditionExpression:
@@ -197,10 +200,12 @@ export async function getItemsForNotification(targetDate) {
 
       ExpressionAttributeValues: {
         ":ns": "PENDING",
+    
         ":date": targetDate
       }
     })
   );
+ */
 
-  return res.Items || [];
-}
+return res.Items || []; //return items
+
