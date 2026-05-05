@@ -207,5 +207,5 @@ export async function getItemsForNotification(targetDate) {
   );
  */
 
-return res.Items || []; //return items
+//return res.Items || []; //return items
 
