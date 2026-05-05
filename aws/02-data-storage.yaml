@@ -11,10 +11,6 @@ Resources:
           AttributeType: S
         - AttributeName: itemId
           AttributeType: S
-        - AttributeName: expirationDate
-          AttributeType: S
-        - AttributeName: notificationStatus
-          AttributeType: S
         - AttributeName: lastUpdate
           AttributeType: S
       KeySchema:
@@ -23,14 +19,6 @@ Resources:
         - AttributeName: itemId
           KeyType: RANGE
       GlobalSecondaryIndexes:
-        - IndexName: NotificationQueryIndex
-          KeySchema:
-            - AttributeName: notificationStatus
-              KeyType: HASH
-            - AttributeName: expirationDate
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
         - IndexName: LastUpdateIndex
           KeySchema:
             - AttributeName: userId
@@ -44,27 +32,6 @@ Resources:
         PointInTimeRecoveryEnabled: true
       TimeToLiveSpecification:
         AttributeName: ttl  # Unix epoch (seconds). Set to expirationDate + 30 days by backend code.
-        Enabled: true
-
-  UserDevicesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: UserDevices
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-        - AttributeName: deviceToken
-          AttributeType: S
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
-        - AttributeName: deviceToken
-          KeyType: RANGE
-      BillingMode: PAY_PER_REQUEST
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-      TimeToLiveSpecification:
-        AttributeName: ttl  # Unix epoch (seconds). Set to 90 days from last app open by backend code.
         Enabled: true
 
   ImageBucket:
@@ -143,16 +110,6 @@ Outputs:
     Value: !GetAtt FoodAppTable.Arn
     Export:
       Name: !Sub "${AWS::StackName}-DynamoDBTableArn"
-  UserDevicesTableName:
-    Description: UserDevices DynamoDB Table Name
-    Value: !Ref UserDevicesTable
-    Export:
-      Name: !Sub "${AWS::StackName}-UserDevicesTableName"
-  UserDevicesTableArn:
-    Description: UserDevices DynamoDB Table ARN
-    Value: !GetAtt UserDevicesTable.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-UserDevicesTableArn"
   S3BucketName:
     Description: S3 Bucket Name for Images
     Value: !Ref ImageBucket

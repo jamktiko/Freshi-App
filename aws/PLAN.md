@@ -14,7 +14,7 @@ We have successfully transformed the raw architectural requirements into a produ
 
 ### B. Infrastructure as Code (CloudFormation)
 
-We created a modular, 5-stack CloudFormation setup located in the `aws/` directory. This modularity prevents accidental deletion of stateful data when updating compute resources. All stacks use parameterized cross-stack references via `Fn::ImportValue` for maintainability.
+We created a modular, 4-stack CloudFormation setup located in the `aws/` directory. This modularity prevents accidental deletion of stateful data when updating compute resources. All stacks use parameterized cross-stack references via `Fn::ImportValue` for maintainability.
 
 1.  **`aws/00-vpc-network.yaml` (Name: FoodAppVpcStack)**
     - **Enterprise VPC:** Deploys a custom VPC with 2 Public Subnets and 2 Private Subnets.
@@ -24,7 +24,7 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
     - **AWS Cognito:** Configured User Pools and App Clients to handle secure user registration, login, and JWT token management.
     - **AWS Secrets Manager:** Automatically generates and stores a shared secret (`freshi/api-gateway-secret`) to secure the Beanstalk Application Load Balancer from direct internet access.
 3.  **`aws/02-data-storage.yaml` (Name: FoodAppDataStack)**
-    - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request". Also includes a dedicated `UserDevices` table for tracking mobile push notification tokens. (Both use `DeletionPolicy: Retain` in production, but removed in dev for clean teardowns).
+    - **Amazon DynamoDB:** A Serverless NoSQL table (`FoodItems`) configured for "Pay Per Request". (Uses `DeletionPolicy: Retain` in production, but removed in dev for clean teardowns).
     - **Amazon S3:** Secure bucket for storing food images uploaded by the Android app.
     - **Amazon CloudFront:** A CDN securely connected to S3 via Origin Access Control (OAC) to cache and deliver images to the mobile app. Uses the modern OAC-only configuration.
 4.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
@@ -36,11 +36,7 @@ We created a modular, 5-stack CloudFormation setup located in the `aws/` directo
       - S3: PutObject, GetObject, DeleteObject on the image bucket.
       - Amazon Bedrock: `InvokeModel` + `InvokeModelWithResponseStream` (required for the Converse API used by the backend).
       - CloudWatch: Logging and metric publishing.
-    - **Environment Variables:** `DYNAMODB_TABLE`, `DEVICES_TABLE`, `S3_BUCKET`, `BEDROCK_REGION`, `BEDROCK_MODEL_ID`, `AWS_REGION`, `COGNITO_USER_POOL_ID`, and `COGNITO_REGION` are all injected automatically from cross-stack outputs.
-5.  **`aws/04-notifications.yaml` (Name: FoodAppNotificationStack)**
-    - **Amazon EventBridge:** Cron rule to trigger push notifications every morning at 9 AM Helsinki time (6 AM UTC).
-    - **AWS Lambda (nodejs22.x):** Placeholder function deployed via CloudFormation. The actual firebase-admin logic should be deployed via CI/CD by zipping `backend/services/notification-lambda.js` with its dependencies.
-    - **AWS Secrets Manager:** Secure, encrypted vault holding the Firebase JSON private key (`freshi/firebase-service-account`). The placeholder value must be replaced via AWS Console with the real Firebase service account JSON.
+    - **Environment Variables:** `DYNAMODB_TABLE`, `S3_BUCKET`, `BEDROCK_REGION`, `BEDROCK_MODEL_ID`, `AWS_REGION`, `COGNITO_USER_POOL_ID`, and `COGNITO_REGION` are all injected automatically from cross-stack outputs.
 
 ### C. Node.js Backend Implementation
 
@@ -55,10 +51,8 @@ The backend team implemented the foundational backend codebase required for the 
     - CRUD operations for DynamoDB using the AWS SDK v3 DocumentClient.
 4.  **`backend/services/s3.service.js` (Storage Service):**
     - Uploads image buffers to S3 with private ACL.
-5.  **`backend/services/notification-lambda.js` (Lambda Function Code):**
-    - EventBridge-triggered Lambda that queries DynamoDB for expiring items, groups by user, fetches device tokens, and sends Firebase FCM notifications. Uses CommonJS (required for Lambda deployment separate from the ESM backend).
-6.  **`backend/middleware/auth.middleware.js` (Authentication):**
-    - Cognito JWT verification via JWKS. Currently commented out during development — **must be re-enabled before production**.
+5.  **`backend/middleware/auth.middleware.js` (Authentication):**
+    - Cognito JWT verification via decoding the payload manually to extract `sub`. This allows API Gateway to proxy the request smoothly while preventing mapping failures.
 
 ### D. Frontend Implementation (Ionic/Angular)
 
@@ -81,13 +75,11 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 - **Edge OCR + AI Architecture:** We consciously removed AWS Rekognition from the cloud stack to save costs. Instead, OCR text extraction is performed _locally_ on the mobile device (Edge Computing). The extracted string is then sent to the backend and processed by Amazon Bedrock (Nova 2 Lite) to dynamically extract only the essentials: **Product Name**, **Brand**, and **Expiration Date**.
 - **Streamlined Data Model:** DynamoDB is strictly configured to save the AI-extracted fields alongside an `s3ImageKey`. This key permanently links the database record to the original **Picture** of the product stored in S3, which the mobile app can load instantly via CloudFront.
 - **Optimized Access Patterns (DynamoDB GSIs):** Since the Ionic mobile app caches all products locally on-device and handles all filtering/sorting client-side, we deliberately reduced the GSIs to only those required for **server-side operations**. This reduces write costs by 62.5% (every write replicates to base table + 2 GSIs instead of 7):
-  - `LastUpdateIndex`: The sync engine. The app queries "give me everything changed since timestamp X" to update its local cache with only delta changes. Combined with the `IsDeleted` soft-delete boolean, this enables efficient incremental sync.
-  - `NotificationQueryIndex`: Used exclusively by the Lambda notification function to efficiently find items approaching expiration across all users, partitioned by `NotificationStatus` and sorted by `ExpirationDate`.
-  - _Removed indexes:_ `ExpirationDateIndex`, `NameIndex`, `CategoryIndex`, `BrandIndex`, and `OpenedDateIndex` were removed because all sorting and filtering is performed client-side on the device's local cache. Keeping them would have been pure write cost waste.
-- **DynamoDB TTL (Auto-Cleanup):** Both tables use DynamoDB's native Time-To-Live feature to automatically delete stale data at zero cost:
+  - `LastUpdateIndex`: The sync engine. The app queries "give me everything changed since timestamp X" to update its local cache with only delta changes. Combined with the `isDeleted` soft-delete boolean, this enables efficient incremental sync.
+  - _Removed indexes:_ `NotificationQueryIndex` (notifications are now completely offline/local via Capacitor on the device), `ExpirationDateIndex`, `NameIndex`, `CategoryIndex`, `BrandIndex`, and `OpenedDateIndex` were removed because all sorting and filtering is performed client-side on the device's local cache. Keeping them would have been pure write cost waste.
+- **DynamoDB TTL (Auto-Cleanup):** The table uses DynamoDB's native Time-To-Live feature to automatically delete stale data at zero cost:
   - `FoodItems`: TTL is set to `expirationDate + 30 days` (Unix epoch seconds). Expired food items are automatically purged after a 30-day grace period, preventing infinite table growth.
-  - `UserDevices`: TTL is set to 90 days from the last app open. Stale FCM tokens from uninstalled apps are automatically cleaned up, preventing the notification Lambda from pushing to dead devices.
-- **DeletionPolicy: Retain:** Both DynamoDB tables have `DeletionPolicy: Retain` so that a `cloudformation delete-stack` does not destroy user data.
+- **DeletionPolicy: Retain:** The DynamoDB table has `DeletionPolicy: Retain` so that a `cloudformation delete-stack` does not destroy user data.
 - **API Gateway Throttling:** The HTTP API stage is configured with rate limiting (20 req/s, 50 burst) to prevent cost abuse from excessive Bedrock API calls.
 
 #### NoSQL Physical Diagram: Access Pattern Matrix
@@ -96,7 +88,6 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 | :------------------------------------------ | :------------------------------ | :------------------- | :---------------------------- |
 | **Get all items for a user (initial sync)** | `Main Table`                    | `userId`             | `itemId`                      |
 | **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `userId`             | `lastUpdate` (> lastSyncTime) |
-| **Find items expiring soon (Lambda)**       | `NotificationQueryIndex`        | `notificationStatus` | `expirationDate` (ASC)        |
 | **Sort/filter by name, category, brand**    | _Client-side (on-device cache)_ | —                    | —                             |
 
 #### DynamoDB Key Schema — Backend Must Match
@@ -107,8 +98,6 @@ The CloudFormation table defines these exact attribute names:
 | :------------------- | :------ | :----------------------------------------------------------------- |
 | `userId`             | String  | Partition key (main table + LastUpdateIndex)                       |
 | `itemId`             | String  | Sort key (main table)                                              |
-| `expirationDate`     | String  | Sort key (NotificationQueryIndex), format: `YYYY-MM-DD`            |
-| `notificationStatus` | String  | Partition key (NotificationQueryIndex), values: `PENDING` / `SENT` |
 | `lastUpdate`         | String  | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
 | `isDeleted`          | Boolean | Soft delete flag used for client-side delta syncing                |
 | `ttl`                | Number  | Unix epoch (seconds) for automatic expiration cleanup              |
@@ -135,7 +124,7 @@ To instantly deploy the entire production environment:
 1. Navigate to the `aws/` directory in your terminal.
 2. Make sure the script is executable: `chmod +x deploy.sh`
 3. Run: `./deploy.sh`
-4. _What it does:_ The script dynamically fetches the latest Node.js 24 Beanstalk platform and deploys all four CloudFormation stacks (Security → Data → Compute → Notifications) in sequential order, respecting cross-stack dependencies.
+4. _What it does:_ The script dynamically fetches the latest Node.js 24 Beanstalk platform and deploys all three CloudFormation stacks (Security → Data → Compute) in sequential order, respecting cross-stack dependencies.
 
 ### Updating Existing Infrastructure
 

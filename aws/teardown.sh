@@ -26,22 +26,17 @@ if [ ! -z "$BUCKET_NAME" ] && [ "$BUCKET_NAME" != "None" ]; then
     aws s3 rm s3://$BUCKET_NAME --recursive || true
 fi
 
-echo "[1/5] Deleting Notification Stack..."
-aws cloudformation delete-stack --stack-name FoodAppNotificationStack --region $REGION
-aws cloudformation wait stack-delete-complete --stack-name FoodAppNotificationStack --region $REGION
-echo "✅ Notification Stack Deleted."
-
-echo "[2/5] Deleting Compute Backend Stack... (This takes a few minutes)"
+echo "[1/4] Deleting Compute Backend Stack... (This takes a few minutes)"
 aws cloudformation delete-stack --stack-name FoodAppComputeStack --region $REGION
 aws cloudformation wait stack-delete-complete --stack-name FoodAppComputeStack --region $REGION
 echo "✅ Compute Stack Deleted."
 
-echo "[3/5] Deleting Data Storage Stack..."
+echo "[2/4] Deleting Data Storage Stack..."
 aws cloudformation delete-stack --stack-name FoodAppDataStack --region $REGION
 aws cloudformation wait stack-delete-complete --stack-name FoodAppDataStack --region $REGION
 echo "✅ Data Stack Deleted."
 
-# echo "[4/5] Deleting Security Identity Stack..."
+# echo "[3/4] Deleting Security Identity Stack..."
 # Force-delete the secret so it doesn't cause soft-delete conflicts on redeploys
 # echo "Force-deleting API Gateway Secret..."
 # aws secretsmanager delete-secret --secret-id freshi/api-gateway-secret --force-delete-without-recovery --region $REGION || true
@@ -49,9 +44,9 @@ echo "✅ Data Stack Deleted."
 # aws cloudformation delete-stack --stack-name FoodAppSecurityStack --region $REGION
 # aws cloudformation wait stack-delete-complete --stack-name FoodAppSecurityStack --region $REGION
 # echo "✅ Security Stack Deleted."
-echo "⚠️  [4/5] SKIPPED: Security Identity Stack (Preserved so User Pool, Client ID, and Developer Users remain static!)"
+echo "⚠️  [3/4] SKIPPED: Security Identity Stack (Preserved so User Pool, Client ID, and Developer Users remain static!)"
 
-echo "[5/5] Deleting Custom VPC Network Stack... (Takes a few minutes to detach NAT Gateway)"
+echo "[4/4] Deleting Custom VPC Network Stack... (Takes a few minutes to detach NAT Gateway)"
 aws cloudformation delete-stack --stack-name FoodAppVpcStack --region $REGION
 aws cloudformation wait stack-delete-complete --stack-name FoodAppVpcStack --region $REGION
 echo "✅ VPC Network Stack Deleted."
