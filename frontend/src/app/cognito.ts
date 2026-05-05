@@ -19,24 +19,7 @@ import { sessionStorage } from 'aws-amplify/utils';
 })
 export class Cognito {
   registrationEmail = '';
-  constructor() {
-    // Confiruring AWS Amplify to work with AWS cognito
-    Amplify.configure({
-      Auth: {
-        Cognito: {
-          //  Amazon Cognito User Pool ID
-          userPoolId: environment.cognito.userPoolID,
-          // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
-          userPoolClientId: environment.cognito.appClientID,
-          loginWith: {
-            // Optional
-            username: false,
-            email: true, // Optional
-          },
-        },
-      },
-    });
-  }
+  constructor() {}
 
   // User registration function using email and password
   async registerUser(user: IUser) {
@@ -82,7 +65,7 @@ export class Cognito {
   // User logout
   async logoutUser() {
     try {
-      signOut();
+      await signOut();
     } catch (error) {
       alert(error);
     }
