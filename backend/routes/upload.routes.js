@@ -77,7 +77,7 @@ router.post(
       res.json({
         success: true,
         data: {
-          S3imageKey,              // stored image reference in S3
+          s3imageKey,              // stored image reference in S3
           suggestion: aiSuggestion // AI-generated structured product info
         }
       });
