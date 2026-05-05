@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -18,6 +18,9 @@ import {
   IonLabel,
   IonText,
 } from '@ionic/angular/standalone';
+import { Cognito } from '../cognito';
+import { Router } from '@angular/router';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 @Component({
   selector: 'app-settings',
@@ -25,14 +28,13 @@ import {
   styleUrls: ['./settings.page.scss'],
   standalone: true,
   imports: [
-    IonText,
     IonLabel,
-    IonRange,
+
     IonToggle,
     IonList,
     IonItem,
     IonListHeader,
-    IonIcon,
+
     IonButton,
     IonButtons,
     IonBackButton,
@@ -45,11 +47,24 @@ import {
   ],
 })
 export class SettingsPage implements OnInit {
+  cognito = inject(Cognito);
+  router = inject(Router);
   paletteToggle = false;
+  user = signal<string>('');
   constructor() {}
 
-  ngOnInit() {}
-
+  ngOnInit() {
+    this.getUser();
+  }
+  // Gets user
+  async getUser() {
+    const user = await this.cognito.getUser();
+    if (user.signInDetails?.loginId) {
+      this.user.set(user.signInDetails.loginId);
+    } else {
+      this.user.set('');
+    }
+  }
   // Listen for the toggle check/uncheck to toggle the dark palette
   toggleChange(event: CustomEvent) {
     this.toggleDarkPalette(event.detail.checked);
@@ -57,5 +72,15 @@ export class SettingsPage implements OnInit {
   // Add or remove the "ion-palette-dark" class on the html element
   toggleDarkPalette(shouldAdd: boolean) {
     document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
+  }
+
+  // Log the user out
+  async logOut() {
+    try {
+      await this.cognito.logoutUser();
+      this.router.navigate(['/tabs/welcome']);
+    } catch (error) {
+      alert(error);
+    }
   }
 }

@@ -20,7 +20,6 @@
         fill="outline"
         placeholder="Enter email"
       ></ion-input>
-      @if (registration.value.email) { Value: {{ registration.value.email }} }
     </ion-item>
 
     <ion-item lines="none" class="field-row">
@@ -34,8 +33,6 @@
         placeholder="Enter password"
       ></ion-input>
     </ion-item>
-    @if (registration.value.passwordsGroup?.password) { Value: {{
-    registration.value.passwordsGroup?.password }} }
 
     <ion-item lines="none" class="field-row">
       <ion-input
@@ -48,8 +45,6 @@
         placeholder="Confirm password"
       ></ion-input>
     </ion-item>
-    @if (registration.value.passwordsGroup?.pconfirm) { Value: {{
-    registration.value.passwordsGroup?.pconfirm }} }
 
     <ion-button
       (click)="submitRegistration()"

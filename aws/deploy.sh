@@ -43,13 +43,6 @@ aws cloudformation deploy \
     --capabilities CAPABILITY_IAM \
     --parameter-overrides SolutionStackName="$PLATFORM"
 
-echo "[5/5] Deploying Notification Stack (EventBridge, Lambda, Secrets)..."
-aws cloudformation deploy \
-    --template-file 04-notifications.yaml \
-    --stack-name FoodAppNotificationStack \
-    --region $REGION \
-    --capabilities CAPABILITY_IAM
-
 echo "======================================"
 echo "✅ All AWS Infrastructure is DEPLOYED!"
 echo "======================================"
