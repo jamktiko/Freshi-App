@@ -1,0 +1,35 @@
+.addproduct {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.ion-no-border {
+  padding-top: 1rem;
+}
+
+.back {
+  padding: 1rem;
+}
+
+.field-row {
+  --background: transparent;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 12px;
+  width: 90%;
+}
+
+.freshi-input {
+  --border-radius: 16px;
+  --border: var(--app-bordercolor);
+  --border-width: 2px;
+  --highlight-color-focused: #4392f1;
+  background-color: var(--app-calltoactiontext);
+
+  /* Real CSS border-radius on the host element */
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
