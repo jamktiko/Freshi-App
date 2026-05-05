@@ -29,7 +29,7 @@ const upload = multer({
  * Flow:
  * 1. Authenticate user
  * 2. Upload image to S3
- * 3. Send OCR text to AI for analysis
+ * 3. Optionally Send OCR text to AI for analysis
  * 4. Return AI suggestion (NOT saved yet)
  */
 router.post(
@@ -56,12 +56,6 @@ router.post(
       const extension = req.file.mimetype.split("/")[1]; // Get file extension from MIME type (e.g. "jpeg" from "image/jpeg")
       const s3imageKey = `uploads/${userId}/${Date.now()}.${extension}`;
 
-      // Validate OCR text exists
-      if (!req.body.ocrText) {
-        return res.status(400).json({
-          error: "ocrText is required"
-        });
-      }
 
       // Upload image buffer to S3 bucket
       await uploadToS3(
@@ -70,10 +64,29 @@ router.post(
         req.file.mimetype         // content type (e.g. image/jpeg)
       );
 
-      // Send OCR text to AI model for analysis (no DB write happens here)
-      const aiSuggestion = await analyzeText(req.body.ocrText);
+      //Ai analysis is optional
+      //if the frontend sends ocrText, we use ai to generate a product suggestion
+      //if ocrText is missing, the image is still uploaded and suggestion is returned as null
 
-      // Return both image reference and AI suggestion to frontend
+      let aiSuggestion = null;
+
+    
+      //form-data values come as strings, so "true" means AI was selected by the user
+      const useAi = req.body.useAi === "true" ||
+      (req.body.useAi === undefined && req.body.ocrText);
+
+
+      if (useAi) {
+        if (!req.body.ocrText || req.body.ocrText.trim().length === 0 ) {
+          return res.status(400).json({
+            error: "ocrText is required when AI is enabled"
+         });
+       }
+      // Optionally send OCR text to AI model for analysis (no DB write happens here)
+        aiSuggestion = await analyzeText(req.body.ocrText.trim());
+      }
+
+      // Return both image reference and optional AI suggestion to frontend
       res.json({
         success: true,
         data: {
