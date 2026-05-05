@@ -16,6 +16,26 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { importProvidersFrom } from '@angular/core';
 
+import { Amplify } from 'aws-amplify';
+import { environment } from './environment/environment.prod';
+
+// Confiruring AWS Amplify to work with AWS cognito
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      //  Amazon Cognito User Pool ID
+      userPoolId: environment.cognito.userPoolID,
+      // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
+      userPoolClientId: environment.cognito.appClientID,
+      loginWith: {
+        // Optional
+        username: false,
+        email: true, // Optional
+      },
+    },
+  },
+});
+
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(

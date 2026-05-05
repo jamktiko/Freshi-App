@@ -38,13 +38,5 @@ export class WelcomePage implements OnInit {
 
   ngOnInit() {
     // IF user is logged in, go to home
-
-    this.init();
-  }
-
-  async init() {
-    if (await this.cognito.getUser) {
-      this.router.navigate(['/tabs/home']);
-    }
   }
 }
