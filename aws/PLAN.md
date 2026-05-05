@@ -104,7 +104,9 @@ The CloudFormation table defines these exact attribute names:
 
 > **⚠️ IMPORTANT:** Backend code MUST use these exact attribute names when writing to DynamoDB. Do NOT use `PK`/`SK` or any other naming convention — the GSIs depend on these specific names.
 
-- **Cost Optimization (SingleInstance):** Disabled Elastic Beanstalk's default Load Balancer (saving ~$15-20/month) by explicitly defining the environment as `SingleInstance` running in 1 Availability Zone.
+- **High Availability & Security (Multi-AZ Load Balanced):** The backend is deployed as a `LoadBalanced` Elastic Beanstalk environment spanning 2 Availability Zones. While a SingleInstance setup would save ~$35-40/month, the 2-AZ Load Balancer architecture is required for two critical reasons:
+  1. **99.5% Uptime Guarantee:** If one AWS data center (Availability Zone) experiences an outage, the Application Load Balancer automatically routes traffic to instances in the surviving AZ.
+  2. **Security & API Gateway Integration:** The EC2 instances are securely hidden in Private Subnets with no direct internet access. The Application Load Balancer sits in the Public Subnet and acts as the secure bridge, allowing the public API Gateway to route traffic to the private instances. Switching to a single AZ without a Load Balancer would either break the API Gateway or force the backend instances into the public internet.
 - **Performance Optimization (t3.small):** Upgraded the default instance type from `micro` to `t3.small` (2 vCPU, 2GB RAM) to ensure the Node.js backend has enough memory to process API requests and image handling concurrently without latency spikes.
 - **Dynamic Platform Versions:** Configured the template to allow manual input of the exact Elastic Beanstalk Solution Stack Name to prevent deployment failures when AWS deprecates older minor versions.
 
@@ -203,19 +205,19 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 
 - **Goal:** Test pure logic and functions in absolute isolation.
 - **Status:** **✅ Fully Active**. We built `backend/utils/expiry.js` (pure date math without AWS dependencies) and have active, passing tests in `expiry.test.js` using Jest fake timers.
-- **Cost-Free AWS Mocking:** For tests that touch AWS (like `ai-extraction.test.js`), we use `aws-sdk-client-mock`. This intercepts calls to Amazon Bedrock, ensuring zero cost and instantaneous execution. Currently, the Bedrock mock test is `.skip`ped pending the backend developer finalizing the AI service logic.
+- **Cost-Free AWS Mocking:** For tests that touch AWS (like `ai-extraction.test.js`), we use `aws-sdk-client-mock`. The mocking logic for Amazon Bedrock is fully implemented in the test file, intercepting `ConverseCommand` to ensure zero cost and instantaneous execution. The tests remain `.skip`ped pending the backend developer finalizing the AI service logic.
 
 ### B. Integration Tests (Backend API)
 
 - **Goal:** Test the Express router HTTP responses (Login -> Create -> Delete flow).
-- **Status:** **📝 Scaffolded via `.todo()`**. The file `items-api.test.js` is built with a list of `test.todo()` placeholders that exactly match the product specification.
-- **Future Execution:** Once the backend developer builds the CRUD routes, they will replace the `todo`s with Supertest calls that mock DynamoDB.
+- **Status:** **📝 Scaffolded via `.skip()`**. The file `items-api.test.js` has been updated with actual `supertest` HTTP request code covering the full CRUD flow. It remains in `.skip()` mode to keep CI green while the backend routes are finalized.
+- **Future Execution:** Once the backend developer finishes the CRUD routes, they simply remove the `.skip()` modifiers to activate the test suite.
 
 ### C. End-to-End (E2E) Tests (Frontend Browser)
 
 - **Goal:** Simulate a complete user journey exactly as a human would experience it.
 - **Status:** **⏭️ Scaffolded via `.skip()`**. We chose **Playwright** as the E2E framework. The complete user journey (Register -> Add photo -> Sort -> Logout) is fully pre-written in `frontend/e2e/user-journey.spec.ts`.
-- **How it works:** We guessed the HTML IDs (e.g., `#add-product-btn`). The frontend team must use these IDs when building the UI. Because the UI doesn't exist yet, the entire test block is wrapped in `test.skip()`.
+- **How it works:** We pre-wrote initial CSS selectors (e.g., `#add-product-btn`). Playwright's flexibility acts as a soft contract — frontend developers can build the UI however they want (using their own CSS IDs, `data-testid` attributes, or standard accessible roles), and the Playwright selectors can be easily updated to match their actual DOM structure before un-skipping the test.
 
 ### D. Frontend CI Pipeline (`frontend-ci.yml`)
 
