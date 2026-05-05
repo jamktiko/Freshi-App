@@ -55,8 +55,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () => import('../home/home.page').then((m) => m.HomePage),
-    canActivate: [authGuard],
+    redirectTo: '/tabs/home',
     pathMatch: 'full',
   },
 ];
