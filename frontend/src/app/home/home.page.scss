@@ -1,3 +1,9 @@
+/*Center the page*/
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .summary-card-list {
   display: flex;
   flex-direction: column;
@@ -5,6 +11,14 @@
   padding-top: 0;
   background-color: #ffffff;
   margin: 0 1rem;
+  box-shadow: var(--app-boxshadow);
+  border-radius: var(--app-borderradius);
+}
+ion-list {
+  align-items: center;
+  width: 90%;
+}
+ion-item {
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
 }
@@ -21,6 +35,12 @@ h1 {
   align-items: center;
   width: 100%;
 }
+.product-list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+}
 
 .product-list-header {
   display: flex;
@@ -29,6 +49,7 @@ h1 {
   padding-left: 1rem;
   padding-right: 1rem;
   padding-bottom: 1rem;
+  width: 100%;
 }
 
 .product-list-subtitle {
@@ -98,10 +119,6 @@ ion-title {
 }
 
 @media (min-width: 750px) {
-  .homepage {
-    width: 100%;
-    max-width: 420px;
-  }
 }
 
 .productcard {

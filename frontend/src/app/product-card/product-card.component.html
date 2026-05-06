@@ -1,26 +1,20 @@
-<ion-card class="itemcard">
-  <ion-card-header>
-    <ion-card-title class="cardtitle">{{
-      product()?.productName
-    }}</ion-card-title>
-    <ion-card-subtitle class="iteminfo"
-      >{{ product()?.brand }} • {{ product()?.category }}</ion-card-subtitle
-    >
-  </ion-card-header>
+<div class="product-header">
+  <h1 class="cardtitle">{{ product()?.productName }}</h1>
+  <h2 class="iteminfo">{{ product()?.brand }} • {{ product()?.category }}</h2>
+</div>
 
-  <ion-card-content>
-    <div class="expiration-status">
-      <ion-chip [color]="getColor()"
-        ><ion-icon [name]="getIcon()"></ion-icon>
-        @if (lifeLeft() === 0) {
-          <span> Today </span>
-        } @else if (lifeLeft() < 0) {
-          <span> Expired </span>
-        } @else {
-          <span>{{ lifeLeft() }} days left</span>
-        }
-      </ion-chip>
-      <span class="expirationdate">{{ expirationDate() }}</span>
-    </div>
-  </ion-card-content>
-</ion-card>
+<div class="product-content">
+  <div class="expiration-status">
+    <ion-chip [color]="getColor()"
+      ><ion-icon [name]="getIcon()"></ion-icon>
+      @if (lifeLeft() === 0) {
+        <span> Today </span>
+      } @else if (lifeLeft() < 0) {
+        <span> Expired </span>
+      } @else {
+        <span>{{ lifeLeft() }} days left</span>
+      }
+    </ion-chip>
+    <span class="expirationdate">{{ expirationDate() }}</span>
+  </div>
+</div>
