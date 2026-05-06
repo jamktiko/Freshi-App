@@ -39,8 +39,6 @@ Return ONLY valid JSON in this example format:
   "suspiciousInput": false
 }
 
-OCR text:
-
 OCR:
 ${rawOcrText}
 `;
