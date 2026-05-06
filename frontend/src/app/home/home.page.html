@@ -53,23 +53,25 @@
       </h3>
       <ion-button class="filtersbutton">Filters</ion-button>
     </div>
-    <ion-list lines="none">
+    <ion-list class="productcards" lines="none">
       @for (product of productList(); track product.ItemId) {
-      <ion-item-sliding>
-        <ion-item-options side="start">
-          <ion-item-option color="danger" (click)="deleteItem(product)">
-            <ion-icon slot="icon-only" name="trash"></ion-icon>
-          </ion-item-option>
-        </ion-item-options>
-        <ion-item>
-          <app-product-card [product]="product"></app-product-card>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="deleteItem(product)">
-            <ion-icon slot="icon-only" name="trash"></ion-icon>
-          </ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
+      <div class="wrapper">
+        <ion-item-sliding class="slider">
+          <ion-item-options side="start">
+            <ion-item-option color="danger" (click)="deleteItem(product)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+          <ion-item class="tuote">
+            <app-product-card [product]="product"></app-product-card>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="deleteItem(product)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </div>
       }
     </ion-list>
   </div>

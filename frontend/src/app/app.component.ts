@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   personAdd,
+  camera,
   ellipse,
   square,
   logIn,
@@ -30,6 +31,7 @@ export class AppComponent {
      */
     addIcons({
       personAdd,
+      camera,
       ellipse,
       square,
       logIn,
