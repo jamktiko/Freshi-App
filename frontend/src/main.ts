@@ -36,6 +36,12 @@ Amplify.configure({
   },
 });
 
+import { routes } from './app/app.routes';
+import { AppComponent } from './app/app.component';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
+import { authInterceptor } from './app/auth.interceptor';
+
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(
@@ -46,6 +52,7 @@ bootstrapApplication(AppComponent, {
     ),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
+    provideHttpClient(withInterceptors([authInterceptor])),
     provideRouter(routes, withPreloading(PreloadAllModules)),
   ],
 });

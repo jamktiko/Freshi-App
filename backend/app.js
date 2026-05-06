@@ -8,7 +8,7 @@ import healthRoutes from "./routes/health.routes.js";
 import itemsRoutes from "./routes/items.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
-import userDevicesRoutes from "./routes/userDevices.routes.js";
+// import userDevicesRoutes from "./routes/userDevices.routes.js";
 
 const app = express();
 
@@ -43,7 +43,7 @@ app.use("/health", healthRoutes);
 app.use("/items", itemsRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/ai", aiRoutes);
-app.use("/userdevices", userDevicesRoutes);
+//app.use("/userdevices", userDevicesRoutes);
 
 app.get("/", (req, res) => {
   res.json({
@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
       items: "/items",
       upload: "/upload",
       ai: "/ai",
-      userDevices: "/userdevices"
+      //userDevices: "/userdevices"
     }
   });
 });

@@ -1,8 +1,8 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Add item</ion-title>
+    <b>Add item</b>
 
-    <ion-buttons slot="start">
+    <ion-buttons class="back" slot="start">
       <ion-button (click)="cancel()"
         ><ion-icon name="arrow-back"></ion-icon
       ></ion-button>
@@ -11,7 +11,7 @@
 </ion-header>
 <ion-content>
   <form [formGroup]="productForm">
-    <ion-list>
+    <ion-list class="addproduct">
       <ion-item lines="none" class="field-row">
         <ion-input
           class="freshi-input"
@@ -57,12 +57,8 @@
         ></ion-input>
       </ion-item>
 
-      <ion-button
-        expand="block"
-        (click)="submitProduct()"
-        [disabled]="productForm.invalid"
-      >
-        Submit
+      <ion-button (click)="submitProduct()" [disabled]="productForm.invalid">
+        Add item
       </ion-button>
     </ion-list>
   </form>
