@@ -14,8 +14,24 @@ const bedrock = new BedrockRuntimeClient({
  */
 export async function analyzeText(rawOcrText) {
 
+  //Basic validation and hardening
+  if (!rawOcrText || typeof rawOcrText !== "string") {
+    throw new Error("Invalid OCR text");
+  }
+
+  const sanitizedText = rawOcrText.trim();
+
+  if (!sanitizedText) {
+    throw new Error("Invalid OCR text");
+  }
+
+  //Prevent huge payloads and possible token abuse
+  if (sanitizedText.length > 5000) {
+    throw new Error("OCR text too large");
+  }
+
   // Prompt sent to AI model to instruct strict JSON output format
-  const prompt = `
+  const systemPrompt = `
 You are a grocery OCR extraction assistant.
 
 Analyze raw OCR text from a grocery product image or receipt.
@@ -38,23 +54,33 @@ Return ONLY valid JSON in this example format:
   "piiDetected": true,
   "suspiciousInput": false
 }
+`;
 
-OCR:
-${rawOcrText}
+const userPrompt = `
+OCR TEXT:
+${sanitizedText}
 `;
 
   // Send request to Amazon Bedrock model
   const res = await bedrock.send(
     new ConverseCommand({
       modelId: process.env.BEDROCK_MODEL_ID, // AI model identifier (Nova 2 Lite)
+
+      system: [
+        {
+          text: systemPrompt
+        }
+      ],
+
       messages: [
         {
           role: "user", // user role message sent to LLM
-          content: [{ text: prompt }] // actual prompt content
+          content: [{ text: userPrompt }] // actual prompt content
         }
       ],
       inferenceConfig: {
-        temperature: 0.1 // low randomness for consistent structured output
+        temperature: 0.1,  // low randomness for consistent structured output
+        maxTokens: 200
       }
     })
   );
@@ -66,8 +92,14 @@ if (!text) {
   throw new Error("Empty response from Bedrock model");
 }
 
+//Remove possible json-codeblocks AI might add
+const cleanedText = text
+  .replace(/```json/g, "")
+  .replace(/```/g, "")
+  .trim();
+
 try {
-  return JSON.parse(text);
+  return JSON.parse(cleanedText);
 } catch (err) {
   console.error("Failed to parse AI response:", text);
 
