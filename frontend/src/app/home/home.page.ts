@@ -14,6 +14,11 @@ import {
   IonFab,
   IonModal,
   ModalController,
+  IonList,
+  IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { Iproduct, mockProducts, IaddProduct } from '../product';
@@ -29,6 +34,11 @@ import { Cognito } from '../cognito';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonItemOption,
+    IonItemOptions,
+    IonItemSliding,
+    IonItem,
+    IonList,
     IonFab,
     IonIcon,
     IonFabButton,
@@ -102,4 +112,8 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {}
+
+  deleteItem(deletedItem: Iproduct) {
+    this.storageService.removeProduct(deletedItem);
+  }
 }
