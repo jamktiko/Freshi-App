@@ -28,8 +28,11 @@
     "@capacitor/keyboard": "8.0.3",
     "@capacitor/status-bar": "8.0.2",
     "@ionic/angular": "^8.0.0",
+    "@ionic/storage-angular": "^4.0.0",
     "aws-amplify": "^6.16.4",
+    "cordova-sqlite-storage": "^7.0.0",
     "ionicons": "^7.0.0",
+    "localforage-cordovasqlitedriver": "^1.8.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
