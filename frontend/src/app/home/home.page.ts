@@ -21,6 +21,8 @@ import { ProductCardComponent } from '../product-card/product-card.component';
 import { AddProductComponent } from '../add-product/add-product.component';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { Router } from '@angular/router';
+import { StorageService } from '../storage';
+import { Cognito } from '../cognito';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -44,15 +46,27 @@ import { Router } from '@angular/router';
   ],
 })
 export class HomePage implements OnInit {
+  storageService = inject(StorageService);
   router = inject(Router);
-  productList = signal<Iproduct[]>([...mockProducts]);
-  sortedList = computed<Iproduct[]>(() => {
-    return [...this.productList()].sort(
-      (a, b) =>
-        new Date(a.expirationDate).getTime() -
-        new Date(b.expirationDate).getTime(),
+
+  productSearch = signal('');
+
+  productList = computed<Iproduct[]>(() => {
+    const products = this.storageService.products();
+    const search = this.productSearch().toLowerCase();
+    if (!products || !Array.isArray(products)) {
+      return [];
+    }
+
+    const filteredProducts = products.filter(
+      (product) =>
+        product.brand?.toLowerCase().includes(search) ||
+        product.category?.toLowerCase().includes(search) ||
+        product.productName?.toLowerCase().includes(search),
     );
+    return filteredProducts;
   });
+
   number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
   constructor() {}
@@ -80,7 +94,7 @@ export class HomePage implements OnInit {
           s3ImageKey: '',
           isDeleted: false,
         };
-        this.productList.update((oldList) => [...oldList, newProduct]);
+        this.storageService.addProduct(newProduct);
       } catch (error) {
         alert('Error adding new product: ' + error);
       }

@@ -173,10 +173,6 @@ Resources:
           OptionName: COGNITO_REGION
           Value: !Ref 'AWS::Region'
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: DEVICES_TABLE
-          Value:
-            Fn::ImportValue: !Sub '${DataStackName}-UserDevicesTableName'
-        - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: API_GATEWAY_SECRET
           Value: '{{resolve:secretsmanager:freshi/api-gateway-secret:SecretString:secret}}'
 

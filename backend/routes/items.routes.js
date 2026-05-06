@@ -110,7 +110,7 @@ router.post(
       createdAt: now.toISOString(), // Track creation time for potential future features like edit history
       isDeleted: false, // Soft delete flag for potential future features like item recovery or edit history
       lastUpdate: now.toISOString(), // Track last update time for potential future features like edit history
-      notificationStatus: "PENDING", // Track notification status for upcoming expiration notifications (PENDING, SENT)
+       // Track notification status for upcoming expiration notifications (PENDING, SENT)
       TTL: ttl //ttl for automatic deletion after 30 days past expiration
     };
 
