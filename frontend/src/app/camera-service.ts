@@ -10,7 +10,7 @@ export class CameraService {
     try {
       return await Camera.takePhoto({
         quality: 90,
-        targetWidth: 1024,
+        targetWidth: 1200,
         cameraDirection: CameraDirection.Rear,
       });
     } catch (error) {
