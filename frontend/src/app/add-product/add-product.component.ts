@@ -22,6 +22,10 @@ import {
 import { Iproduct } from '../product';
 import { CameraService } from '../camera-service';
 import { signIn } from 'aws-amplify/auth';
+import {
+  TextDetection,
+  TextDetections,
+} from '@capacitor-community/image-to-text';
 
 @Component({
   selector: 'app-add-product',
@@ -46,6 +50,7 @@ export class AddProductComponent implements OnInit {
   camera = inject(CameraService);
 
   imagePath = signal<string | null>(null);
+  detectedTexts = signal<TextDetection[] | null>(null);
 
   name!: string;
   private modalCtrl = inject(ModalController);
@@ -71,6 +76,14 @@ export class AddProductComponent implements OnInit {
     const photo = await this.camera.takePhoto();
     if (photo?.webPath) {
       this.imagePath.set(photo?.webPath);
+      this.detectText(photo.uri!);
+    }
+  }
+
+  async detectText(photoFilePath: string) {
+    const textData = await this.camera.detectText(photoFilePath);
+    if (textData) {
+      this.detectedTexts.set(textData.textDetections);
     }
   }
 

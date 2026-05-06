@@ -17,6 +17,11 @@
       <ion-img [src]="imagePath()"></ion-img>
     }
   </div>
+  <ion-list>
+    @for (detection of detectedTexts(); track $index) {
+      <ion-item>{{ detection.text }}</ion-item>
+    }
+  </ion-list>
 
   <form [formGroup]="productForm">
     <ion-list class="addproduct">
