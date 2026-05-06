@@ -196,9 +196,7 @@ Resources:
           - PATCH
           - OPTIONS
         AllowHeaders:
-          - Content-Type
-          - Authorization
-          - x-api-key
+          - '*'
         MaxAge: 300
 
   CognitoAuthorizer:
