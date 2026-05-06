@@ -17,7 +17,7 @@ import { AppComponent } from './app/app.component';
 import { importProvidersFrom } from '@angular/core';
 
 import { Amplify } from 'aws-amplify';
-import { environment } from './environment/environment.prod';
+import { environment } from './environment/environment';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
