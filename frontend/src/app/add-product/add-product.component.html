@@ -12,6 +12,7 @@
 <ion-content>
   <form class="addproduct" [formGroup]="productForm">
     <div class="image-frame">
+      <ion-icon class="camera" name="camera"></ion-icon>
       @if (imagePath() === null) {
         <ion-button (click)="takePhoto()">Take a picture</ion-button>
       } @else {

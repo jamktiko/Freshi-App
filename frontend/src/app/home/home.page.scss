@@ -48,7 +48,6 @@ h1 {
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
-  padding-bottom: 1rem;
   width: 100%;
 }
 
@@ -78,6 +77,10 @@ ion-header {
   padding-bottom: 0.8rem;
   padding-left: 0.5rem;
   text-align: left;
+}
+
+.homepage {
+  overflow: visible;
 }
 
 ion-title {
@@ -121,10 +124,54 @@ ion-title {
 @media (min-width: 750px) {
 }
 
-.productcard {
-  background-color: var(--app-calltoactionbutton);
+ion-item.tuote {
+  --background: transparent;
+  overflow: visible !important;
+  box-shadow: none;
 }
 
+ion-item,
+ion-item-sliding,
+ion-item-options,
+ion-item-option,
+ion-list {
+  overflow: visible;
+}
+
+.slider {
+  overflow: visible !important;
+}
+
+.wrapper {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+ion-item-option[color="danger"] {
+  border-radius: 16px;
+  margin: 0.25rem;
+}
+
+ion-item.tuote {
+  --background: transparent; /* Poistaa valkoisen oletustaustan */
+  --inner-padding-end: 0px; /* Poistaa Ionicin sisäisen paddingin */
+  --padding-start: 0px; /* Poistaa Ionicin alun paddingin */
+  background-color: #ffffff; /* Nyt musta väri näkyy läpi koko alalla */
+  border-radius: var(--app-borderradius);
+  --min-height: 100%;
+  overflow: hidden; /* Varmistaa että violetti ei karkaa kulmien yli */
+}
+
+app-product-card {
+  width: 100%;
+
+  display: flex;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  width: 100%;
+}
 .header-text {
   display: flex;
   flex-direction: column;
