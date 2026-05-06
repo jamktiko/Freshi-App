@@ -2,6 +2,7 @@
 //Import express and cors modules, and route handlers for health, items, auth, and AI endpoints. Set up middleware for CORS and JSON parsing, define routes, and add a global error handler. Finally, start the server on the specified port.
 import express from "express";
 import { requireApiGatewaySecret } from "./middleware/auth.middleware.js";
+import cors from "cors";
 //import cors from "cors"; //Cors is handled by API Gateway in production, but we might need it for local development and testing
 
 import healthRoutes from "./routes/health.routes.js";
@@ -13,19 +14,28 @@ import aiRoutes from "./routes/ai.routes.js";
 const app = express();
 
 
-//Cors: Enables requests for frontend but is not needed in production since API Gateway will handle CORS. Uncomment during local development if testing with a frontend running on a different port.
-//app.use(cors({
-//  origin: "*", //Enables requests from all origins (during the development phase)
-//}));
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// Handle preflight requests
+app.options("*", cors());
+
 
 //Json parses
 app.use(express.json());
 //Allow to use /health and default endpoint without API Gateway secret for easier health checks and testing. All other routes will require the secret for added security.
 app.use((req, res, next) => {
-  if (req.path === "/health" || req.path === "/") {
-    return next(); // skip secret check
+  if (req.method === "OPTIONS") {
+    return next();
   }
-  // For all other routes, require the API Gateway secret to ensure only authorized requests are accepted
+
+  if (req.path === "/health" || req.path === "/") {
+    return next();
+  }
+
   return requireApiGatewaySecret(req, res, next);
 });
 
