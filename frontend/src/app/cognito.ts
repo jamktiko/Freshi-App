@@ -1,7 +1,7 @@
 /// AWS Cognito authentication and authorization service
 
 import { Injectable, signal } from '@angular/core';
-import { environment } from 'src/environment/environment.prod';
+import { environment } from '../environment/environment';
 import { Amplify } from 'aws-amplify';
 import {
   confirmSignUp,
