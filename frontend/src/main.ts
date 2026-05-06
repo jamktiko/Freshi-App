@@ -19,6 +19,10 @@ import { importProvidersFrom } from '@angular/core';
 import { Amplify } from 'aws-amplify';
 import { environment } from './environment/environment.prod';
 
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
+import { authInterceptor } from './app/auth.interceptor';
+
 // Confiruring AWS Amplify to work with AWS cognito
 Amplify.configure({
   Auth: {
@@ -35,12 +39,6 @@ Amplify.configure({
     },
   },
 });
-
-import { routes } from './app/app.routes';
-import { AppComponent } from './app/app.component';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-
-import { authInterceptor } from './app/auth.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
