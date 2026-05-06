@@ -222,9 +222,9 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 
 ### D. Frontend CI Pipeline (`frontend-ci.yml`)
 
-- We have created a dedicated GitHub Actions workflow for the frontend.
-- It triggers automatically on changes to the `frontend/` directory.
-- It installs Playwright and executes the test suite. Because our E2E tests are `.skip`ped, the pipeline succeeds and stays green, proving the infrastructure works before the product is even finished.
+- **Automated Execution:** The dedicated GitHub Actions workflow triggers automatically on changes to the `frontend/` directory.
+- **Dynamic Environment Generation:** The local `src/environment` folder is securely ignored in `.gitignore`. During the CI build, the pipeline dynamically generates `environment.ts` and `environment.prod.ts` on-the-fly by injecting `COGNITO_USER_POOL_ID` and `COGNITO_APP_CLIENT_ID` from GitHub Actions Secrets.
+- **Integrated Web Server:** The `playwright.config.ts` is configured to automatically boot the Angular development server (`npm start`) on port 4200. Playwright waits for the build to compile cleanly using the dynamically injected environment files before executing the E2E user journey.
 
 ## 7. Current Project Status
 
