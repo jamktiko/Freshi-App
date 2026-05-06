@@ -1,17 +1,7 @@
 import { jest } from '@jest/globals';
+import { requireAuth } from '../../middleware/auth.middleware.js';
 
-// We import the middleware to test it.
-// Note: Since auth.middleware.js is currently commented out, these tests might fail
-// or need to wait until the implementation is uncommented and exported.
-// import { authMiddleware } from '../../middleware/auth.middleware.js';
-import jwt from 'jsonwebtoken';
-
-// Dummy implementation injected into test to avoid crashing because module provides no exports
-const authMiddleware = (req, res, next) => {
-  // Empty logic here, tests are skipped anyway
-};
-
-describe('Auth Middleware', () => {
+describe('Auth Middleware (requireAuth)', () => {
   let mockRequest;
   let mockResponse;
   let nextFunction;
@@ -31,41 +21,42 @@ describe('Auth Middleware', () => {
     jest.clearAllMocks();
   });
 
-  test.skip('returns 401 if no Authorization header is provided', () => {
-    authMiddleware(mockRequest, mockResponse, nextFunction);
+  test('returns 401 if no Authorization or x-user-id header is provided', () => {
+    requireAuth(mockRequest, mockResponse, nextFunction);
 
     expect(mockResponse.status).toHaveBeenCalledWith(401);
-    expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Missing token' });
+    expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
     expect(nextFunction).not.toHaveBeenCalled();
   });
 
-  test.skip('returns 401 if the token verification fails (invalid token)', () => {
-    mockRequest.headers.authorization = 'Bearer invalid.token.string';
+  test('calls next() and attaches decoded user if x-user-id header is valid', () => {
+    mockRequest.headers['x-user-id'] = 'user-123';
 
-    // Mock jwt.verify to throw an error
-    jwt.verify = jest.fn((token, getKey, options, callback) => {
-      callback(new Error('Invalid token'), null);
-    });
+    requireAuth(mockRequest, mockResponse, nextFunction);
 
-    authMiddleware(mockRequest, mockResponse, nextFunction);
-
-    expect(mockResponse.status).toHaveBeenCalledWith(401);
-    expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Invalid token' });
-    expect(nextFunction).not.toHaveBeenCalled();
-  });
-
-  test.skip('calls next() and attaches decoded user if token is valid', () => {
-    mockRequest.headers.authorization = 'Bearer valid.jwt.token';
-    const decodedUser = { sub: 'user-123', email: 'test@example.com' };
-
-    // Mock jwt.verify to succeed
-    jwt.verify = jest.fn((token, getKey, options, callback) => {
-      callback(null, decodedUser);
-    });
-
-    authMiddleware(mockRequest, mockResponse, nextFunction);
-
-    expect(mockRequest.user).toEqual(decodedUser);
+    expect(mockRequest.user).toEqual({ sub: 'user-123' });
     expect(nextFunction).toHaveBeenCalled();
+  });
+
+  test('calls next() and attaches decoded user if valid Bearer token is provided', () => {
+    // A dummy base64 encoded JWT token where the payload contains {"sub":"user-456"}
+    const dummyPayload = Buffer.from(JSON.stringify({ sub: 'user-456' })).toString('base64');
+    const dummyToken = `header.${dummyPayload}.signature`;
+    mockRequest.headers.authorization = `Bearer ${dummyToken}`;
+
+    requireAuth(mockRequest, mockResponse, nextFunction);
+
+    expect(mockRequest.user).toEqual({ sub: 'user-456' });
+    expect(nextFunction).toHaveBeenCalled();
+  });
+  
+  test('returns 401 if Bearer token is malformed', () => {
+    mockRequest.headers.authorization = `Bearer invalid-token-string`;
+
+    requireAuth(mockRequest, mockResponse, nextFunction);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(401);
+    expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+    expect(nextFunction).not.toHaveBeenCalled();
   });
 });

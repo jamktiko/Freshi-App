@@ -71,6 +71,10 @@ app.use((err, req, res, next) => {
 // 🚀 START SERVER, Beanstalk gives the port automatically
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend running on port ${PORT}`);
+  });
+}
+
+export default app;
