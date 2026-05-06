@@ -10,21 +10,20 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <div class="image-frame">
-    @if (imagePath() === null) {
-      <ion-button (click)="takePhoto()">OTA KUVA!</ion-button>
-    } @else {
-      <ion-img [src]="imagePath()"></ion-img>
-    }
-  </div>
-  <ion-list>
-    @for (detection of detectedTexts(); track $index) {
-      <ion-item>{{ detection.text }}</ion-item>
-    }
-  </ion-list>
-
-  <form [formGroup]="productForm">
-    <ion-list class="addproduct">
+  <form class="addproduct" [formGroup]="productForm">
+    <div class="image-frame">
+      @if (imagePath() === null) {
+        <ion-button (click)="takePhoto()">Take a picture</ion-button>
+      } @else {
+        <ion-img [src]="imagePath()"></ion-img>
+      }
+    </div>
+    <ion-list>
+      @for (detection of detectedTexts(); track $index) {
+        <ion-item>{{ detection.text }}</ion-item>
+      }
+    </ion-list>
+    <ion-list class="input-list">
       <ion-item lines="none" class="field-row">
         <ion-input
           class="freshi-input"
