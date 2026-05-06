@@ -218,7 +218,8 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 
 - **Goal:** Simulate a complete user journey exactly as a human would experience it.
 - **Status:** **✅ Fully Active**. We chose **Playwright** as the E2E framework. The complete user journey (Register -> Add photo -> Sort -> Logout) is active in `frontend/e2e/user-journey.spec.ts`.
-- **How it works:** We updated the Playwright script to use resilient DOM selectors that match the actual Angular application built by the frontend developers. To accommodate browser-based E2E testing, the script gracefully falls back to manually filling out the product form instead of relying on native hardware (like the Capacitor Camera).
+- **Ionic/Angular Web Component Resilience:** Standard Playwright CSS selectors crash when dealing with Ionic's complex Shadow DOM and hidden native inputs. We solved this by refactoring the entire E2E script to strictly use Playwright's Accessibility engine (`getByRole('textbox', { name: 'Label' })`). This allows Playwright to act like a screen-reader, flawlessly piercing the Shadow DOM to find native inputs while completely avoiding Playwright "Strict Mode Violations" caused by Ionic keeping old pages cached in the DOM.
+- **AWS Cognito E2E Syncing:** E2E tests run against the live AWS Cognito User Pool. To prevent tests from getting stuck on email verification screens, we used the AWS CLI to forcefully create, verify, and permanently assign passwords to E2E test users (`admin-create-user` and `admin-set-user-password`), allowing the pipeline to test authentication cleanly.
 
 ### D. Frontend CI Pipeline (`frontend-ci.yml`)
 
