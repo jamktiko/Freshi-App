@@ -100,6 +100,7 @@ export async function updateItem(userId, itemId, updates) {
         SET productName = :p,
             brand = :b, 
             expirationDate = :e, 
+            openedDate = :o,
             lastUpdate = :lu
       `,
 
@@ -107,6 +108,7 @@ export async function updateItem(userId, itemId, updates) {
         ":p": updates.productName,
         ":b": updates.brand,
         ":e": updates.expirationDate,
+        ":o": updates.openedDate || null,
         ":lu": now
       },
 
