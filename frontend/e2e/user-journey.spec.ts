@@ -29,8 +29,12 @@ test.describe('End-to-End User Journey', () => {
     
     // Note: Since we are in a browser and cannot use the native Capacitor camera ('OTA KUVA!'),
     // we bypass the OCR and fill the form directly for E2E testing.
+    // All three required fields (name, brand, expiration) must be filled or the button stays disabled.
     await page.locator('app-add-product').getByRole('textbox', { name: 'Product Name' }).fill('Flour');
-    await page.locator('app-add-product ion-button', { hasText: /save|submit|add/i }).click();
+    await page.locator('app-add-product').getByRole('textbox', { name: 'Brand' }).fill('Test Brand');
+    await page.locator('app-add-product').getByRole('textbox', { name: 'Expiration date' }).fill('2026-12-31');
+    // force:true bypasses Ionic's ion-list overlay that intercepts pointer events
+    await page.locator('app-add-product ion-button', { hasText: /add/i }).click({ force: true });
 
     // 4. See it on the home list
     await expect(page.locator('app-home ion-item, app-home .product-list-item').filter({ hasText: 'Flour' }).first()).toBeVisible();
