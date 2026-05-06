@@ -205,19 +205,20 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 
 - **Goal:** Test pure logic and functions in absolute isolation.
 - **Status:** **✅ Fully Active**. We built `backend/utils/expiry.js` (pure date math without AWS dependencies) and have active, passing tests in `expiry.test.js` using Jest fake timers.
-- **Cost-Free AWS Mocking:** For tests that touch AWS (like `ai-extraction.test.js`), we use `aws-sdk-client-mock`. The mocking logic for Amazon Bedrock is fully implemented in the test file, intercepting `ConverseCommand` to ensure zero cost and instantaneous execution. The tests remain `.skip`ped pending the backend developer finalizing the AI service logic.
+- **Cost-Free AWS Mocking:** For tests that touch AWS (like `ai-extraction.test.js`), we use `aws-sdk-client-mock`. The mocking logic for Amazon Bedrock is fully implemented in the test file, intercepting `ConverseCommand` to ensure zero cost and instantaneous execution.
+- **Auth Middleware:** We rewrote `auth.middleware.test.js` to validate the `requireAuth` logic, testing both `x-user-id` injection and base64 payload decoding.
 
 ### B. Integration Tests (Backend API)
 
 - **Goal:** Test the Express router HTTP responses (Login -> Create -> Delete flow).
-- **Status:** **📝 Scaffolded via `.skip()`**. The file `items-api.test.js` has been updated with actual `supertest` HTTP request code covering the full CRUD flow. It remains in `.skip()` mode to keep CI green while the backend routes are finalized.
-- **Future Execution:** Once the backend developer finishes the CRUD routes, they simply remove the `.skip()` modifiers to activate the test suite.
+- **Status:** **✅ Fully Active**. The file `items-api.test.js` contains actual `supertest` HTTP request code covering the full CRUD flow. 
+- **Offline Database Mocking:** To prevent tests from hitting real AWS infrastructure, we implemented `DynamoDBDocumentClient` mocks for `PutCommand`, `QueryCommand`, `UpdateCommand`, and `DeleteCommand`. All requests use `.set('x-user-id', 'test-user-123')` to bypass Cognito during testing.
 
 ### C. End-to-End (E2E) Tests (Frontend Browser)
 
 - **Goal:** Simulate a complete user journey exactly as a human would experience it.
-- **Status:** **⏭️ Scaffolded via `.skip()`**. We chose **Playwright** as the E2E framework. The complete user journey (Register -> Add photo -> Sort -> Logout) is fully pre-written in `frontend/e2e/user-journey.spec.ts`.
-- **How it works:** We pre-wrote initial CSS selectors (e.g., `#add-product-btn`). Playwright's flexibility acts as a soft contract — frontend developers can build the UI however they want (using their own CSS IDs, `data-testid` attributes, or standard accessible roles), and the Playwright selectors can be easily updated to match their actual DOM structure before un-skipping the test.
+- **Status:** **✅ Fully Active**. We chose **Playwright** as the E2E framework. The complete user journey (Register -> Add photo -> Sort -> Logout) is active in `frontend/e2e/user-journey.spec.ts`.
+- **How it works:** We updated the Playwright script to use resilient DOM selectors that match the actual Angular application built by the frontend developers. To accommodate browser-based E2E testing, the script gracefully falls back to manually filling out the product form instead of relying on native hardware (like the Capacitor Camera).
 
 ### D. Frontend CI Pipeline (`frontend-ci.yml`)
 
@@ -231,11 +232,13 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 | :-------------------------------- | :----------------------------------------------------------------- | :----------- |
 | CloudFormation (4 stacks)         | ✅ Complete & validated                                            | Infra/DevOps |
 | CI/CD Pipelines (CI + CD)         | ✅ Complete                                                        | Infra/DevOps |
-| Testing Infrastructure & Strategy | ✅ Complete (Jest + Playwright configured)                         | Infra/DevOps |
-| Backend routes & services         | 🟢 In Progress — routes and services exist, under active development | Backend dev  |
-| Frontend auth flow                | 🟡 Scaffolded — needs environment file, auth guard, error handling | Frontend dev |
-| Frontend core features            | 🔴 Not started — item list, camera, OCR UI                         | Frontend dev |
+| Testing Infrastructure & Strategy | ✅ Complete (Unit, Integration, and E2E Tests fully active)        | Infra/DevOps |
+| Backend routes & services         | ✅ Complete — Core CRUD logic, DynamoDB integrations implemented   | Backend dev  |
+| Frontend UI/UX                    | 🟢 Mostly Complete — Awaiting final hamburger menu implementation  | Frontend dev |
 
 ## 8. Security stack takedown
 
+If you absolutely must destroy the Cognito User Pools, run:
+```bash
 aws cloudformation delete-stack --stack-name FoodAppSecurityStack
+```

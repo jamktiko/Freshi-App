@@ -14,6 +14,7 @@ import {
   add,
   arrowBack,
   settings,
+  trash,
 } from 'ionicons/icons';
 @Component({
   selector: 'app-root',
@@ -40,6 +41,7 @@ export class AppComponent {
       add,
       arrowBack,
       settings,
+      trash,
     });
   }
 }

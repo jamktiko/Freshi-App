@@ -11,7 +11,7 @@ describe('AI Extraction Service (Bedrock)', () => {
 
   // This test is skipped for now until the team finishes merging bedrock.service.js
   // and ai-extraction.service.js logic.
-  test.skip('should correctly parse valid JSON returned from Bedrock', async () => {
+  test('should correctly parse valid JSON returned from Bedrock', async () => {
     bedrockMock.on(ConverseCommand).resolves({
       output: {
         message: {
@@ -25,7 +25,7 @@ describe('AI Extraction Service (Bedrock)', () => {
     expect(result).toHaveProperty('brand', 'Oatly');
   });
 
-  test.skip('should throw an error gracefully if Bedrock returns invalid JSON', async () => {
+  test('should return INVALID_DATA gracefully if Bedrock returns invalid JSON', async () => {
     bedrockMock.on(ConverseCommand).resolves({
       output: {
         message: {
@@ -34,6 +34,8 @@ describe('AI Extraction Service (Bedrock)', () => {
       }
     });
 
-    await expect(analyzeText('invalid')).rejects.toThrow('AI returned invalid JSON');
+    const result = await analyzeText('invalid');
+    expect(result).toHaveProperty('status', 'INVALID_DATA');
+    expect(result).toHaveProperty('suspiciousInput', true);
   });
 });
