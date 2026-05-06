@@ -1,18 +1,27 @@
 .summary-card-list {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  flex-direction: column;
+  padding: 1rem;
+  padding-top: 0;
   background-color: #ffffff;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  margin: 0 1rem;
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
 }
+
+h1 {
+  padding-bottom: 1rem;
+  padding-top: 0;
+}
+
+.summary-cards {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .product-list-header {
   display: flex;
   flex-direction: row;
@@ -28,33 +37,31 @@
   margin-left: 0.5rem;
 }
 
+ion-toolbar {
+  margin-bottom: 1.5rem;
+  box-shadow: none;
+}
+
+ion-header {
+  box-shadow: none;
+  box-shadow: var(--app-boxshadow);
+}
+
 .homeheader {
+  background-color: #ffffff;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
-
-  padding-top: 3rem;
-  padding-bottom: 2rem;
-  padding-left: 1rem;
-  padding-right: 2rem;
-
+  gap: 0rem;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  padding-left: 0.5rem;
   text-align: left;
-}
-
-ion-header,
-ion-toolbar {
-  --box-shadow: none;
-  box-shadow: none;
 }
 
 ion-title {
   text-align: left;
   padding: 0;
-}
-
-.homeheader h1 {
-  margin: 4px 0 0 0; /* vähän tilaa mutta ei liikaa */
 }
 
 .Fresh {
@@ -109,8 +116,11 @@ ion-title {
 }
 
 .freshi-logo {
-  width: 64px;
-  height: 64px;
+  padding-top: 0.3rem;
+  padding-bottom: 0.8rem;
+  background-color: #ffffff;
+  width: 55px;
+  height: 55px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -118,7 +128,7 @@ ion-title {
 .freshi-title {
   padding: 0;
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2rem;
   line-height: 1;
   text-align: left;
 }
