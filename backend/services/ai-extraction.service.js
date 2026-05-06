@@ -49,6 +49,7 @@ Return ONLY valid JSON in this example format:
 {
   "status": "OK | UNSURE | INVALID_DATA",
   "productName": "string",
+  "expirationDate": "string",
   "category": "string",
   "confidenceScore": "High | Medium | Low",
   "piiDetected": true,
@@ -106,6 +107,7 @@ try {
   return {
     status: "INVALID_DATA",
     productName: "INVALID_DATA",
+    expirationDate: "INVALID_DATA",
     category: "Other",
     confidenceScore: "Low",
     piiDetected: false,
