@@ -2,17 +2,24 @@
   <ion-header [translucent]="true">
     <ion-toolbar>
       <div class="homeheader">
-        <ion-title> Freshi</ion-title>
-        <h1>Save your cash, skip the trash!</h1>
+        <img
+          src="assets/icon/freshilogo.svg"
+          alt="Freshi logo"
+          class="freshi-logo"
+        />
+        <div class="header-text">
+          <ion-title class="freshi-title">Freshi</ion-title>
+          <h1>Save your cash, skip the trash!</h1>
+        </div>
       </div>
     </ion-toolbar>
   </ion-header>
   <div class="summary-card-list">
     <app-summary-card
-      class="Fresh"
-      icon="checkmark-circle-outline"
-      amount="5"
-      freshness="Fresh"
+      class="expired"
+      icon="alert-circle-outline"
+      amount="1"
+      freshness="Expired"
     ></app-summary-card>
     <app-summary-card
       class="expiring"
@@ -20,14 +27,16 @@
       amount="2"
       freshness="Expiring"
     ></app-summary-card>
+
     <app-summary-card
-      class="expired"
-      icon="alert-circle-outline"
-      amount="1"
-      freshness="Expired"
+      class="Fresh"
+      icon="checkmark-circle-outline"
+      amount="5"
+      freshness="Fresh"
     ></app-summary-card>
   </div>
   <ion-searchbar
+    [(ngModel)]="productSearch"
     class="searchbar"
     placeholder="Search products"
   ></ion-searchbar>
@@ -42,7 +51,7 @@
       </h3>
       <ion-button class="filtersbutton">Filters</ion-button>
     </div>
-    @for (product of sortedList(); track product.ItemId) {
+    @for (product of productList(); track product.ItemId) {
 
     <app-product-card [product]="product"></app-product-card>
     }
