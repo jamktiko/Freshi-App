@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Ocr, TextDetections } from '@capacitor-community/image-to-text';
-import { Camera, CameraDirection } from '@capacitor/camera';
+import { Camera, CameraDirection, MediaResult } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
 @Injectable({
   providedIn: 'root',
 })
 export class CameraService {
+  // Take a photo with device camera
   async takePhoto() {
     try {
       return await Camera.takePhoto({
@@ -18,6 +20,25 @@ export class CameraService {
       return null;
     }
   }
+
+  // Save given photo to application files
+  async savePhoto(photo: MediaResult, fileName: string) {
+    try {
+      if (photo.uri) {
+        const fullFileName = `${fileName}.jpg`;
+        const savedPhoto = await Filesystem.copy({
+          from: photo.uri,
+          to: fullFileName,
+          toDirectory: Directory.Data,
+        });
+      }
+    } catch (error) {
+      alert('Saving the photo failed: ' + error);
+    }
+  }
+
+  // Read a photo from storage
+  async readPhoto(fileName: string) {}
 
   async detectText(photoFilePath: string) {
     try {
