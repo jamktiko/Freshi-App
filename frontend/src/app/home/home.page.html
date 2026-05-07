@@ -1,18 +1,20 @@
 <ion-content class="homepage">
   <ion-header [translucent]="true">
     <ion-toolbar>
-      <div class="homeheader">
-        <img
-          src="assets/icon/freshilogo.svg"
-          alt="Freshi logo"
-          class="freshi-logo"
-        />
-        <div class="header-text">
-          <ion-title class="freshi-title">Freshi</ion-title>
-        </div>
-      </div>
+      <img
+        slot="start"
+        src="assets/icon/freshilogo.svg"
+        alt="Freshi logo"
+        class="freshi-logo"
+        style="margin-left: 16px"
+      />
+      <ion-title class="freshi-title">Freshi</ion-title>
+      <ion-buttons slot="end">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
     </ion-toolbar>
   </ion-header>
+
   <div class="summary-card-list">
     <h1>{{ randomGreeting }}</h1>
     <h2>Here is your kitchen's freshness report</h2>
