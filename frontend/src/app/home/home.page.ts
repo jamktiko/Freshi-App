@@ -7,6 +7,7 @@ import {
   IonTitle,
   IonToolbar,
   IonButtons,
+  IonMenuButton,
   IonSearchbar,
   IonButton,
   IonFabButton,
@@ -44,7 +45,8 @@ import { ProductDetailsComponent } from '../product-details/product-details.comp
     IonIcon,
     IonFabButton,
     IonButton,
-
+    IonButtons,
+    IonMenuButton,
     IonSearchbar,
     IonContent,
     IonHeader,
