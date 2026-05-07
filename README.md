@@ -1,67 +1,65 @@
---START
-This is a example template, which you can use. Version 1.0.
---END
-# Project Title
-
-- Kodin ruokatarvikkeiden ylläpitosovellus
+# Freshi - Household Grocery Management
 
 ## Description
 
--Sovellus luo käyttäjälle helpon tavan seurata omien kaappien elintarvikkeiden parasta ennen
-päiviä helposti yhdellä sovelluksella. Käyttäjä voi syöttää sovellukseen omien ruoka-aineiden
-parasta ennen – päivämäärät, ja sovellus ilmoittaa lähestyvästä päivämäärästä. Sovelluksen
-tarkoituksena on vähentää mahdollista ruokahävikkiä ja on kätevä pitkien päivämäärien
-kanssa esim. riisit tai säilykkeet. Sovellus on tarkoitettu tavallisille kuluttajille, jotka haluavat
-vähentää ruokahävikkiä
+The application creates an easy way for the user to track the best-before dates of their own pantry groceries easily with a single app. The user can enter the best-before dates of their food items into the application, and the application will notify them of the approaching date. The purpose of the application is to reduce potential food waste and it is convenient with long-dated items, such as rice or canned goods. The application is intended for ordinary consumers who want to reduce food waste.
+
+## Tech Stack
+
+- **Frontend:** Ionic 8, Angular 20, Capacitor (Cross-platform mobile)
+- **Backend:** Node.js 24, Express, Jest (Automated Testing)
+- **Infrastructure (AWS):** Elastic Beanstalk, API Gateway (HTTP API v2), DynamoDB, S3, CloudFront
+- **Identity & Security:** Amazon Cognito, AWS Secrets Manager
+- **AI Integration:** Amazon Bedrock (Nova-2-Lite) via Edge OCR (`@capacitor-community/image-to-text`)
+- **CI/CD:** GitHub Actions (Automated testing and Beanstalk deployment)
 
 ## Getting Started
 
-### Dependencies
+### Prerequisites
 
-- Describe any prerequisites, libraries, frameworks, etc., the sofware uses.
+- Node.js (v24 recommended)
+- Angular CLI & Ionic CLI
+- AWS CLI (Configured for `eu-central-1`)
 
-### Installing
+### Local Development
 
-- How/where to download your program
-- Any modifications needed to be made to files/folders
+**1. Backend:**
 
-### Executing program
-
-- How to run the program
-- Step-by-step bullets
-
+```bash
+cd backend
+npm install
+npm test            # Run mocked unit tests
+npm start           # Starts the backend express server on port 3000
 ```
-code blocks for commands
+
+**2. Frontend:**
+
+```bash
+cd frontend
+npm install
+npm start           # Serves the Angular frontend on localhost:4200
 ```
 
-## Help
+### AWS Infrastructure Deployment
 
-Any advise for common problems or issues.
+The environment is entirely built using Infrastructure-as-Code (CloudFormation). To spin up or update the cloud environment:
 
-```
-command to run if program contains helper info
+```bash
+cd aws
+./deploy.sh
 ```
 
 ## Authors
 
-Contributors names
+- **Sanni Pöykiö** - UI/UX
+- **Samuli Ilomäki** - AWS/CI/CD
+- **Konsta Poikolainen** - Backend
+- **Jarkko Remes** - Frontend
 
 ## Version History
 
-- 0.2
-  - Various bug fixes and optimizations
-- 0.1
-  - Initial Release
+- **1.0.** - Cloud Infrastructure, AI OCR pipeline, and CI/CD integration
 
 ## License
 
-This project is licensed under the CC BY-SA 4.0 License - see the LICENSE.md file for details
-
-[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
-
-[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
-[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
+This project is licensed under the CC BY-SA 4.0 License - see the [license.md](license.md) file for details.
