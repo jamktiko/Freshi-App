@@ -106,11 +106,13 @@ export async function updateItem(userId, itemId, updates) {
 
       ExpressionAttributeValues: {
         ":p": updates.productName,
-        ":b": updates.brand,
+        ":b": updates.brand ?? null,
         ":e": updates.expirationDate,
-        ":o": updates.openedDate || null,
+        ":o": updates.openedDate ?? null,
         ":lu": now
       },
+
+      ConditionExpression: "attribute_exists(userId) AND attribute_exists(itemId)",
 
       // Return the updated item after the update operation
       ReturnValues: "ALL_NEW"
@@ -145,7 +147,10 @@ export async function deleteItem(userId, itemId) {
       ExpressionAttributeValues: {
         ":d": true,
         ":lu": now
-      }
+      },
+
+      ConditionExpression: "attribute_exists(userId) AND attribute_exists(itemId)"
+
     })
   );
 

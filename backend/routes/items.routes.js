@@ -23,6 +23,24 @@ function getUserId(req) {
   return req.user.sub; // requireAuth middleware will populate req.user with the decoded JWT token, which contains the user's sub (unique identifier)
 }
 
+//Normalize item to return null if the attribute has no value
+  function normalizeItem(item) {
+    return {
+      userId: item.userId ?? null,
+      itemId: item.itemId ?? null,
+      S3imageKey: item.S3imageKey ?? null,
+      productName: item.productName ?? null,
+      brand: item.brand ?? null,
+      expirationDate: item.expirationDate ?? null,
+      openedDate: item.openedDate ?? null,
+      confidence: item.confidence ?? null,
+      createdAt: item.createdAt ?? null,
+      isDeleted: item.isDeleted ?? null,
+      lastUpdate: item.lastUpdate ?? null,
+      TTL: item.TTL ?? null
+      };
+    }
+
 //authMiddleware, // Uncomment this line to enable authentication for item routes
 /** 
  * POST /
@@ -144,7 +162,7 @@ if (openedDate) {
 
     res.json({
       success: true,
-      data: saved
+      data: normalizeItem(saved)
     });
 
   } catch (err) {
@@ -173,10 +191,10 @@ router.get(
 
       // Call the service function to get items for the user from DynamoDB, with optional pagination
       const result = await getItemsByUser(userId, lastKey);
-    
-      return res.json({
+
+        return res.json({
         success: true, // Indicate successful response
-        data: result.items, // Return the list of items for the user
+        data: result.items.map(normalizeItem), // Return the list of items for the user
         lastKey: result.lastKey || null // Return last evaluated key for pagination if available
       });
     } 
@@ -221,7 +239,7 @@ router.get(
 
     return res.json({
       success: true,
-      data: items,
+      data: items.map(normalizeItem),
       serverTime: new Date().toISOString() // Return current server time for frontend to update its last sync time  
     });
     } catch (err) {
@@ -305,9 +323,11 @@ if (openedDate) {
         openedDate
       });
 
+
+
       return res.json({
         success: true, // Indicate successful update
-        data: updated // Return the updated item data
+        data: normalizeItem(updated) // Return the updated item data
       });
     } catch (err) { // Error handling
       console.error("Update item error", err);
