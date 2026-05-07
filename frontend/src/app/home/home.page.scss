@@ -24,8 +24,18 @@ ion-item {
 }
 
 h1 {
-  padding-bottom: 1rem;
-  padding-top: 0;
+  margin: 0;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  font-size: var(--app-h1-size);
+}
+
+h2 {
+  margin: 0;
+  padding-right: 0.5rem;
+  font-size: var(--app-h2-size);
+  color: var(--app-h1text);
+  padding-bottom: 1.5rem;
 }
 
 .summary-cards {
