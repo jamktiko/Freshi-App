@@ -75,6 +75,7 @@ ion-toolbar {
 ion-header {
   box-shadow: none;
   box-shadow: var(--app-boxshadow);
+  background-color: #ffffff;
 }
 
 .homeheader {
@@ -192,7 +193,6 @@ app-product-card {
 .freshi-logo {
   padding-top: 0.3rem;
   padding-bottom: 0.8rem;
-  background-color: #ffffff;
   width: 55px;
   height: 55px;
   object-fit: contain;
@@ -200,9 +200,11 @@ app-product-card {
 }
 
 .freshi-title {
-  padding: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--app-title-size);
+  font-weight: 500;
   line-height: 1;
   text-align: left;
 }
