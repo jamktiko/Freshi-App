@@ -60,6 +60,21 @@ export class HomePage implements OnInit {
   router = inject(Router);
 
   productSearch = signal('');
+  randomGreeting = '';
+
+  private greetings = [
+    'Stay fresh!',
+    'Great to see you!',
+    'What’s cooking?',
+    'Welcome back!',
+    'Your kitchen missed you!',
+    'Nice to see you again!',
+    'It´s a treat to see you!',
+    'Hello, friend!',
+    'Time for a quick check?',
+    'Hi there!',
+    'Ready to dive in?',
+  ];
 
   productList = computed<Iproduct[]>(() => {
     const products = this.storageService.products();
@@ -111,7 +126,10 @@ export class HomePage implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.randomGreeting =
+      this.greetings[Math.floor(Math.random() * this.greetings.length)];
+  }
 
   deleteItem(deletedItem: Iproduct) {
     this.storageService.removeProduct(deletedItem);
