@@ -35,4 +35,28 @@
       <ion-button expand="block" (click)="logOut()">Log out</ion-button>
     </ion-list>
   </div>
+
+  <div class="account">
+    <ion-list-header>Testing</ion-list-header>
+
+    <ion-list class="account-list">
+      <ion-item class="account-item" lines="none">
+        <div class="user-info">
+          <h2 class="username">Fetched Data</h2>
+          @for (product of products(); track product.itemId) {
+          <ion-label class="user-value">{{product.itemId}} </ion-label>
+          <ion-label class="user-value">{{product.productName}} </ion-label>
+
+          <ion-label class="user-value">{{product.category}} </ion-label>
+          <ion-label class="user-value">{{product.expirationDate}} </ion-label>
+
+          }
+        </div>
+      </ion-item>
+      <ion-button expand="block" (click)="getProducts()"
+        >Get Products</ion-button
+      >
+      <ion-button expand="block" (click)="postProduct()">POST</ion-button>
+    </ion-list>
+  </div>
 </ion-content>

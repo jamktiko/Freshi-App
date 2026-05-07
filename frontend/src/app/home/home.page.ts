@@ -21,7 +21,7 @@ import {
   IonItemOption,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
-import { Iproduct, mockProducts, IaddProduct } from '../product';
+import { Iproduct, IaddProduct } from '../product';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { AddProductComponent } from '../add-product/add-product.component';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -95,7 +95,7 @@ export class HomePage implements OnInit {
     if (role === 'confirm') {
       try {
         const newProduct: Iproduct = {
-          ItemId: crypto.randomUUID(),
+          itemId: crypto.randomUUID(),
           productName: data.name,
           brand: data.brand,
           category: data.category,

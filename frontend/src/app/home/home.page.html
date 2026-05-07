@@ -54,7 +54,7 @@
       <ion-button class="filtersbutton">Filters</ion-button>
     </div>
     <ion-list lines="none">
-      @for (product of productList(); track product.ItemId) {
+      @for (product of productList(); track product.itemId) {
       <ion-item-sliding>
         <ion-item-options side="start">
           <ion-item-option color="danger" (click)="deleteItem(product)">

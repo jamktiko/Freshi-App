@@ -43,7 +43,7 @@ export class StorageService {
   async removeProduct(removedProduct: Iproduct) {
     this.products.update((oldProducts) => {
       const newProducts = oldProducts.filter(
-        (product) => product.ItemId !== removedProduct.ItemId,
+        (product) => product.itemId !== removedProduct.itemId,
       );
       this._storage?.set(this.STORAGE_KEY, newProducts);
       return newProducts;
@@ -54,7 +54,7 @@ export class StorageService {
   async updateProduct(updatedProduct: Iproduct) {
     this.products.update((oldProducts) => {
       const index = oldProducts.findIndex(
-        (product) => product.ItemId === updatedProduct.ItemId,
+        (product) => product.itemId === updatedProduct.itemId,
       );
       if (index !== -1) {
         oldProducts[index] = updatedProduct;
