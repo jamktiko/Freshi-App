@@ -48,7 +48,8 @@ router.post(
       productName,
       brand,
       expirationDate,
-      confidence
+      confidence,
+      openedDate
     } = req.body;
 
     if (!productName || !expirationDate) {
@@ -65,6 +66,26 @@ router.post(
         error: "expirationDate must be in YYYY-MM-DD format and productName must be a string"
       });
     }
+
+    if (
+      openedDate &&
+      (typeof openedDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(openedDate))
+  ) {
+  return res.status(400).json({
+    error: "openedDate must be in YYYY-MM-DD format"
+    });
+  }
+
+if (openedDate) {
+  const opened = new Date(openedDate);
+
+  if (isNaN(opened.getTime())) {
+    return res.status(400).json({
+      error: "Invalid openedDate format"
+    });
+  }
+}
+
 
     const now = new Date();
 
@@ -106,6 +127,7 @@ router.post(
       productName, // Required product name field from image recognition
       brand, // Optional brand field from image recognition
       expirationDate, //product expiration date in ISO format (YYYY-MM-DD)
+      openedDate: openedDate || null,
       confidence, // Confidence score from image recognition (if available)
       createdAt: now.toISOString(), // Track creation time for potential future features like edit history
       isDeleted: false, // Soft delete flag for potential future features like item recovery or edit history
@@ -226,7 +248,8 @@ router.put(
       const {
         productName,
         brand,
-        expirationDate
+        expirationDate,
+        openedDate
       } = req.body;
 
       //Basic validation for required fields and formats
@@ -255,11 +278,31 @@ router.put(
         });
       }
 
+      if (
+        openedDate &&
+        (typeof openedDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(openedDate))
+    ) {
+        return res.status(400).json({
+          error: "openedDate must be in YYYY-MM-DD format"
+      });
+  }
+
+if (openedDate) {
+  const opened = new Date(openedDate);
+
+  if (isNaN(opened.getTime())) {
+    return res.status(400).json({
+      error: "Invalid openedDate format"
+    });
+  }
+}
+
       // Call the service function to update the item in DynamoDB
       const updated = await updateItem(userId, itemId, {
         productName,
         brand,
-        expirationDate
+        expirationDate,
+        openedDate
       });
 
       return res.json({
