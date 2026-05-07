@@ -28,6 +28,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import { Router } from '@angular/router';
 import { StorageService } from '../storage';
 import { Cognito } from '../cognito';
+import { ProductDetailsComponent } from '../product-details/product-details.component';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -95,6 +96,24 @@ export class HomePage implements OnInit {
   number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
   constructor() {}
+
+  // Open a modal to show product details
+  async showDetails(product: Iproduct) {
+    const modal = await this.modalCtrl.create({
+      component: ProductDetailsComponent,
+      componentProps: {
+        itemId: product.ItemId,
+        productName: product.productName,
+        productBrand: product.brand,
+        productCategory: product.category,
+        expirationDate: product.expirationDate,
+        openedDate: product.openedDate,
+      },
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+  }
 
   // Opens a modal with the add-product component
   async addProductModal() {

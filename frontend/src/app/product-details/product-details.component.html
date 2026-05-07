@@ -1,0 +1,36 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <b>Product details</b>
+
+    <ion-buttons class="back" slot="start">
+      <ion-button (click)="cancel()"
+        ><ion-icon name="arrow-back"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div><ion-img> </ion-img></div>
+  <div>
+    <h1>{{ productName }}</h1>
+    <ion-note>{{ productBrand }}</ion-note>
+  </div>
+  <ion-list>
+    <ion-item>
+      <ion-label>
+        <ion-note>Expiration date</ion-note>
+        <h3>{{ expirationDate }}</h3>
+      </ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>
+        <ion-note>Category</ion-note>
+        <h3>{{ productCategory }}</h3>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <div class="buttons">
+    <ion-button> Edit item </ion-button>
+    <ion-button> Delete</ion-button>
+  </div>
+</ion-content>
