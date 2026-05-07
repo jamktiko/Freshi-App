@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent,
   IonHeader,
-  IonTitle,
   IonToolbar,
   IonButtons,
   IonMenuButton,
@@ -50,7 +49,6 @@ import { ProductDetailsComponent } from '../product-details/product-details.comp
     IonSearchbar,
     IonContent,
     IonHeader,
-    IonTitle,
     IonToolbar,
     CommonModule,
     FormsModule,
