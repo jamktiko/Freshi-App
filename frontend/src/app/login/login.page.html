@@ -11,51 +11,55 @@
 </ion-header>
 
 <ion-content>
-  <div class="loginheader">
-    <p>Log in</p>
-    <h1>Log in to see your saved items and expiration dates!</h1>
-  </div>
+  <div class="center-wrapper">
+    <img src="assets/icon/freshilogo.svg" class="app-logo" alt="Freshi Logo" />
 
-  <form [formGroup]="login">
-    <ion-list>
-      <ion-item lines="none" class="field-row">
-        <ion-input
-          class="freshi-input"
-          type="email"
-          id="email"
-          [formControl]="login.controls.email"
-          label="Email"
-          labelPlacement="stacked"
-          fill="outline"
-          placeholder="Enter email"
-          style="
-            --border-radius: 16px;
-            --border: var (--app-bordercolor);
-            --border-width: 2px;
-            --highlight-color-focused: #4392f1;
-          "
-        ></ion-input>
-      </ion-item>
-      <ion-item lines="none" class="field-row">
-        <ion-input
-          class="freshi-input"
-          type="password"
-          label="Password"
-          [formControl]="login.controls.password"
-          labelPlacement="stacked"
-          fill="outline"
-          placeholder="Enter password"
-          style="
-            --border-radius: 16px;
-            --border: var (--app-bordercolor);
-            --border-width: 2px;
-            --highlight-color-focused: #4392f1;
-          "
-        ></ion-input>
-      </ion-item>
-      <ion-button (click)="submitLogin()" [disabled]="login.invalid"
-        >Submit</ion-button
-      >
-    </ion-list>
-  </form>
+    <div class="loginheader">
+      <p>Log in</p>
+      <h1>Log in to see your saved items and expiration dates!</h1>
+    </div>
+
+    <form [formGroup]="login">
+      <ion-list>
+        <ion-item lines="none" class="field-row">
+          <ion-input
+            class="freshi-input"
+            type="email"
+            id="email"
+            [formControl]="login.controls.email"
+            label="Email"
+            labelPlacement="stacked"
+            fill="outline"
+            placeholder="Enter email"
+            style="
+              --border-radius: 16px;
+              --border: var (--app-bordercolor);
+              --border-width: 2px;
+              --highlight-color-focused: #4392f1;
+            "
+          ></ion-input>
+        </ion-item>
+        <ion-item lines="none" class="field-row">
+          <ion-input
+            class="freshi-input"
+            type="password"
+            label="Password"
+            [formControl]="login.controls.password"
+            labelPlacement="stacked"
+            fill="outline"
+            placeholder="Enter password"
+            style="
+              --border-radius: 16px;
+              --border: var (--app-bordercolor);
+              --border-width: 2px;
+              --highlight-color-focused: #4392f1;
+            "
+          ></ion-input>
+        </ion-item>
+        <ion-button (click)="submitLogin()" [disabled]="login.invalid"
+          >Submit</ion-button
+        >
+      </ion-list>
+    </form>
+  </div>
 </ion-content>
