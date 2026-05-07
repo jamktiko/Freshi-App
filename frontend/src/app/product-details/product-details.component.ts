@@ -50,6 +50,10 @@ export class ProductDetailsComponent implements OnInit {
 
   photoWebPath = signal<string | null>(null);
 
+  // FOR TEST PHOTOS FOR testing on browser
+  randomPhotos = 5;
+  testPhotoPath = '';
+
   private modalCtrl = inject(ModalController);
   constructor() {}
 
@@ -57,7 +61,16 @@ export class ProductDetailsComponent implements OnInit {
     return this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getPhoto();
+    this.setRandomTestPhoto();
+  }
+
+  async setRandomTestPhoto() {
+    const randomNumber = Math.floor(Math.random() * this.randomPhotos);
+    const randomPhoto = `assets/testImages/Gemini_missingFood_${randomNumber + 1}.jpg`;
+    this.testPhotoPath = randomPhoto;
+  }
 
   async getPhoto() {
     if (this.itemId) {

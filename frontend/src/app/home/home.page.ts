@@ -131,7 +131,11 @@ export class HomePage implements OnInit {
     if (role === 'confirm') {
       try {
         const formData = data.form;
-        const uri = data.uri;
+        const uri = data.photoURI;
+
+        //ALERT FOR TESTIGN
+        //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
+
         const itemId = crypto.randomUUID();
         const newProduct: Iproduct = {
           ItemId: itemId,

@@ -89,6 +89,8 @@ export class AddProductComponent implements OnInit {
       this.detectText(photo.uri!);
     }
     if (photo?.uri) {
+      // FOR TESTING ONLY ALERT
+      //alert('PHOTO URI DETECTED ' + photo.uri);
       this.imageUri = photo.uri;
     }
   }

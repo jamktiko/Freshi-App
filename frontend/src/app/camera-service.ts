@@ -30,6 +30,10 @@ export class CameraService {
         to: fullFileName,
         toDirectory: Directory.Data,
       });
+
+      // FOR TESTING ONLY ALERT
+      //alert('IMAGE SAVE SUCCESFULL' + savedPhoto.uri);
+
       console.log('Image save succesfully: ', savedPhoto);
     } catch (error) {
       alert('Saving the photo failed: ' + error);
@@ -39,20 +43,27 @@ export class CameraService {
   // Read a photo from storage
   async readPhoto(fileName: string) {
     try {
+      const path = `${fileName}.jpg`;
       await Filesystem.stat({
-        path: fileName,
+        path: path,
         directory: Directory.Data,
       });
       const photoPath = await Filesystem.getUri({
-        path: fileName,
+        path: path,
         directory: Directory.Data,
       });
 
       // Convert photo path to usable by <img>
       const webPhotoPath = Capacitor.convertFileSrc(photoPath.uri);
+
+      // FOR TESTING ONLY ALERT
+      //alert('IMAGE PATH FOUND: ' + webPhotoPath);
+
       console.log('Image webpath fetched succesfully');
       return webPhotoPath;
     } catch (error) {
+      // FOR TESTING TABLET
+      //alert('FAILED TO LOAD IMAGE:  ' + error);
       console.warn('Failed to load image: ' + error);
       return null;
     }
