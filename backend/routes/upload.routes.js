@@ -10,8 +10,6 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 // Service responsible for uploading images to AWS S3
 import { uploadToS3 } from "../services/s3.service.js";
 
-// AI service that extracts product information from OCR text
-import { analyzeText } from "../services/ai-extraction.service.js";
 
 // Create Express router instance
 const router = express.Router();
@@ -29,8 +27,6 @@ const upload = multer({
  * Flow:
  * 1. Authenticate user
  * 2. Upload image to S3
- * 3. Optionally Send OCR text to AI for analysis
- * 4. Return AI suggestion (NOT saved yet)
  */
 router.post(
   "/",
@@ -64,34 +60,12 @@ router.post(
         req.file.mimetype         // content type (e.g. image/jpeg)
       );
 
-      //Ai analysis is optional
-      //if the frontend sends ocrText, we use ai to generate a product suggestion
-      //if ocrText is missing, the image is still uploaded and suggestion is returned as null
-
-      let aiSuggestion = null;
-
-    
-      //form-data values come as strings, so "true" means AI was selected by the user
-      const useAi = req.body.useAi === "true" ||
-      (req.body.useAi === undefined && req.body.ocrText);
-
-
-      if (useAi) {
-        if (!req.body.ocrText || req.body.ocrText.trim().length === 0 ) {
-          return res.status(400).json({
-            error: "ocrText is required when AI is enabled"
-         });
-       }
-      // Optionally send OCR text to AI model for analysis (no DB write happens here)
-        aiSuggestion = await analyzeText(req.body.ocrText.trim());
-      }
-
-      // Return both image reference and optional AI suggestion to frontend
+      
+      // Return image reference to frontend
       res.json({
         success: true,
         data: {
-          s3imageKey,              // stored image reference in S3
-          suggestion: aiSuggestion // AI-generated structured product info
+          s3imageKey              // stored image reference in S3
         }
       });
 
