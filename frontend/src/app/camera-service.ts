@@ -38,8 +38,17 @@ export class CameraService {
   }
 
   // Read a photo from storage
-  async readPhoto(fileName: string) {}
-
+  async readPhoto(fileName: string) {
+    try {
+      const photoPath = await Filesystem.getUri({
+        path: fileName,
+        directory: Directory.Data,
+      });
+      const webPhotoPath = Capacitor.convertFileSrc(photoPath.uri);
+    } catch (error) {
+      alert('Failed to load image: ' + error);
+    }
+  }
   async detectText(photoFilePath: string) {
     try {
       const normalaizedPath = photoFilePath.startsWith('file://')
