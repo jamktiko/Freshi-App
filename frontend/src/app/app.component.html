@@ -2,6 +2,11 @@
   <ion-menu side="end" contentId="main-content">
     <ion-header>
       <ion-toolbar>
+        <img
+          src="assets/icon/freshilogo.svg"
+          alt="Freshi logo"
+          class="freshi-logo"
+        />
         <ion-title>Menu</ion-title>
         <ion-buttons slot="end">
           <ion-menu-toggle>
@@ -15,13 +20,13 @@
     <ion-content>
       <ion-list>
         <ion-menu-toggle autoHide="false">
-          <ion-item button routerLink="/tabs/settings">
+          <ion-item lines="none" button routerLink="/tabs/settings">
             <ion-icon name="settings-outline" slot="start"></ion-icon>
             <ion-label>Settings & Account</ion-label>
           </ion-item>
         </ion-menu-toggle>
         <ion-menu-toggle autoHide="false">
-          <ion-item button routerLink="/tabs/info">
+          <ion-item lines="none" button routerLink="/tabs/info">
             <ion-icon name="information-circle-outline" slot="start"></ion-icon>
             <ion-label>App Information</ion-label>
           </ion-item>
