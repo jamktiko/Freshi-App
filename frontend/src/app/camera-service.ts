@@ -22,16 +22,15 @@ export class CameraService {
   }
 
   // Save given photo to application files
-  async savePhoto(photo: MediaResult, fileName: string) {
+  async savePhoto(photoURI: string, fileName: string) {
     try {
-      if (photo.uri) {
-        const fullFileName = `${fileName}.jpg`;
-        const savedPhoto = await Filesystem.copy({
-          from: photo.uri,
-          to: fullFileName,
-          toDirectory: Directory.Data,
-        });
-      }
+      const fullFileName = `${fileName}.jpg`;
+      const savedPhoto = await Filesystem.copy({
+        from: photoURI,
+        to: fullFileName,
+        toDirectory: Directory.Data,
+      });
+      console.log('Image save succesfully: ', savedPhoto);
     } catch (error) {
       alert('Saving the photo failed: ' + error);
     }
@@ -40,15 +39,26 @@ export class CameraService {
   // Read a photo from storage
   async readPhoto(fileName: string) {
     try {
+      await Filesystem.stat({
+        path: fileName,
+        directory: Directory.Data,
+      });
       const photoPath = await Filesystem.getUri({
         path: fileName,
         directory: Directory.Data,
       });
+
+      // Convert photo path to usable by <img>
       const webPhotoPath = Capacitor.convertFileSrc(photoPath.uri);
+      console.log('Image webpath fetched succesfully');
+      return webPhotoPath;
     } catch (error) {
-      alert('Failed to load image: ' + error);
+      console.warn('Failed to load image: ' + error);
+      return null;
     }
   }
+
+  // Detect text in images
   async detectText(photoFilePath: string) {
     try {
       const normalaizedPath = photoFilePath.startsWith('file://')
