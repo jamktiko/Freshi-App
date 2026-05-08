@@ -63,6 +63,7 @@ export class HomePage implements OnInit {
   router = inject(Router);
 
   productSearch = signal('');
+  activeFilter = signal<'All' | 'Expired' | 'Expiring' | 'Fresh'>('All');
   randomGreeting = '';
 
   private greetings = [
@@ -82,18 +83,36 @@ export class HomePage implements OnInit {
   productList = computed<Iproduct[]>(() => {
     const products = this.storageService.products();
     const search = this.productSearch().toLowerCase();
+    const filter = this.activeFilter();
     if (!products || !Array.isArray(products)) {
       return [];
     }
 
-    const filteredProducts = products.filter(
-      (product) =>
+    return products.filter((product) => {
+      const matchesSearch =
         product.brand?.toLowerCase().includes(search) ||
         product.category?.toLowerCase().includes(search) ||
-        product.productName?.toLowerCase().includes(search),
-    );
-    return filteredProducts;
+        product.productName?.toLowerCase().includes(search);
+
+      let matchesStatus = true;
+      if (filter !== 'All') {
+        const days = this.getDaysLeft(product.expirationDate);
+        if (filter === 'Fresh') matchesStatus = days > 3;
+        else if (filter === 'Expiring') matchesStatus = days >= 0 && days <= 3;
+        else if (filter === 'Expired') matchesStatus = days < 0;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
   });
+
+  private getDaysLeft(isoDate: string): number {
+    return Math.ceil((Date.parse(isoDate) - Date.now()) / (1000 * 3600 * 24));
+  }
+
+  toggleFilter(status: 'Expired' | 'Expiring' | 'Fresh') {
+    this.activeFilter.set(this.activeFilter() === status ? 'All' : status);
+  }
 
   number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
