@@ -1,34 +1,100 @@
+ion-header,
+ion-toolbar {
+  --box-shadow: none;
+  box-shadow: none;
+}
+
+ion-toolbar {
+  margin-top: 1rem;
+  margin-left: 1rem;
+}
+
+.freshilogo {
+  padding-top: 0.3rem;
+  padding-bottom: 0.5rem;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .logo-placeholder {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  margin-top: 40px;
-  margin-bottom: 20px;
-  padding: 30px;
-  background-color: var(--ion-color-light);
-  border-radius: 12px;
-  border: 2px dashed var(--ion-color-medium);
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+  background-color: #ffffff;
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  padding: 1rem;
+}
 
-  p {
-    color: var(--ion-color-medium);
-    margin-top: 10px;
-    font-weight: 500;
-  }
+ion-title {
+  margin-bottom: 1rem;
+}
+
+h2 {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  color: var(--app-h1text);
+}
+h1 {
+  margin: 0;
+  padding-bottom: 1rem;
 }
 
 .info-content {
-  margin-top: 30px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+  background-color: #ffffff;
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  padding: 1rem;
+}
 
-  h2 {
-    font-weight: 600;
-    margin-bottom: 15px;
-  }
+.features {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+  background-color: #ffffff;
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  padding: 1rem;
+}
 
-  p {
-    line-height: 1.6;
-    color: var(--ion-color-step-600, #666);
-    margin-bottom: 12px;
-  }
+.features {
+  display: grid;
+  /* Kaksi saraketta: ensimmäinen ikonin kokoinen (auto), toinen loppu tila (1fr) */
+  grid-template-columns: auto 1fr;
+  align-items: center; /* Keskittää ikonit ja tekstit pystysuunnassa */
+  gap: 12px 15px; /* Ensimmäinen luku on riviväli, toinen on ikonin ja tekstin väli */
+  padding: 20px;
+}
+
+.features h1 {
+  /* Pakotetaan otsikko viemään molemmat sarakkeet */
+  grid-column: span 2;
+  margin-bottom: 10px;
+}
+
+.features h2 {
+  margin: 0; /* Poistetaan h2-marginaalit, jotka sotkevat linjausta */
+  font-size: 1.1rem;
+  font-weight: normal;
+}
+
+.features ion-icon {
+  font-size: 1.4rem;
+  color: var(--ion-color-success); /* Tehdään checkmarkeista vihreitä */
 }
