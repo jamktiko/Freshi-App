@@ -1,0 +1,42 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>App Information</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">App Information</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="logo-placeholder">
+    <!-- Designer placeholder for App Logo/Image -->
+    <ion-icon
+      name="image-outline"
+      style="font-size: 80px; color: var(--ion-color-medium)"
+    ></ion-icon>
+    <p>App Logo/Image goes here</p>
+  </div>
+
+  <div class="info-content">
+    <h2>About Freshi</h2>
+    <p>
+      Leverage agile frameworks to provide a robust synopsis for high level
+      overviews. Iterative approaches to corporate strategy foster collaborative
+      thinking to further the overall value proposition.
+    </p>
+    <p>
+      Organically grow the holistic world view of disruptive innovation via
+      workplace diversity and empowerment. Bring to the table win-win survival
+      strategies to ensure proactive domination.
+    </p>
+    <br />
+    <p><b>Version:</b> 1.0.0</p>
+    <p><b>Build:</b> {{ currentYear }}</p>
+  </div>
+</ion-content>

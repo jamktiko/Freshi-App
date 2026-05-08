@@ -14,6 +14,13 @@
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
 }
+.active-card {
+  opacity: 1;
+  border: 2px solid var(--app-primary-color, #4392f1);
+  border-radius: var(--app-borderradius, 16px);
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
 ion-list {
   align-items: center;
   width: 90%;
@@ -75,6 +82,7 @@ ion-toolbar {
 ion-header {
   box-shadow: none;
   box-shadow: var(--app-boxshadow);
+  background-color: #ffffff;
 }
 
 .homeheader {
@@ -192,7 +200,6 @@ app-product-card {
 .freshi-logo {
   padding-top: 0.3rem;
   padding-bottom: 0.8rem;
-  background-color: #ffffff;
   width: 55px;
   height: 55px;
   object-fit: contain;
@@ -200,9 +207,11 @@ app-product-card {
 }
 
 .freshi-title {
-  padding: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--app-title-size);
+  font-weight: 500;
   line-height: 1;
   text-align: left;
 }

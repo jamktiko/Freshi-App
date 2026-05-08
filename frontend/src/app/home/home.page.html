@@ -1,18 +1,24 @@
 <ion-content class="homepage">
   <ion-header [translucent]="true">
     <ion-toolbar>
-      <div class="homeheader">
+      <div
+        slot="start"
+        style="display: flex; align-items: center; margin-left: 16px"
+      >
         <img
           src="assets/icon/freshilogo.svg"
           alt="Freshi logo"
           class="freshi-logo"
+          style="margin-left: -4px"
         />
-        <div class="header-text">
-          <ion-title class="freshi-title">Freshi</ion-title>
-        </div>
+        <span class="freshi-title">Freshi</span>
       </div>
+      <ion-buttons slot="end">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
     </ion-toolbar>
   </ion-header>
+
   <div class="summary-card-list">
     <h1>{{ randomGreeting }}</h1>
     <h2>Here is your kitchen's freshness report</h2>
@@ -22,12 +28,16 @@
         icon="alert-circle-outline"
         amount="1"
         freshness="Expired"
+        [class.active-card]="activeFilter() === 'Expired'"
+        (click)="toggleFilter('Expired')"
       ></app-summary-card>
       <app-summary-card
         class="expiring"
         icon="time-outline"
         amount="2"
         freshness="Expiring"
+        [class.active-card]="activeFilter() === 'Expiring'"
+        (click)="toggleFilter('Expiring')"
       ></app-summary-card>
 
       <app-summary-card
@@ -35,6 +45,8 @@
         icon="checkmark-circle-outline"
         amount="5"
         freshness="Fresh"
+        [class.active-card]="activeFilter() === 'Fresh'"
+        (click)="toggleFilter('Fresh')"
       ></app-summary-card>
     </div>
   </div>
@@ -63,7 +75,7 @@
               <ion-icon slot="icon-only" name="trash"></ion-icon>
             </ion-item-option>
           </ion-item-options>
-          <ion-item class="tuote">
+          <ion-item class="tuote" button (click)="showDetails(product)">
             <app-product-card [product]="product"></app-product-card>
           </ion-item>
           <ion-item-options side="end">

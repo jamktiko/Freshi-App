@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent,
   IonHeader,
-  IonTitle,
   IonToolbar,
   IonButtons,
+  IonMenuButton,
   IonSearchbar,
   IonButton,
   IonFabButton,
@@ -28,6 +28,8 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import { Router } from '@angular/router';
 import { StorageService } from '../storage';
 import { Cognito } from '../cognito';
+import { ProductDetailsComponent } from '../product-details/product-details.component';
+import { CameraService } from '../camera-service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -43,11 +45,11 @@ import { Cognito } from '../cognito';
     IonIcon,
     IonFabButton,
     IonButton,
-
+    IonButtons,
+    IonMenuButton,
     IonSearchbar,
     IonContent,
     IonHeader,
-    IonTitle,
     IonToolbar,
     CommonModule,
     FormsModule,
@@ -56,10 +58,12 @@ import { Cognito } from '../cognito';
   ],
 })
 export class HomePage implements OnInit {
+  cameraService = inject(CameraService);
   storageService = inject(StorageService);
   router = inject(Router);
 
   productSearch = signal('');
+  activeFilter = signal<'All' | 'Expired' | 'Expiring' | 'Fresh'>('All');
   randomGreeting = '';
 
   private greetings = [
@@ -79,22 +83,58 @@ export class HomePage implements OnInit {
   productList = computed<Iproduct[]>(() => {
     const products = this.storageService.products();
     const search = this.productSearch().toLowerCase();
+    const filter = this.activeFilter();
     if (!products || !Array.isArray(products)) {
       return [];
     }
 
-    const filteredProducts = products.filter(
-      (product) =>
+    return products.filter((product) => {
+      const matchesSearch =
         product.brand?.toLowerCase().includes(search) ||
         product.category?.toLowerCase().includes(search) ||
-        product.productName?.toLowerCase().includes(search),
-    );
-    return filteredProducts;
+        product.productName?.toLowerCase().includes(search);
+
+      let matchesStatus = true;
+      if (filter !== 'All') {
+        const days = this.getDaysLeft(product.expirationDate);
+        if (filter === 'Fresh') matchesStatus = days > 3;
+        else if (filter === 'Expiring') matchesStatus = days >= 0 && days <= 3;
+        else if (filter === 'Expired') matchesStatus = days < 0;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
   });
+
+  private getDaysLeft(isoDate: string): number {
+    return Math.ceil((Date.parse(isoDate) - Date.now()) / (1000 * 3600 * 24));
+  }
+
+  toggleFilter(status: 'Expired' | 'Expiring' | 'Fresh') {
+    this.activeFilter.set(this.activeFilter() === status ? 'All' : status);
+  }
 
   number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
   constructor() {}
+
+  // Open a modal to show product details
+  async showDetails(product: Iproduct) {
+    const modal = await this.modalCtrl.create({
+      component: ProductDetailsComponent,
+      componentProps: {
+        itemId: product.ItemId,
+        productName: product.productName,
+        productBrand: product.brand,
+        productCategory: product.category,
+        expirationDate: product.expirationDate,
+        openedDate: product.openedDate,
+      },
+    });
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+  }
 
   // Opens a modal with the add-product component
   async addProductModal() {
@@ -109,17 +149,27 @@ export class HomePage implements OnInit {
     // CURRENTLY SAVES ONLY TO AN ARRAY
     if (role === 'confirm') {
       try {
+        const formData = data.form;
+        const uri = data.photoURI;
+
+        //ALERT FOR TESTIGN
+        //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
+
+        const itemId = crypto.randomUUID();
         const newProduct: Iproduct = {
-          ItemId: crypto.randomUUID(),
-          productName: data.name,
-          brand: data.brand,
-          category: data.category,
-          expirationDate: data.expiration,
+          ItemId: itemId,
+          productName: formData.name,
+          brand: formData.brand,
+          category: formData.category,
+          expirationDate: formData.expiration,
           openedDate: '',
           s3ImageKey: '',
           isDeleted: false,
         };
         this.storageService.addProduct(newProduct);
+        if (uri) {
+          this.cameraService.savePhoto(uri, itemId);
+        }
       } catch (error) {
         alert('Error adding new product: ' + error);
       }

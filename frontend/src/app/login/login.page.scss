@@ -12,6 +12,20 @@ ion-list {
   justify-content: center;
 }
 
+.center-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 1rem;
+}
+
+.app-logo {
+  max-width: 5.6rem;
+  margin-top: 1rem;
+}
+
 .loginheader {
   display: flex;
   align-items: center;
@@ -19,7 +33,6 @@ ion-list {
   justify-items: center;
   text-align: center;
   padding: 2rem;
-  padding-top: 5rem;
   margin: 0 1rem;
 }
 
