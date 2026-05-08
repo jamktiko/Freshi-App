@@ -1,82 +1,62 @@
+// routes/ai.routes.js
+
 import express from "express";
 
-// 🤖 AI service (Bedrock abstraction layer)
-import { analyzeText } from "../services/ai-extraction.service.js";
-
-// 🔐 Cognito authentication middleware
+// Middleware that verifies Cognito JWT token
 import { requireAuth } from "../middleware/auth.middleware.js";
+
+// AI service responsible for OCR text analysis
+import { analyzeText } from "../services/ai-extraction.service.js";
 
 const router = express.Router();
 
-router.use(requireAuth); // Apply authentication middleware to all AI routes
-
-
-function getUserId(req) {
-  return req.user.sub; // requireAuth middleware will populate req.user with the decoded JWT token, which contains the user's sub (unique identifier)
-}
+// Protect all AI routes
+router.use(requireAuth);
 
 /**
- * 🤖 AI TEST ENDPOINT
- * --------------------------------------------
- * Purpose:
- * - Used for testing Bedrock integration
- * - NOT part of main production flow
- * - Does NOT store anything in DynamoDB
+ * POST /ai/analyze
  *
- * Flow:
- * 1. Authenticate user
- * 2. Validate input
- * 3. Call AI service (Bedrock)
- * 4. Return structured JSON
+ * Receives OCR text from frontend
+ * Sends OCR text to AI model
+ * Returns structured product suggestion
  */
+router.post("/analyze", async (req, res) => {
 
-//AuthMiddleware
-router.post("/",  async (req, res) => {
   try {
-    const userId = getUserId(req); // Extract user ID from authenticated token (populated by requireAuth middleware)
 
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-         error: "Unauthorized" 
-      });
-    }
+    const { ocrText } = req.body;
 
-    const { rawText } = req.body;
-
-    // Validate input exists
-    if (!rawText) {
+    // Validate OCR text
+    if (
+      !ocrText ||
+      typeof ocrText !== "string" ||
+      ocrText.trim().length === 0
+    ) {
       return res.status(400).json({
-        success: false,
-        error: "rawText is required"
+        error: "ocrText is required"
       });
     }
 
-    //  Basic input protection (cost + abuse prevention)
-    if (rawText.length > 2000) {
-      return res.status(400).json({
-        success: false,
-        error: "Input too large"
-      });
-    }
+    // Send OCR text to AI service
+    const suggestion = await analyzeText(
+      ocrText.trim()
+    );
 
-    // 🤖 Call AI service (Bedrock Nova 2 Lite)
-    const result = await analyzeText(rawText);
-
-    // 📤 Return AI response to frontend
-    res.json({
+    // Return AI response
+    return res.json({
       success: true,
-      data: result
+      data: {
+        suggestion
+      }
     });
 
   } catch (err) {
-    // ❌ Log error for debugging
-    console.error("AI route error:", err);
 
-    // ❌ Return safe error response
-    res.status(500).json({
-      success: false,
-      error: "AI processing failed"
+    console.error("AI analysis error:", err);
+
+    return res.status(500).json({
+      error: "AI analysis failed",
+      details: err.message
     });
   }
 });

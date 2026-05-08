@@ -14,7 +14,7 @@ Resources:
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
-  
+
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -138,16 +138,26 @@ Resources:
       RouteTableIds:
         - !Ref PrivateRouteTable
 
+  # S3 GATEWAY ENDPOINT (Saves NAT costs for Beanstalk updates, artifact downloads, and buckets)
+  S3Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref PrivateRouteTable
+
 Outputs:
   VpcId:
     Value: !Ref VPC
     Export:
-      Name: !Sub "${AWS::StackName}-VpcId"
+      Name: !Sub '${AWS::StackName}-VpcId'
   PublicSubnets:
-    Value: !Join [",", [!Ref PublicSubnet1, !Ref PublicSubnet2]]
+    Value: !Join [',', [!Ref PublicSubnet1, !Ref PublicSubnet2]]
     Export:
-      Name: !Sub "${AWS::StackName}-PublicSubnets"
+      Name: !Sub '${AWS::StackName}-PublicSubnets'
   PrivateSubnets:
-    Value: !Join [",", [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
+    Value: !Join [',', [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
     Export:
-      Name: !Sub "${AWS::StackName}-PrivateSubnets"
+      Name: !Sub '${AWS::StackName}-PrivateSubnets'

@@ -8,6 +8,8 @@ import {
   IonItem,
   IonInput,
   IonButton,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/angular/standalone';
 
 import { Cognito } from '../cognito';
@@ -26,11 +28,14 @@ import { Router } from '@angular/router';
   styleUrls: ['login.page.scss'],
   imports: [
     IonButton,
+    IonButtons,
+    IonBackButton,
     IonItem,
     IonList,
     IonInput,
     IonHeader,
     IonToolbar,
+    IonContent,
 
     ReactiveFormsModule,
   ],

@@ -6,7 +6,8 @@ import {
   DynamoDBDocumentClient,
   QueryCommand,
   PutCommand,
-  UpdateCommand
+  UpdateCommand,
+  GetCommand
 } from "@aws-sdk/lib-dynamodb";
 
 // Create raw DynamoDB client with AWS region configuration
@@ -100,15 +101,19 @@ export async function updateItem(userId, itemId, updates) {
         SET productName = :p,
             brand = :b, 
             expirationDate = :e, 
+            openedDate = :o,
             lastUpdate = :lu
       `,
 
       ExpressionAttributeValues: {
         ":p": updates.productName,
-        ":b": updates.brand,
+        ":b": updates.brand ?? null,
         ":e": updates.expirationDate,
+        ":o": updates.openedDate ?? null,
         ":lu": now
       },
+
+      ConditionExpression: "attribute_exists(userId) AND attribute_exists(itemId)",
 
       // Return the updated item after the update operation
       ReturnValues: "ALL_NEW"
@@ -143,7 +148,10 @@ export async function deleteItem(userId, itemId) {
       ExpressionAttributeValues: {
         ":d": true,
         ":lu": now
-      }
+      },
+
+      ConditionExpression: "attribute_exists(userId) AND attribute_exists(itemId)"
+
     })
   );
 
@@ -175,6 +183,27 @@ export async function getUpdatedItems(userId, lastSyncTimestamp) {
   );
 
   return res.Items || [];
+}
+
+
+/**
+ * GET SINGLE ITEM
+ * Fetch one item by userId and itemId
+ * Used for sync conflict checking
+ */
+export async function getItemById(userId, itemId) {
+  const res = await docClient.send(
+    new GetCommand({
+      TableName: process.env.DYNAMODB_TABLE,
+
+      Key: {
+        userId,
+        itemId
+      }
+    })
+  );
+
+  return res.Item || null;
 }
 
 /**

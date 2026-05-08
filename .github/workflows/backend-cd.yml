@@ -65,9 +65,7 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: FoodAppBackend
           environment_name: FoodAppEnv
-          version_label: 'github-action-${{ github.sha }}'
+          version_label: 'github-action-${{ github.sha }}-${{ github.run_number }}'
           region: eu-central-1
           deployment_package: backend/deploy.zip
           use_existing_version_if_available: true
-
-

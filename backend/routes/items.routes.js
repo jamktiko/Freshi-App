@@ -6,7 +6,8 @@ import {
   getUpdatedItems,
   getItemsByUser,
   updateItem,
-  deleteItem
+  deleteItem,
+  getItemById
  } from "../services/dynamo.service.js";
 
 const router = express.Router();
@@ -22,6 +23,24 @@ router.use(requireAuth); // Apply authentication middleware to all item routes
 function getUserId(req) {
   return req.user.sub; // requireAuth middleware will populate req.user with the decoded JWT token, which contains the user's sub (unique identifier)
 }
+
+//Normalize item to return null if the attribute has no value
+  function normalizeItem(item) {
+    return {
+      userId: item.userId ?? null,
+      itemId: item.itemId ?? null,
+      S3imageKey: item.S3imageKey ?? null,
+      productName: item.productName ?? null,
+      brand: item.brand ?? null,
+      expirationDate: item.expirationDate ?? null,
+      openedDate: item.openedDate ?? null,
+      confidence: item.confidence ?? null,
+      createdAt: item.createdAt ?? null,
+      isDeleted: item.isDeleted ?? null,
+      lastUpdate: item.lastUpdate ?? null,
+      TTL: item.TTL ?? null
+      };
+    }
 
 //authMiddleware, // Uncomment this line to enable authentication for item routes
 /** 
@@ -48,7 +67,8 @@ router.post(
       productName,
       brand,
       expirationDate,
-      confidence
+      confidence,
+      openedDate
     } = req.body;
 
     if (!productName || !expirationDate) {
@@ -65,6 +85,26 @@ router.post(
         error: "expirationDate must be in YYYY-MM-DD format and productName must be a string"
       });
     }
+
+    if (
+      openedDate &&
+      (typeof openedDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(openedDate))
+  ) {
+  return res.status(400).json({
+    error: "openedDate must be in YYYY-MM-DD format"
+    });
+  }
+
+if (openedDate) {
+  const opened = new Date(openedDate);
+
+  if (isNaN(opened.getTime())) {
+    return res.status(400).json({
+      error: "Invalid openedDate format"
+    });
+  }
+}
+
 
     const now = new Date();
 
@@ -106,6 +146,7 @@ router.post(
       productName, // Required product name field from image recognition
       brand, // Optional brand field from image recognition
       expirationDate, //product expiration date in ISO format (YYYY-MM-DD)
+      openedDate: openedDate || null,
       confidence, // Confidence score from image recognition (if available)
       createdAt: now.toISOString(), // Track creation time for potential future features like edit history
       isDeleted: false, // Soft delete flag for potential future features like item recovery or edit history
@@ -122,7 +163,7 @@ router.post(
 
     res.json({
       success: true,
-      data: saved
+      data: normalizeItem(saved)
     });
 
   } catch (err) {
@@ -151,10 +192,10 @@ router.get(
 
       // Call the service function to get items for the user from DynamoDB, with optional pagination
       const result = await getItemsByUser(userId, lastKey);
-    
-      return res.json({
+
+        return res.json({
         success: true, // Indicate successful response
-        data: result.items, // Return the list of items for the user
+        data: result.items.map(normalizeItem), // Return the list of items for the user
         lastKey: result.lastKey || null // Return last evaluated key for pagination if available
       });
     } 
@@ -174,40 +215,242 @@ router.get(
  * The backend can return the timestamp of the last update to any item for the user, so the frontend can compare it with its last sync time.
  * If the backend's last update time is newer than the frontend's last sync time, the frontend can trigger a refresh of the items list.
  */
-router.get(
-  "/sync",
-  async (req, res) => {
-    try {
-      const userId = getUserId(req); // Use "test-user" if authentication is not set up yet
-      const { lastSync} = req.query; // Frontend can send its last sync time as a query parameter
+router.post("/sync", async (req, res) => {
+  try {
+    const userId = getUserId(req);
+
+    const {
+      lastSync,
+      unsyncedItems = []
+    } = req.body;
 
     if (!lastSync) {
       return res.status(400).json({
-         error: "Missing lastSync query parameter" 
+        error: "Missing lastSync"
       });
     }
-    // Validate that lastSync is a valid date string
+
     const syncDate = new Date(lastSync);
-     //Error handling for invalid timestamp
+
     if (isNaN(syncDate.getTime())) {
       return res.status(400).json({
-        error: "Invalid lastSync timestamp" 
+        error: "Invalid lastSync timestamp"
       });
     }
-    
-    const items = await getUpdatedItems(userId, lastSync);
+
+    if (!Array.isArray(unsyncedItems)) {
+      return res.status(400).json({
+        error: "unsyncedItems must be an array"
+      });
+    }
+
+    const syncedClientItems = [];
+    const conflicts = [];
+
+    for (const clientItem of unsyncedItems) {
+      const {
+        localId,
+        itemId,
+        operation,
+        productName,
+        brand,
+        expirationDate,
+        openedDate,
+        S3imageKey,
+        confidence,
+        clientUpdatedAt
+      } = clientItem;
+
+      if (operation === "CREATE") {
+        const now = new Date();
+
+        if (!productName || !expirationDate) {
+          continue;
+        }
+
+        const expDate = new Date(expirationDate);
+
+        if (isNaN(expDate.getTime())) {
+          continue;
+        }
+
+        const newItemId =
+          itemId ||
+          `ITEM#${Date.now()}#${Math.random().toString(36).slice(2, 8)}`;
+
+        const ttl = Math.floor(
+          (expDate.getTime() + 30 * 24 * 60 * 60 * 1000) / 1000
+        );
+
+        const item = {
+          userId,
+          itemId: newItemId,
+          S3imageKey: S3imageKey ?? null,
+          productName,
+          brand: brand ?? null,
+          expirationDate,
+          openedDate: openedDate ?? null,
+          confidence: confidence ?? null,
+          createdAt: now.toISOString(),
+          isDeleted: false,
+          lastUpdate: now.toISOString(),
+          TTL: ttl
+        };
+
+        const saved = await createItem(item);
+
+        syncedClientItems.push({
+          localId: localId ?? null,
+          itemId: saved.itemId,
+          operation: "CREATE"
+        });
+      }
+
+      if (operation === "UPDATE") {
+  if (!itemId || !clientUpdatedAt) {
+    continue;
+  }
+
+  const serverItem = await getItemById(userId, itemId);
+
+      if (!serverItem) {
+        syncedClientItems.push({
+        localId: localId ?? null,
+        itemId,
+        operation: "UPDATE",
+        status: "NOT_FOUND"
+      });
+
+    continue;
+  }
+
+  const clientTime = new Date(clientUpdatedAt).getTime();
+  const serverTime = new Date(serverItem.lastUpdate).getTime();
+
+      if (isNaN(clientTime)) {
+        syncedClientItems.push({
+        localId: localId ?? null,
+        itemId,
+        operation: "UPDATE",
+        status: "INVALID_CLIENT_UPDATED_AT"
+     });
+
+    continue;
+  }
+
+  if (clientTime < serverTime) {
+    conflicts.push({
+      localId: localId ?? null,
+      itemId,
+      operation: "UPDATE",
+      reason: "SERVER_VERSION_NEWER",
+      serverItem: normalizeItem(serverItem)
+    });
+
+    continue;
+  }
+
+  const updated = await updateItem(userId, itemId, {
+    productName,
+    brand,
+    expirationDate,
+    openedDate
+  });
+
+  syncedClientItems.push({
+    localId: localId ?? null,
+    itemId: updated.itemId,
+    operation: "UPDATE",
+    status: "SYNCED"
+  });
+}
+
+        if (operation === "DELETE") {
+  if (!itemId || !clientUpdatedAt) {
+    continue;
+  }
+
+  const serverItem = await getItemById(userId, itemId);
+
+  if (!serverItem) {
+    syncedClientItems.push({
+      localId: localId ?? null,
+      itemId,
+      operation: "DELETE",
+      status: "NOT_FOUND"
+    });
+
+    continue;
+  }
+
+  const clientTime = new Date(clientUpdatedAt).getTime();
+  const serverTime = new Date(serverItem.lastUpdate).getTime();
+
+  if (isNaN(clientTime)) {
+    syncedClientItems.push({
+      localId: localId ?? null,
+      itemId,
+      operation: "DELETE",
+      status: "INVALID_CLIENT_UPDATED_AT"
+    });
+
+    continue;
+  }
+
+  if (clientTime < serverTime) {
+    conflicts.push({
+      localId: localId ?? null,
+      itemId,
+      operation: "DELETE",
+      reason: "SERVER_VERSION_NEWER",
+      serverItem: normalizeItem(serverItem)
+    });
+
+    continue;
+  }
+
+  await deleteItem(userId, itemId);
+
+  syncedClientItems.push({
+    localId: localId ?? null,
+    itemId,
+    operation: "DELETE",
+    status: "SYNCED"
+    });
+  }
+}
+
+
+    const serverItems = await getUpdatedItems(userId, lastSync);
+    const normalizedItems = serverItems.map(normalizeItem);
+
+    const updated = normalizedItems.filter(
+      item => item.isDeleted !== true
+    );
+
+    const deleted = normalizedItems
+      .filter(item => item.isDeleted === true)
+      .map(item => ({
+        itemId: item.itemId,
+        lastUpdate: item.lastUpdate
+      }));
 
     return res.json({
       success: true,
-      data: items,
-      serverTime: new Date().toISOString() // Return current server time for frontend to update its last sync time  
+      syncedClientItems,
+      updated,
+      deleted,
+      conflicts,
+      syncToken: new Date().toISOString()
     });
-    } catch (err) {
-      console.error("Sync items error", err);
-      return res.status(500).json({
-        error: "Failed to fetch sync data"
-      });
-    }
+
+  } catch (err) {
+    console.error("Sync items error", err);
+
+    return res.status(500).json({
+      error: "Failed to sync items"
+    });
+  }
 });
 
 
@@ -226,7 +469,8 @@ router.put(
       const {
         productName,
         brand,
-        expirationDate
+        expirationDate,
+        openedDate
       } = req.body;
 
       //Basic validation for required fields and formats
@@ -255,16 +499,38 @@ router.put(
         });
       }
 
+      if (
+        openedDate &&
+        (typeof openedDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(openedDate))
+    ) {
+        return res.status(400).json({
+          error: "openedDate must be in YYYY-MM-DD format"
+      });
+  }
+
+if (openedDate) {
+  const opened = new Date(openedDate);
+
+  if (isNaN(opened.getTime())) {
+    return res.status(400).json({
+      error: "Invalid openedDate format"
+    });
+  }
+}
+
       // Call the service function to update the item in DynamoDB
       const updated = await updateItem(userId, itemId, {
         productName,
         brand,
-        expirationDate
+        expirationDate,
+        openedDate
       });
+
+
 
       return res.json({
         success: true, // Indicate successful update
-        data: updated // Return the updated item data
+        data: normalizeItem(updated) // Return the updated item data
       });
     } catch (err) { // Error handling
       console.error("Update item error", err);

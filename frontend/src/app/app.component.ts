@@ -1,8 +1,25 @@
 import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet, IonIcon } from '@ionic/angular/standalone';
+import {
+  IonApp,
+  IonRouterOutlet,
+  IonIcon,
+  IonMenu,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonMenuToggle,
+  IonButtons,
+  IonButton,
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
+import { RouterLink } from '@angular/router';
 import {
   personAdd,
+  camera,
   ellipse,
   square,
   logIn,
@@ -15,11 +32,31 @@ import {
   arrowBack,
   settings,
   trash,
+  settingsOutline,
+  informationCircleOutline,
+  menuOutline,
+  closeOutline,
 } from 'ionicons/icons';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
-  imports: [IonApp, IonRouterOutlet],
+  imports: [
+    IonApp,
+    IonRouterOutlet,
+    IonMenu,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonMenuToggle,
+    RouterLink,
+    IonButtons,
+    IonButton,
+  ],
 })
 export class AppComponent {
   constructor() {
@@ -30,6 +67,7 @@ export class AppComponent {
      */
     addIcons({
       personAdd,
+      camera,
       ellipse,
       square,
       logIn,
@@ -42,6 +80,10 @@ export class AppComponent {
       arrowBack,
       settings,
       trash,
+      settingsOutline,
+      informationCircleOutline,
+      menuOutline,
+      closeOutline,
     });
   }
 }

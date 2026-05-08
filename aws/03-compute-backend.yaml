@@ -196,9 +196,7 @@ Resources:
           - PATCH
           - OPTIONS
         AllowHeaders:
-          - Content-Type
-          - Authorization
-          - x-api-key
+          - '*'
         MaxAge: 300
 
   CognitoAuthorizer:
@@ -237,6 +235,14 @@ Resources:
       Target: !Join ['/', ['integrations', !Ref HttpApiIntegration]]
       AuthorizationType: JWT
       AuthorizerId: !Ref CognitoAuthorizer
+
+  HttpApiOptionsRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref FoodAppHttpApi
+      RouteKey: 'OPTIONS /{proxy+}'
+      Target: !Join ['/', ['integrations', !Ref HttpApiIntegration]]
+      AuthorizationType: NONE
 
   PublicHttpApiIntegrationRoot:
     Type: AWS::ApiGatewayV2::Integration

@@ -14,6 +14,13 @@
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
 }
+.active-card {
+  opacity: 1;
+  border: 2px solid var(--app-primary-color, #4392f1);
+  border-radius: var(--app-borderradius, 16px);
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
 ion-list {
   align-items: center;
   width: 90%;
@@ -24,8 +31,18 @@ ion-item {
 }
 
 h1 {
-  padding-bottom: 1rem;
-  padding-top: 0;
+  margin: 0;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  font-size: var(--app-h1-size);
+}
+
+h2 {
+  margin: 0;
+  padding-right: 0.5rem;
+  font-size: var(--app-h2-size);
+  color: var(--app-h1text);
+  padding-bottom: 1.5rem;
 }
 
 .summary-cards {
@@ -48,7 +65,6 @@ h1 {
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
-  padding-bottom: 1rem;
   width: 100%;
 }
 
@@ -66,6 +82,7 @@ ion-toolbar {
 ion-header {
   box-shadow: none;
   box-shadow: var(--app-boxshadow);
+  background-color: #ffffff;
 }
 
 .homeheader {
@@ -78,6 +95,10 @@ ion-header {
   padding-bottom: 0.8rem;
   padding-left: 0.5rem;
   text-align: left;
+}
+
+.homepage {
+  overflow: visible;
 }
 
 ion-title {
@@ -121,10 +142,54 @@ ion-title {
 @media (min-width: 750px) {
 }
 
-.productcard {
-  background-color: var(--app-calltoactionbutton);
+ion-item.tuote {
+  --background: transparent;
+  overflow: visible !important;
+  box-shadow: none;
 }
 
+ion-item,
+ion-item-sliding,
+ion-item-options,
+ion-item-option,
+ion-list {
+  overflow: visible;
+}
+
+.slider {
+  overflow: visible !important;
+}
+
+.wrapper {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+ion-item-option[color="danger"] {
+  border-radius: 16px;
+  margin: 0.25rem;
+}
+
+ion-item.tuote {
+  --background: transparent; /* Poistaa valkoisen oletustaustan */
+  --inner-padding-end: 0px; /* Poistaa Ionicin sisäisen paddingin */
+  --padding-start: 0px; /* Poistaa Ionicin alun paddingin */
+  background-color: #ffffff; /* Nyt musta väri näkyy läpi koko alalla */
+  border-radius: var(--app-borderradius);
+  --min-height: 100%;
+  overflow: hidden; /* Varmistaa että violetti ei karkaa kulmien yli */
+}
+
+app-product-card {
+  width: 100%;
+
+  display: flex;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  width: 100%;
+}
 .header-text {
   display: flex;
   flex-direction: column;
@@ -135,7 +200,6 @@ ion-title {
 .freshi-logo {
   padding-top: 0.3rem;
   padding-bottom: 0.8rem;
-  background-color: #ffffff;
   width: 55px;
   height: 55px;
   object-fit: contain;
@@ -143,9 +207,11 @@ ion-title {
 }
 
 .freshi-title {
-  padding: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--app-title-size);
+  font-weight: 500;
   line-height: 1;
   text-align: left;
 }

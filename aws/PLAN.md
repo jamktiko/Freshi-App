@@ -18,8 +18,8 @@ We created a modular, 4-stack CloudFormation setup located in the `aws/` directo
 
 1.  **`aws/00-vpc-network.yaml` (Name: FoodAppVpcStack)**
     - **Enterprise VPC:** Deploys a custom VPC with 2 Public Subnets and 2 Private Subnets.
-    - **NAT Gateway & EIP:** Allows the private subnets to securely access the internet and AWS APIs.
-    - **DynamoDB VPC Endpoint:** A free Gateway Endpoint routing DynamoDB traffic privately, saving on NAT Gateway data transfer costs.
+    - **NAT Gateway & EIP:** Allows the private subnets to securely access the internet and AWS APIs (such as Amazon Bedrock).
+    - **VPC Gateway Endpoints (DynamoDB & S3):** Free Gateway Endpoints configured to route DynamoDB and S3 traffic privately over the internal AWS backbone. This significantly reduces NAT Gateway data transfer costs, particularly saving money on Elastic Beanstalk system updates and application artifact downloads which rely heavily on S3.
 2.  **`aws/01-security-identity.yaml` (Name: FoodAppSecurityStack)**
     - **AWS Cognito:** Configured User Pools and App Clients to handle secure user registration, login, and JWT token management.
     - **AWS Secrets Manager:** Automatically generates and stores a shared secret (`freshi/api-gateway-secret`) to secure the Beanstalk Application Load Balancer from direct internet access.
@@ -30,6 +30,7 @@ We created a modular, 4-stack CloudFormation setup located in the `aws/` directo
 4.  **`aws/03-compute-backend.yaml` (Name: FoodAppComputeStack)**
     - **Amazon API Gateway (HTTP API):** Acts as a secure HTTPS frontend. Configured with a **Cognito JWT Authorizer** (validating both ID Tokens and Access Tokens via Audience verification against the App Client ID) so it drops invalid traffic before hitting the backend, and injects the authenticated `x-user-id` header to the backend. It securely handles **CORS (Cross-Origin Resource Sharing)** centrally, eliminating the need for backend CORS middleware. It also securely fetches the Secrets Manager secret at deploy time and injects it as an `x-api-gateway-secret` header (with proper quoting for static values). Both headers use the `overwrite:header` mapping format (along with `$context.authorizer.jwt.claims.sub`) to prevent request spoofing. Configured with throttling (20 req/s steady, 50 burst). The integration securely proxies HTTP traffic directly to the backend load balancer over port 80.
       - **Public Routes:** `GET /` and `GET /health` are explicitly allowed through the API Gateway without JWT authentication (`AuthorizationType: NONE`) so that uptime monitoring tools can reach them safely. All other wildcard routes (`ANY /{proxy+}`) remain permanently locked.
+      - **CORS Preflight Routing:** An explicit `OPTIONS /{proxy+}` route was added without the JWT Authorizer (`AuthorizationType: NONE`) to prevent CORS preflight requests from being blocked by the `ANY` route's authentication check, safely securing cross-origin calls.
     - **AWS Elastic Beanstalk (Node.js 24):** The API backend handling requests. Deployed in the **Private Subnets** inside the custom VPC for maximum security. Configured as `LoadBalanced` using an Application Load Balancer in the Public Subnets. The backend receives the `API_GATEWAY_SECRET` environment variable directly from Secrets Manager using CloudFormation dynamic resolution.
     - **IAM Roles (Instance Profile):** Strict, principle-of-least-privilege permissions attached to the EC2 instance role. This includes:
       - DynamoDB: Full CRUD on both the main table AND all Global Secondary Indexes (`TableArn/index/*`).
@@ -84,23 +85,23 @@ The frontend team scaffolded the Ionic 8 + Angular 20 + Capacitor mobile applica
 
 #### NoSQL Physical Diagram: Access Pattern Matrix
 
-| Access Pattern (What the app needs to do)   | Index Used                      | Partition Key        | Sort Key (Sorting/Filtering)  |
-| :------------------------------------------ | :------------------------------ | :------------------- | :---------------------------- |
-| **Get all items for a user (initial sync)** | `Main Table`                    | `userId`             | `itemId`                      |
-| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `userId`             | `lastUpdate` (> lastSyncTime) |
-| **Sort/filter by name, category, brand**    | _Client-side (on-device cache)_ | —                    | —                             |
+| Access Pattern (What the app needs to do)   | Index Used                      | Partition Key | Sort Key (Sorting/Filtering)  |
+| :------------------------------------------ | :------------------------------ | :------------ | :---------------------------- |
+| **Get all items for a user (initial sync)** | `Main Table`                    | `userId`      | `itemId`                      |
+| **Sync offline device changes (delta)**     | `LastUpdateIndex`               | `userId`      | `lastUpdate` (> lastSyncTime) |
+| **Sort/filter by name, category, brand**    | _Client-side (on-device cache)_ | —             | —                             |
 
 #### DynamoDB Key Schema — Backend Must Match
 
 The CloudFormation table defines these exact attribute names:
 
-| Attribute            | Type    | Usage                                                              |
-| :------------------- | :------ | :----------------------------------------------------------------- |
-| `userId`             | String  | Partition key (main table + LastUpdateIndex)                       |
-| `itemId`             | String  | Sort key (main table)                                              |
-| `lastUpdate`         | String  | Sort key (LastUpdateIndex), ISO 8601 timestamp                     |
-| `isDeleted`          | Boolean | Soft delete flag used for client-side delta syncing                |
-| `ttl`                | Number  | Unix epoch (seconds) for automatic expiration cleanup              |
+| Attribute    | Type    | Usage                                                 |
+| :----------- | :------ | :---------------------------------------------------- |
+| `userId`     | String  | Partition key (main table + LastUpdateIndex)          |
+| `itemId`     | String  | Sort key (main table)                                 |
+| `lastUpdate` | String  | Sort key (LastUpdateIndex), ISO 8601 timestamp        |
+| `isDeleted`  | Boolean | Soft delete flag used for client-side delta syncing   |
+| `ttl`        | Number  | Unix epoch (seconds) for automatic expiration cleanup |
 
 > **⚠️ IMPORTANT:** Backend code MUST use these exact attribute names when writing to DynamoDB. Do NOT use `PK`/`SK` or any other naming convention — the GSIs depend on these specific names.
 
@@ -211,7 +212,7 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 ### B. Integration Tests (Backend API)
 
 - **Goal:** Test the Express router HTTP responses (Login -> Create -> Delete flow).
-- **Status:** **✅ Fully Active**. The file `items-api.test.js` contains actual `supertest` HTTP request code covering the full CRUD flow. 
+- **Status:** **✅ Fully Active**. The file `items-api.test.js` contains actual `supertest` HTTP request code covering the full CRUD flow.
 - **Offline Database Mocking:** To prevent tests from hitting real AWS infrastructure, we implemented `DynamoDBDocumentClient` mocks for `PutCommand`, `QueryCommand`, `UpdateCommand`, and `DeleteCommand`. All requests use `.set('x-user-id', 'test-user-123')` to bypass Cognito during testing.
 
 ### C. End-to-End (E2E) Tests (Frontend Browser)
@@ -229,17 +230,18 @@ When developers build the missing features, they simply remove `.todo` or `.skip
 
 ## 7. Current Project Status
 
-| Area                              | Status                                                             | Owner        |
-| :-------------------------------- | :----------------------------------------------------------------- | :----------- |
-| CloudFormation (4 stacks)         | ✅ Complete & validated                                            | Infra/DevOps |
-| CI/CD Pipelines (CI + CD)         | ✅ Complete                                                        | Infra/DevOps |
-| Testing Infrastructure & Strategy | ✅ Complete (Unit, Integration, and E2E Tests fully active)        | Infra/DevOps |
-| Backend routes & services         | ✅ Complete — Core CRUD logic, DynamoDB integrations implemented   | Backend dev  |
-| Frontend UI/UX                    | 🟢 Mostly Complete — Awaiting final hamburger menu implementation  | Frontend dev |
+| Area                              | Status                                                            | Owner        |
+| :-------------------------------- | :---------------------------------------------------------------- | :----------- |
+| CloudFormation (4 stacks)         | ✅ Complete & validated                                           | Infra/DevOps |
+| CI/CD Pipelines (CI + CD)         | ✅ Complete                                                       | Infra/DevOps |
+| Testing Infrastructure & Strategy | ✅ Complete (Unit, Integration, and E2E Tests fully active)       | Infra/DevOps |
+| Backend routes & services         | ✅ Complete — Core CRUD logic, DynamoDB integrations implemented  | Backend dev  |
+| Frontend UI/UX                    | 🟢 Mostly Complete — Awaiting final hamburger menu implementation | Frontend dev |
 
 ## 8. Security stack takedown
 
 If you absolutely must destroy the Cognito User Pools, run:
+
 ```bash
 aws cloudformation delete-stack --stack-name FoodAppSecurityStack
 ```
