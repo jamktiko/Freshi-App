@@ -18,8 +18,8 @@ We created a modular, 4-stack CloudFormation setup located in the `aws/` directo
 
 1.  **`aws/00-vpc-network.yaml` (Name: FoodAppVpcStack)**
     - **Enterprise VPC:** Deploys a custom VPC with 2 Public Subnets and 2 Private Subnets.
-    - **NAT Gateway & EIP:** Allows the private subnets to securely access the internet and AWS APIs.
-    - **DynamoDB VPC Endpoint:** A free Gateway Endpoint routing DynamoDB traffic privately, saving on NAT Gateway data transfer costs.
+    - **NAT Gateway & EIP:** Allows the private subnets to securely access the internet and AWS APIs (such as Amazon Bedrock).
+    - **VPC Gateway Endpoints (DynamoDB & S3):** Free Gateway Endpoints configured to route DynamoDB and S3 traffic privately over the internal AWS backbone. This significantly reduces NAT Gateway data transfer costs, particularly saving money on Elastic Beanstalk system updates and application artifact downloads which rely heavily on S3.
 2.  **`aws/01-security-identity.yaml` (Name: FoodAppSecurityStack)**
     - **AWS Cognito:** Configured User Pools and App Clients to handle secure user registration, login, and JWT token management.
     - **AWS Secrets Manager:** Automatically generates and stores a shared secret (`freshi/api-gateway-secret`) to secure the Beanstalk Application Load Balancer from direct internet access.
