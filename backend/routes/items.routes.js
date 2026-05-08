@@ -1,5 +1,6 @@
 import express from "express";
 import { requireAuth } from "../middleware/auth.middleware.js";
+import crypto from "crypto";
 
 import { 
   createItem,
@@ -63,6 +64,7 @@ router.post(
     */
 
     const {
+      itemId,
       S3imageKey,
       productName,
       brand,
@@ -108,10 +110,17 @@ if (openedDate) {
 
     const now = new Date();
 
-    //Unique item identifier (Sort Key)
-    const itemId = `ITEM#${Date.now()}#${Math.random()
-      .toString(36)
-      .slice(2, 8)}`; // item ID format: ITEM#timestamp#randomString (e.g., ITEM#1634567890123#abc123) for uniqueness and sorting by creation time
+  if (itemId && typeof itemId !== "string") {
+    return res.status(400).json({
+    error: "itemId must be a string"
+  });
+}
+
+    //Unique item identifier (Sort Key) (only as fallback if frontend can't return it)
+    const finalItemId =
+    itemId ||
+    `ITEM#${crypto.randomUUID()}`; // item ID format: ITEM#timestamp#randomString (e.g., ITEM#1634567890123#abc123) for uniqueness and sorting by creation time
+
 
     /**
      * TTL (Time To Live)
@@ -141,7 +150,7 @@ if (openedDate) {
      */
     const item = {
       userId: userId, // Partition Key for querying items by user
-      itemId: itemId,
+      itemId: finalItemId,
       S3imageKey, // S3 key for the uploaded image (if applicable)
       productName, // Required product name field from image recognition
       brand, // Optional brand field from image recognition
@@ -210,7 +219,7 @@ router.get(
 );
 
 /**
- * Get /sync last sync time for the user
+ * Post /sync last sync time for the user
  * This endpoint can be used by the frontend to determine if it needs to refresh its local cache of items.
  * The backend can return the timestamp of the last update to any item for the user, so the frontend can compare it with its last sync time.
  * If the backend's last update time is newer than the frontend's last sync time, the frontend can trigger a refresh of the items list.
@@ -224,19 +233,21 @@ router.post("/sync", async (req, res) => {
       unsyncedItems = []
     } = req.body;
 
-    if (!lastSync) {
-      return res.status(400).json({
-        error: "Missing lastSync"
-      });
+      if (lastSync !== null && typeof lastSync !== "string") {
+        return res.status(400).json({
+          error: "lastSync must be string or null"
+       });
     }
 
-    const syncDate = new Date(lastSync);
+    if (lastSync !== null) {
+      const syncDate = new Date(lastSync);
 
     if (isNaN(syncDate.getTime())) {
       return res.status(400).json({
         error: "Invalid lastSync timestamp"
       });
     }
+  }
 
     if (!Array.isArray(unsyncedItems)) {
       return res.status(400).json({
@@ -274,17 +285,35 @@ router.post("/sync", async (req, res) => {
           continue;
         }
 
-        const newItemId =
-          itemId ||
-          `ITEM#${Date.now()}#${Math.random().toString(36).slice(2, 8)}`;
+        if (!itemId) {
+          syncedClientItems.push({
+          localId: localId ?? null,
+          itemId: null,
+          operation: "CREATE",
+          status: "MISSING_ITEM_ID"
+        });
 
+        continue;
+        }
+
+        if (typeof itemId !== "string" || itemId.trim().length === 0) {
+        syncedClientItems.push({
+        localId: localId ?? null,
+        itemId: null,
+        operation: "CREATE",
+        status: "INVALID_ITEM_ID"
+        });
+
+        continue;
+        }
+        
         const ttl = Math.floor(
           (expDate.getTime() + 30 * 24 * 60 * 60 * 1000) / 1000
         );
 
         const item = {
           userId,
-          itemId: newItemId,
+          itemId,
           S3imageKey: S3imageKey ?? null,
           productName,
           brand: brand ?? null,
@@ -302,7 +331,8 @@ router.post("/sync", async (req, res) => {
         syncedClientItems.push({
           localId: localId ?? null,
           itemId: saved.itemId,
-          operation: "CREATE"
+          operation: "CREATE",
+          status: "SYNCED"
         });
       }
 
@@ -421,7 +451,11 @@ router.post("/sync", async (req, res) => {
 }
 
 
-    const serverItems = await getUpdatedItems(userId, lastSync);
+    const serverItems =
+      lastSync === null
+        ? (await getItemsByUser(userId)).items
+        : await getUpdatedItems(userId, lastSync);
+
     const normalizedItems = serverItems.map(normalizeItem);
 
     const updated = normalizedItems.filter(
