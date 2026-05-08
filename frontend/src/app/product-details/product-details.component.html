@@ -10,7 +10,12 @@
 </ion-header>
 <ion-content>
   <div class="details-container">
-    <div><ion-img> </ion-img></div>
+    @if (photoWebPath()) {
+      <div><ion-img [src]="photoWebPath()"> </ion-img></div>
+    } @else {
+      <div><ion-img [src]="testPhotoPath"> </ion-img></div>
+    }
+
     <div class="productdetails">
       <ion-list>
         <ion-item lines="none">

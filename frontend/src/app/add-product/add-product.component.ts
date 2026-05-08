@@ -49,7 +49,11 @@ import {
 export class AddProductComponent implements OnInit {
   camera = inject(CameraService);
 
+  // WebPath for displaying image
   imagePath = signal<string | null>(null);
+
+  // URI for saving image
+  imageUri: string | null = null;
   detectedTexts = signal<TextDetection[] | null>(null);
 
   name!: string;
@@ -69,7 +73,13 @@ export class AddProductComponent implements OnInit {
 
   submitProduct() {
     console.log(this.productForm.value);
-    return this.modalCtrl.dismiss(this.productForm.value, 'confirm');
+    return this.modalCtrl.dismiss(
+      {
+        form: this.productForm.value,
+        photoURI: this.imageUri,
+      },
+      'confirm',
+    );
   }
 
   async takePhoto() {
@@ -77,6 +87,11 @@ export class AddProductComponent implements OnInit {
     if (photo?.webPath) {
       this.imagePath.set(photo?.webPath);
       this.detectText(photo.uri!);
+    }
+    if (photo?.uri) {
+      // FOR TESTING ONLY ALERT
+      //alert('PHOTO URI DETECTED ' + photo.uri);
+      this.imageUri = photo.uri;
     }
   }
 

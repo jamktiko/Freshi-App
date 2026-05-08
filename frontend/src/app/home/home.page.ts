@@ -29,6 +29,7 @@ import { Router } from '@angular/router';
 import { StorageService } from '../storage';
 import { Cognito } from '../cognito';
 import { ProductDetailsComponent } from '../product-details/product-details.component';
+import { CameraService } from '../camera-service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -57,6 +58,7 @@ import { ProductDetailsComponent } from '../product-details/product-details.comp
   ],
 })
 export class HomePage implements OnInit {
+  cameraService = inject(CameraService);
   storageService = inject(StorageService);
   router = inject(Router);
 
@@ -128,17 +130,27 @@ export class HomePage implements OnInit {
     // CURRENTLY SAVES ONLY TO AN ARRAY
     if (role === 'confirm') {
       try {
+        const formData = data.form;
+        const uri = data.photoURI;
+
+        //ALERT FOR TESTIGN
+        //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
+
+        const itemId = crypto.randomUUID();
         const newProduct: Iproduct = {
-          ItemId: crypto.randomUUID(),
-          productName: data.name,
-          brand: data.brand,
-          category: data.category,
-          expirationDate: data.expiration,
+          ItemId: itemId,
+          productName: formData.name,
+          brand: formData.brand,
+          category: formData.category,
+          expirationDate: formData.expiration,
           openedDate: '',
           s3ImageKey: '',
           isDeleted: false,
         };
         this.storageService.addProduct(newProduct);
+        if (uri) {
+          this.cameraService.savePhoto(uri, itemId);
+        }
       } catch (error) {
         alert('Error adding new product: ' + error);
       }

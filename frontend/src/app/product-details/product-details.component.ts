@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   IonItem,
   IonInput,
@@ -15,6 +15,7 @@ import {
   IonNote,
   IonListHeader,
 } from '@ionic/angular/standalone';
+import { CameraService } from '../camera-service';
 
 @Component({
   selector: 'app-product-details',
@@ -36,6 +37,7 @@ import {
   ],
 })
 export class ProductDetailsComponent implements OnInit {
+  cameraService = inject(CameraService);
   name!: string;
 
   //Props
@@ -46,6 +48,12 @@ export class ProductDetailsComponent implements OnInit {
   expirationDate!: string;
   openedDate!: string | null;
 
+  photoWebPath = signal<string | null>(null);
+
+  // FOR TEST PHOTOS FOR testing on browser
+  randomPhotos = 5;
+  testPhotoPath = '';
+
   private modalCtrl = inject(ModalController);
   constructor() {}
 
@@ -53,5 +61,21 @@ export class ProductDetailsComponent implements OnInit {
     return this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getPhoto();
+    this.setRandomTestPhoto();
+  }
+
+  async setRandomTestPhoto() {
+    const randomNumber = Math.floor(Math.random() * this.randomPhotos);
+    const randomPhoto = `assets/testImages/Gemini_missingFood_${randomNumber + 1}.jpg`;
+    this.testPhotoPath = randomPhoto;
+  }
+
+  async getPhoto() {
+    if (this.itemId) {
+      const webPath = await this.cameraService.readPhoto(this.itemId);
+      this.photoWebPath.set(webPath);
+    }
+  }
 }
