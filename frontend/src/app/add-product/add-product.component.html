@@ -11,13 +11,25 @@
 </ion-header>
 <ion-content>
   <div class="center">
-    <div class="image-frame">
+    <div
+      (click)="takePhoto()"
+      class="image-frame"
+      [style.background-image]="
+        `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${imagePath()})`
+      "
+    >
+      <div class="camera-circle">
+        <ion-icon class="camera" name="camera"></ion-icon>
+      </div>
+
+      <!--
       @if (imagePath() === null) {
         <ion-icon class="camera" name="camera"></ion-icon>
         <ion-button (click)="takePhoto()">Take a picture</ion-button>
       } @else {
         <ion-img [src]="imagePath()"></ion-img>
       }
+        -->
     </div>
 
     <div class="magic-button-container">

@@ -93,6 +93,7 @@ export class AddProductComponent implements OnInit {
     const photo = await this.camera.takePhoto();
     if (photo?.webPath) {
       this.imagePath.set(photo?.webPath);
+      this.detectedTexts.set(null); // Set detected texts to null, so it will disable Magic-button
       this.detectText(photo.uri!);
     }
     if (photo?.uri) {
