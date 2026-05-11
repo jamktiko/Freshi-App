@@ -245,3 +245,11 @@ If you absolutely must destroy the Cognito User Pools, run:
 ```bash
 aws cloudformation delete-stack --stack-name FoodAppSecurityStack
 ```
+
+## 9. Testing Overhaul (Phase 1-8 Completed)
+
+We recently overhauled our entirely testing system:
+- **Frontend Migration:** Transitioned from Karma/Jasmine to Jest for unit tests, allowing lightning-fast tests without a real browser (jsdom). Outdated frontend specs were pruned, keeping only high-quality tests matching the new `run: npm run test` structure.
+- **Backend Cascades Fixed:** Fixed test pollution in `items-api.test.js` where item IDs were cascading between independent tests.
+- **Validation Enhanced:** Added robust tests to `POST /items` validating mandatory fields (`productName`, `expirationDate`) and added unit test coverage for the API Gateway Secret middleware.
+- **Playwright Setup:** Migrated Playwright to use `Pixel 7` mobile viewport configuration instead of Desktop Chrome.

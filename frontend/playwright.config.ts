@@ -19,8 +19,12 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'Mobile Chrome',
+      use: {
+        // Use a mobile device profile so Ionic renders its mobile/ios
+        // layout (tabs, FABs, modals) instead of the desktop/md layout.
+        ...devices['Pixel 7'],
+      },
     },
   ],
 });

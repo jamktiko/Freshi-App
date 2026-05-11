@@ -1,17 +1,20 @@
-import { TestBed } from '@angular/core/testing';
-import { StorageService } from './storage.service';
+/**
+ * StorageService unit tests.
+ *
+ * @capacitor/preferences is resolved to a manual mock via
+ * jest.config.js moduleNameMapper (src/__mocks__/capacitor-preferences.js).
+ * Tests run in plain Node via Jest — no browser, no native bridge.
+ */
+
 import { Preferences } from '@capacitor/preferences';
+import { StorageService } from './storage.service';
 
 describe('StorageService', () => {
   let service: StorageService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(StorageService);
-
-    // Clear mock calls between tests
-    spyOn(Preferences, 'set').and.resolveTo();
-    spyOn(Preferences, 'remove').and.resolveTo();
+    jest.clearAllMocks();
+    service = new StorageService();
   });
 
   it('should be created', () => {
@@ -34,7 +37,7 @@ describe('StorageService', () => {
 
   it('should parse and return products from Preferences', async () => {
     const mockSerialized = JSON.stringify([{ id: '1', name: 'Milk' }]);
-    spyOn(Preferences, 'get').and.resolveTo({ value: mockSerialized });
+    (Preferences.get as jest.Mock).mockResolvedValueOnce({ value: mockSerialized });
 
     const result = await service.getProducts();
 
@@ -43,7 +46,15 @@ describe('StorageService', () => {
   });
 
   it('should return an empty array if nothing is saved', async () => {
-    spyOn(Preferences, 'get').and.resolveTo({ value: null });
+    (Preferences.get as jest.Mock).mockResolvedValueOnce({ value: null });
+
+    const result = await service.getProducts();
+
+    expect(result).toEqual([]);
+  });
+
+  it('should return an empty array if stored value is corrupted JSON', async () => {
+    (Preferences.get as jest.Mock).mockResolvedValueOnce({ value: '{not valid json' });
 
     const result = await service.getProducts();
 
