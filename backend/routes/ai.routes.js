@@ -28,19 +28,19 @@ router.post("/analyze", async (req, res) => {
 
     // Validate OCR text
     if (
-      !ocrText ||
-      typeof ocrText !== "string" ||
-      ocrText.trim().length === 0
+      !Array.isArray(ocrText) ||
+      ocrText.length === 0
     ) {
       return res.status(400).json({
-        error: "ocrText is required"
+        error: "ocrText array is required"
       });
     }
 
+    //Convert OCR lines into text block
+    const text = ocrText.join("\n");
+
     // Send OCR text to AI service
-    const suggestion = await analyzeText(
-      ocrText.trim()
-    );
+    const suggestion = await analyzeText(text);
 
     // Return AI response
     return res.json({
