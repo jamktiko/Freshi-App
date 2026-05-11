@@ -19,9 +19,20 @@
         <ion-img [src]="imagePath()"></ion-img>
       }
     </div>
+
     <ion-list>
       @for (detection of detectedTexts(); track $index) {
         <ion-item>{{ detection.text }}</ion-item>
+      }
+      @if (returnedOCR()) {
+        <ion-item
+          >Product Name:
+          {{ returnedOCR()?.data?.suggestion?.productName }}</ion-item
+        >
+        <ion-item>Brand: {{ returnedOCR()?.data?.suggestion?.brand }}</ion-item>
+        <ion-item
+          >Category: {{ returnedOCR()?.data?.suggestion?.category }}</ion-item
+        >
       }
     </ion-list>
     <ion-list class="input-list">

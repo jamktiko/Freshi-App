@@ -19,13 +19,14 @@ import {
   IonContent,
   IonImg,
 } from '@ionic/angular/standalone';
-import { ILocalProduct } from '../product';
+import { ILocalProduct, IOcrResponse } from '../product';
 import { CameraService } from '../camera-service';
 import { signIn } from 'aws-amplify/auth';
 import {
   TextDetection,
   TextDetections,
 } from '@capacitor-community/image-to-text';
+import { ApiService } from '../api-service';
 
 @Component({
   selector: 'app-add-product',
@@ -47,6 +48,7 @@ import {
   ],
 })
 export class AddProductComponent implements OnInit {
+  api = inject(ApiService);
   camera = inject(CameraService);
 
   // WebPath for displaying image
@@ -55,7 +57,7 @@ export class AddProductComponent implements OnInit {
   // URI for saving image
   imageUri: string | null = null;
   detectedTexts = signal<TextDetection[] | null>(null);
-
+  returnedOCR = signal<IOcrResponse | null>(null);
   name!: string;
   private modalCtrl = inject(ModalController);
 
@@ -98,8 +100,42 @@ export class AddProductComponent implements OnInit {
   async detectText(photoFilePath: string) {
     const textData = await this.camera.detectText(photoFilePath);
     if (textData) {
+      const ocrTexts = textData.textDetections.map(
+        (detection) => detection.text,
+      );
       this.detectedTexts.set(textData.textDetections);
+      const ocrResponse: IOcrResponse | null = await this.api.sendOCR(ocrTexts);
+      this.returnedOCR.set(ocrResponse);
     }
+  }
+  // Send test string array to amazon bedrock
+  async testBedrock() {
+    this.api.sendOCR([
+      'Freshi logo',
+      'TEHTY',
+      'PIETARSAARESSA,',
+      'SUOMALAISESTA',
+      'LIHASTA.',
+      'TILLVERKAT I JAKOBSTAD.',
+      'AV FINSKT KÖTT.',
+      'VREaonLVNN',
+      'GMOAPAA',
+      'SNELLMAN',
+      'FRI',
+      'EST. 1951',
+      'SIKA-NAUTA',
+      'JAUHELIHA',
+      'KUNNON',
+      'MALET KÖTT V GRIS oCH NÖT',
+      '<23%',
+      'RASVAA',
+      'FETT',
+      'AINA TUORETTA',
+      '700 G',
+      'RU',
+      'OMAS',
+      'MAASTA',
+    ]);
   }
 
   ngOnInit() {}
