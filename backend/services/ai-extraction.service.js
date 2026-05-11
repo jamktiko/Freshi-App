@@ -50,6 +50,7 @@ Rules:
 - If brand and product type are visible, status should be OK.
 - If product is partially visible but unclear, status should be UNSURE.
 - Use null for unknown fields.
+- Set the item to category most viable in your opinion (For example Dairy, Meat Products, Vegetables, Fruits etc.)
 
 Return ONLY valid JSON in this exact format:
 
@@ -57,6 +58,7 @@ Return ONLY valid JSON in this exact format:
   "status": "OK",
   "productName": "string or null",
   "expirationDate": "string or null",
+  "brand": "string or null",
   "category": "string or null",
   "confidenceScore": "High | Medium | Low",
   "piiDetected": false,
@@ -123,6 +125,7 @@ try {
     status: "INVALID_DATA",
     productName: null,
     expirationDate: null,
+    brand: null,
     category: null,
     confidenceScore: "Low",
     piiDetected: false,
