@@ -4,21 +4,5 @@ export const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
-  },  {
-    path: 'home',
-    loadComponent: () => import('./home/home.page').then( m => m.HomePage)
   },
-  {
-    path: 'welcome',
-    loadComponent: () => import('./welcome/welcome.page').then( m => m.WelcomePage)
-  },
-  {
-    path: 'settings',
-    loadComponent: () => import('./settings/settings.page').then( m => m.SettingsPage)
-  },
-  {
-    path: 'info',
-    loadComponent: () => import('./info/info.page').then( m => m.InfoPage)
-  },
-
 ];
