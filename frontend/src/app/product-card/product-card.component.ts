@@ -1,5 +1,5 @@
 import { Component, input, OnInit, signal } from '@angular/core';
-import { Iproduct } from '../product';
+import { ILocalProduct } from '../product';
 import {
   IonCard,
   IonCardHeader,
@@ -39,7 +39,7 @@ export class ProductCardComponent implements OnInit {
     'November',
     'December',
   ];
-  product = input<Iproduct>();
+  product = input<ILocalProduct>();
   lifeLeft = signal<number>(0); // How many days until expires
   expirationDate = signal<string>('');
   constructor() {}

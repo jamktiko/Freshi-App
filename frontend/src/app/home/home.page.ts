@@ -21,7 +21,7 @@ import {
   IonItemOption,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
-import { Iproduct, IaddProduct } from '../product';
+import { ILocalProduct, IPostProduct } from '../product';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { AddProductComponent } from '../add-product/add-product.component';
 import { getCurrentUser } from 'aws-amplify/auth';
@@ -30,6 +30,7 @@ import { StorageService } from '../storage';
 import { Cognito } from '../cognito';
 import { ProductDetailsComponent } from '../product-details/product-details.component';
 import { CameraService } from '../camera-service';
+import { ApiService } from '../api-service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -58,6 +59,7 @@ import { CameraService } from '../camera-service';
   ],
 })
 export class HomePage implements OnInit {
+  api = inject(ApiService);
   cameraService = inject(CameraService);
   storageService = inject(StorageService);
   router = inject(Router);
@@ -80,7 +82,7 @@ export class HomePage implements OnInit {
     'Ready to dive in?',
   ];
 
-  productList = computed<Iproduct[]>(() => {
+  productList = computed<ILocalProduct[]>(() => {
     const products = this.storageService.products();
     const search = this.productSearch().toLowerCase();
     const filter = this.activeFilter();
@@ -119,7 +121,7 @@ export class HomePage implements OnInit {
   constructor() {}
 
   // Open a modal to show product details
-  async showDetails(product: Iproduct) {
+  async showDetails(product: ILocalProduct) {
     const modal = await this.modalCtrl.create({
       component: ProductDetailsComponent,
       componentProps: {
@@ -156,16 +158,25 @@ export class HomePage implements OnInit {
         //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
 
         const itemId = crypto.randomUUID();
-        const newProduct: Iproduct = {
+        const newProduct: ILocalProduct = {
           itemId: itemId,
           productName: formData.name,
           brand: formData.brand,
           category: formData.category,
           expirationDate: formData.expiration,
-          openedDate: '',
-          s3ImageKey: '',
-          isDeleted: false,
+          openedDate: null,
+          S3imageKey: null,
+          synced: false,
+          createdAt: new Date().toISOString(),
+          lastUpdate: new Date().toISOString(),
+          confidence: null,
         };
+        const postProductResponst = await this.api.postProduct(newProduct);
+
+        if (postProductResponst.success) {
+          newProduct.synced = true;
+        }
+
         this.storageService.addProduct(newProduct);
         if (uri) {
           this.cameraService.savePhoto(uri, itemId);
@@ -175,13 +186,24 @@ export class HomePage implements OnInit {
       }
     }
   }
+  async syncProducts() {
+    this.api.convertAndSyncProducts();
+  }
 
   ngOnInit() {
     this.randomGreeting =
       this.greetings[Math.floor(Math.random() * this.greetings.length)];
+    setTimeout(() => {
+      try {
+        getCurrentUser();
+        this.syncProducts();
+      } catch (error) {
+        console.log('could not sync products on load', error);
+      }
+    }, 5000);
   }
 
-  deleteItem(deletedItem: Iproduct) {
-    this.storageService.removeProduct(deletedItem);
+  deleteItem(deletedItem: ILocalProduct) {
+    this.storageService.removeProduct(deletedItem.itemId);
   }
 }

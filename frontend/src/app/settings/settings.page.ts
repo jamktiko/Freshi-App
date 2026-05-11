@@ -22,7 +22,6 @@ import { Cognito } from '../cognito';
 import { Router } from '@angular/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { ApiService } from '../api-service';
-import { Iproduct } from '../product';
 
 @Component({
   selector: 'app-settings',
@@ -84,32 +83,6 @@ export class SettingsPage implements OnInit {
       this.router.navigate(['/tabs/welcome']);
     } catch (error) {
       alert(error);
-    }
-  }
-
-  products = signal<Iproduct[]>([]);
-  // Get products for testing
-  async getProducts() {
-    this.api.getProducts().subscribe({
-      next: (data) => {
-        this.products.set(data.data);
-        console.log('Products fetched', data);
-      },
-      error: (error) => {
-        console.log('Fetch failed', error);
-      },
-    });
-  }
-
-  async postProduct() {
-    try {
-      const response = await this.api.postProduct({
-        productName: 'testinimi',
-        expirationDate: '2026-05-10',
-      });
-      console.log('onnistu kait', response);
-    } catch (error) {
-      console.log(error);
     }
   }
 }

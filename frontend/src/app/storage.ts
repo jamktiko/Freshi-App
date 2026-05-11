@@ -1,19 +1,20 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import cordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
-import { Iproduct } from './product';
+import { ILocalProduct, IUpdateLocal } from './product';
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
   private _storage: Storage | null = null;
   private readonly STORAGE_KEY = 'freshi_storage';
+  private readonly SYNC_KEY = 'freshi_sync';
 
   constructor(private storage: Storage) {
     this.init();
   }
 
-  public products = signal<Iproduct[]>([]);
+  public products = signal<ILocalProduct[]>([]);
 
   // Setup storage
   async init() {
@@ -25,13 +26,26 @@ export class StorageService {
   }
 
   // Get array of products from storage
-  async getProducts(): Promise<Iproduct[]> {
-    const products: Iproduct[] = await this._storage?.get(this.STORAGE_KEY);
+  async getProducts(): Promise<ILocalProduct[]> {
+    const products: ILocalProduct[] = await this._storage?.get(
+      this.STORAGE_KEY,
+    );
     return products ?? []; // Returns products or if products is null, return empty array
   }
 
+  // Get last sync time
+  async getSyncTime(): Promise<string | null> {
+    const syncTime = await this._storage?.get(this.SYNC_KEY);
+    return syncTime ?? null;
+  }
+
+  //Set last sync time
+  async setSyncTime(lastSync: string) {
+    this._storage?.set(this.SYNC_KEY, lastSync);
+  }
+
   // Add product to storage
-  async addProduct(newProduct: Iproduct) {
+  async addProduct(newProduct: ILocalProduct) {
     this.products.update((oldProducts) => {
       const newProducts = [...oldProducts, newProduct];
       this._storage?.set(this.STORAGE_KEY, newProducts);
@@ -40,10 +54,10 @@ export class StorageService {
   }
 
   // Remove product
-  async removeProduct(removedProduct: Iproduct) {
+  async removeProduct(removedProductId: string) {
     this.products.update((oldProducts) => {
       const newProducts = oldProducts.filter(
-        (product) => product.itemId !== removedProduct.itemId,
+        (product) => product.itemId !== removedProductId,
       );
       this._storage?.set(this.STORAGE_KEY, newProducts);
       return newProducts;
@@ -51,16 +65,16 @@ export class StorageService {
   }
 
   // Update product
-  async updateProduct(updatedProduct: Iproduct) {
+  async updateProduct(updatedProduct: IUpdateLocal) {
+    let newProductList: ILocalProduct[] = [];
     this.products.update((oldProducts) => {
-      const index = oldProducts.findIndex(
-        (product) => product.itemId === updatedProduct.itemId,
+      newProductList = oldProducts.map((oldProduct) =>
+        oldProduct.itemId === updatedProduct.itemId
+          ? { ...oldProduct, ...updatedProduct }
+          : oldProduct,
       );
-      if (index !== -1) {
-        oldProducts[index] = updatedProduct;
-      }
-      this._storage?.set(this.STORAGE_KEY, oldProducts);
-      return oldProducts;
+      return newProductList;
     });
+    await this._storage?.set(this.STORAGE_KEY, newProductList);
   }
 }
