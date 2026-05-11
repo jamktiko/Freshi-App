@@ -1,4 +1,7 @@
-<div class="product-header">
+<div
+  [style.--status-color]="`var(--ion-color-${getColor()}-dark)`"
+  class="product-header"
+>
   <span class="cardtitle">{{ product()?.productName }}</span>
   @if (!product()?.brand && !product()?.category) {
     <span class="iteminfo">-</span>

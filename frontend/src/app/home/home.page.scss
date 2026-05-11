@@ -175,14 +175,6 @@ ion-item.tuote {
   box-shadow: none;
 }
 
-ion-item,
-ion-item-sliding,
-ion-item-options,
-ion-item-option,
-ion-list {
-  overflow: visible;
-}
-
 .slider {
   overflow: visible !important;
 }
@@ -225,8 +217,7 @@ app-product-card {
   width: 100%;
 
   display: flex;
-  padding-left: 1rem;
-  padding-right: 1rem;
+
   border-radius: var(--app-borderradius);
   box-shadow: var(--app-boxshadow);
   width: 100%;
