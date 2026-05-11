@@ -18,6 +18,7 @@ import {
   IonItem,
   IonContent,
   IonImg,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { ILocalProduct, IOcrResponse } from '../product';
 import { CameraService } from '../camera-service';
@@ -33,6 +34,7 @@ import { ApiService } from '../api-service';
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.scss'],
   imports: [
+    IonSpinner,
     IonImg,
     IonItem,
     IonInput,
@@ -50,6 +52,9 @@ import { ApiService } from '../api-service';
 export class AddProductComponent implements OnInit {
   api = inject(ApiService);
   camera = inject(CameraService);
+
+  // If is loading ocr autofill texts
+  isLoading = signal<boolean>(false);
 
   // WebPath for displaying image
   imagePath = signal<string | null>(null);
@@ -100,42 +105,58 @@ export class AddProductComponent implements OnInit {
   async detectText(photoFilePath: string) {
     const textData = await this.camera.detectText(photoFilePath);
     if (textData) {
-      const ocrTexts = textData.textDetections.map(
-        (detection) => detection.text,
-      );
       this.detectedTexts.set(textData.textDetections);
-      const ocrResponse: IOcrResponse | null = await this.api.sendOCR(ocrTexts);
-      this.returnedOCR.set(ocrResponse);
     }
   }
-  // Send test string array to amazon bedrock
-  async testBedrock() {
-    this.api.sendOCR([
-      'Freshi logo',
-      'TEHTY',
-      'PIETARSAARESSA,',
-      'SUOMALAISESTA',
-      'LIHASTA.',
-      'TILLVERKAT I JAKOBSTAD.',
-      'AV FINSKT KÖTT.',
-      'VREaonLVNN',
-      'GMOAPAA',
-      'SNELLMAN',
-      'FRI',
-      'EST. 1951',
-      'SIKA-NAUTA',
-      'JAUHELIHA',
-      'KUNNON',
-      'MALET KÖTT V GRIS oCH NÖT',
-      '<23%',
-      'RASVAA',
-      'FETT',
-      'AINA TUORETTA',
-      '700 G',
-      'RU',
-      'OMAS',
-      'MAASTA',
-    ]);
+  async autoFillForm() {
+    this.isLoading.set(true);
+    // octObject contain coordinates of the detected texts AND the text and we need only the text
+
+    const ocrObjects = this.detectedTexts();
+    if (ocrObjects) {
+      // Make a new array with just the texts
+      const ocrTexts = ocrObjects.map((detection) => detection.text);
+
+      // Delay, so loading won't happen too fast visually
+      const delay = new Promise((resolve) => setTimeout(resolve, 2000));
+      try {
+        // Send ocr texts to aws bedrock and wait for response
+        // Put delay and sendOcr to promise.all, so atleast the time of the delay is waited
+        const [ocrResponse] = await Promise.all([
+          this.api.sendOCR(ocrTexts),
+          delay,
+        ]);
+        this.returnedOCR.set(ocrResponse);
+        if (
+          ocrResponse?.success &&
+          ocrResponse.data.suggestion.status === 'OK'
+        ) {
+          const magicData = ocrResponse.data.suggestion;
+          if (magicData.productName) {
+            this.productForm.controls.name.setValue(magicData.productName);
+            this.productForm.controls.name.markAsDirty();
+          }
+          if (magicData.brand) {
+            this.productForm.controls.brand.setValue(magicData.brand);
+            this.productForm.controls.brand.markAsDirty();
+          }
+          if (magicData.category) {
+            this.productForm.controls.category.setValue(magicData.category);
+            this.productForm.controls.category.markAsDirty();
+          }
+          if (magicData.expirationDate) {
+            this.productForm.controls.expiration.setValue(
+              magicData.expirationDate,
+            );
+            this.productForm.controls.expiration.markAsDirty();
+          }
+        }
+      } catch (error) {
+        alert('Error autofilling: ' + error);
+      } finally {
+        this.isLoading.set(false);
+      }
+    }
   }
 
   ngOnInit() {}

@@ -10,31 +10,30 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <form class="addproduct" [formGroup]="productForm">
+  <div class="center">
     <div class="image-frame">
-      <ion-icon class="camera" name="camera"></ion-icon>
       @if (imagePath() === null) {
+        <ion-icon class="camera" name="camera"></ion-icon>
         <ion-button (click)="takePhoto()">Take a picture</ion-button>
       } @else {
         <ion-img [src]="imagePath()"></ion-img>
       }
     </div>
 
-    <ion-list>
-      @for (detection of detectedTexts(); track $index) {
-        <ion-item>{{ detection.text }}</ion-item>
-      }
-      @if (returnedOCR()) {
-        <ion-item
-          >Product Name:
-          {{ returnedOCR()?.data?.suggestion?.productName }}</ion-item
-        >
-        <ion-item>Brand: {{ returnedOCR()?.data?.suggestion?.brand }}</ion-item>
-        <ion-item
-          >Category: {{ returnedOCR()?.data?.suggestion?.category }}</ion-item
-        >
-      }
-    </ion-list>
+    <div class="magic-button-container">
+      <ion-button
+        [disabled]="!detectedTexts() || isLoading()"
+        [class.loading]="isLoading()"
+        (click)="autoFillForm()"
+        class="magic-button"
+      >
+        <ion-icon slot="start" name="sparkles"></ion-icon>
+        {{ isLoading() ? "Autofilling " : "Autofill from image" }}
+      </ion-button>
+    </div>
+  </div>
+
+  <form class="addproduct" [formGroup]="productForm">
     <ion-list class="input-list">
       <ion-item lines="none" class="field-row">
         <ion-input
