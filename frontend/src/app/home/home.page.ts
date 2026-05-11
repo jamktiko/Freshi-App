@@ -161,8 +161,8 @@ export class HomePage implements OnInit {
         const newProduct: ILocalProduct = {
           itemId: itemId,
           productName: formData.name,
-          brand: formData.brand,
-          category: formData.category,
+          brand: formData.brand ?? null,
+          category: formData.category ?? null,
           expirationDate: formData.expiration,
           openedDate: null,
           S3imageKey: null,

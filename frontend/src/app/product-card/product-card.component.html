@@ -1,8 +1,12 @@
 <div class="product-header">
   <span class="cardtitle">{{ product()?.productName }}</span>
-  <span class="iteminfo"
-    >{{ product()?.brand }} • {{ product()?.category }}</span
-  >
+  @if (!product()?.brand && !product()?.category) {
+    <span class="iteminfo">-</span>
+  } @else {
+    <span class="iteminfo"
+      >{{ product()?.brand }} • {{ product()?.category }}</span
+    >
+  }
 </div>
 
 <div class="product-content">

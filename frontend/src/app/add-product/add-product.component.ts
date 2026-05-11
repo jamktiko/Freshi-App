@@ -62,7 +62,7 @@ export class AddProductComponent implements OnInit {
   // Form for product information
   productForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
-    brand: new FormControl('', [Validators.required]),
+    brand: new FormControl(''),
     category: new FormControl(''),
     expiration: new FormControl('', [Validators.required]),
   });
