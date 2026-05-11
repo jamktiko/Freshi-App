@@ -100,6 +100,7 @@ export async function updateItem(userId, itemId, updates) {
       UpdateExpression: `
         SET productName = :p,
             brand = :b, 
+            category = :c,
             expirationDate = :e, 
             openedDate = :o,
             lastUpdate = :lu
@@ -108,6 +109,7 @@ export async function updateItem(userId, itemId, updates) {
       ExpressionAttributeValues: {
         ":p": updates.productName,
         ":b": updates.brand ?? null,
+        ":c": updates.category ?? null,
         ":e": updates.expirationDate,
         ":o": updates.openedDate ?? null,
         ":lu": now

@@ -33,6 +33,7 @@ function getUserId(req) {
       S3imageKey: item.S3imageKey ?? null,
       productName: item.productName ?? null,
       brand: item.brand ?? null,
+      category: item.category ?? null,
       expirationDate: item.expirationDate ?? null,
       openedDate: item.openedDate ?? null,
       confidence: item.confidence ?? null,
@@ -68,6 +69,7 @@ router.post(
       S3imageKey,
       productName,
       brand,
+      category,
       expirationDate,
       confidence,
       openedDate
@@ -105,6 +107,14 @@ if (openedDate) {
       error: "Invalid openedDate format"
     });
   }
+}
+
+if (category &&
+  typeof category !== "string"
+) {
+  return res.status(400).json ({
+    error: "category must be a string"
+  });
 }
 
 
@@ -154,6 +164,7 @@ if (openedDate) {
       S3imageKey, // S3 key for the uploaded image (if applicable)
       productName, // Required product name field from image recognition
       brand, // Optional brand field from image recognition
+      category,
       expirationDate, //product expiration date in ISO format (YYYY-MM-DD)
       openedDate: openedDate || null,
       confidence, // Confidence score from image recognition (if available)
@@ -503,6 +514,7 @@ router.put(
       const {
         productName,
         brand,
+        category,
         expirationDate,
         openedDate
       } = req.body;
@@ -552,10 +564,17 @@ if (openedDate) {
   }
 }
 
+if (category && typeof category !== "string"){
+  return res.status(400).json({
+    error: "category must be a string"
+  })
+}
+
       // Call the service function to update the item in DynamoDB
       const updated = await updateItem(userId, itemId, {
         productName,
         brand,
+        category,
         expirationDate,
         openedDate
       });
