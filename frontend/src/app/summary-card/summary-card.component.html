@@ -1,3 +1,20 @@
-<span><ion-icon class="icon" [name]="icon()"></ion-icon></span>
-<span class="number">{{ amount() }}</span>
-<span class="status">{{ freshness() }}</span>
+<span
+  ><ion-icon
+    [style.filter]="`drop-shadow(0 0 5px var(--ion-color-${color()}-tint))`"
+    [style.color]="`var(--ion-color-${color()}-shade)`"
+    class="icon"
+    [name]="icon()"
+  ></ion-icon
+></span>
+<span
+  [style.filter]="`drop-shadow(0 0 5px var(--ion-color-${color()}-tint))`"
+  [style.color]="`var(--ion-color-${color()}-shade)`"
+  class="number"
+  >{{ amount() }}</span
+>
+<span
+  [style.filter]="`drop-shadow(0 0 5px var(--ion-color-${color()}-tint))`"
+  [style.color]="`var(--ion-color-${color()}-shade)`"
+  class="status"
+  >{{ freshness() }}</span
+>

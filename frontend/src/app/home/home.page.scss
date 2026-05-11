@@ -108,48 +108,16 @@ ion-title {
 
 .Fresh {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-freshcolor);
+  background-color: var(--app-freshcolor-faded);
 }
 
 .expiring {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-expiringcolor);
-
-  animation: expiringPulse 2s infinite;
+  background-color: var(--app-expiringcolor-faded);
 }
 .expired {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-expiredcolor);
-
-  animation: expiredPulse 2s infinite;
-}
-
-@keyframes expiringPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 203, 17, 0.741);
-  }
-
-  70% {
-    box-shadow: 0 0 0 12px rgba(255, 120, 120, 0);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 120, 120, 0);
-  }
-}
-
-@keyframes expiredPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 40, 40, 0.625);
-  }
-
-  70% {
-    box-shadow: 0 0 0 12px rgba(255, 120, 120, 0);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 120, 120, 0);
-  }
+  background-color: var(--app-expiredcolor-faded);
 }
 
 .searchbar {

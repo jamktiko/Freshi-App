@@ -7,12 +7,18 @@
   width: 30%;
   max-height: 9rem;
   min-height: 8rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .number {
   font-size: var(--app-b-size);
   color: #373737;
   font-weight: 450;
+
+  text-align: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
 }
 
 .status {
