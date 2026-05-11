@@ -18,7 +18,7 @@ ion-list {
   flex-direction: column;
   justify-items: center;
   padding: 2rem;
-  padding-top: 5rem;
+  padding-top: 2rem;
   margin: 0 1rem;
   text-align: center;
 }
@@ -60,4 +60,17 @@ ion-toolbar {
   /* Real CSS border-radius on the host element */
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.backbutton-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  padding: 1rem;
+}
+
+.app-logo {
+  max-width: 5.6rem;
+  margin: 1rem auto 0;
+  display: block;
 }

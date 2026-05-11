@@ -58,8 +58,8 @@ h1 {
 
 h2 {
   margin: 0;
-  font-size: var(--app-h1-size);
-  font-weight: 700;
+  font-size: var(--app-h2-size);
+  font-weight: 500;
   color: var(--app-maintext);
 }
 
@@ -93,4 +93,8 @@ ion-item {
 .buttons ion-button {
   flex: 1; /* TÄMÄ: Molemmat napit ottavat saman verran tilaa */
   margin: 0; /* Poistaa mahdolliset oletusmarginaalit */
+}
+
+ion-note {
+  font-size: var(--app-h3-size);
 }

@@ -4,10 +4,12 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
+  IonItem,
   IonList,
   IonInput,
-  IonItem,
   IonButton,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/angular/standalone';
 
 import {
@@ -26,11 +28,14 @@ import { autoSignIn } from 'aws-amplify/auth';
   styleUrls: ['confirm.page.scss'],
   imports: [
     IonButton,
-    IonItem,
+    IonButtons,
+    IonBackButton,
     IonInput,
     IonList,
+    IonItem,
     IonHeader,
     IonToolbar,
+    IonContent,
 
     ReactiveFormsModule,
   ],

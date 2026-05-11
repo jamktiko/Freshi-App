@@ -84,11 +84,10 @@
 }
 
 .username {
-  font-size: var(--app-p-size);
-  color: var(--app-maintext);
+  font-size: var(--app-h3-size);
+  color: var(--app-h1text);
   font-weight: 400;
   margin: 0;
-  font-size: 16px;
 }
 
 .user-info {
@@ -99,13 +98,15 @@
   margin-bottom: 2rem;
 }
 
-.user-value {
-  font-size: 14px;
-  color: var(--ion-color-medium);
-}
-
 ion-header,
 ion-toolbar {
   --background: var(--app-background);
   background: var(--app-background);
+}
+
+.user-value {
+  margin: 0;
+  font-size: var(--app-h2-size);
+  font-weight: 400;
+  color: var(--app-maintext);
 }
