@@ -10,6 +10,8 @@ import {
   ISyncResponse,
   IUpdated,
   IPostProductResponse,
+  IDeleteProductResponse,
+  IDeletedProduct,
 } from './product';
 import { StorageService } from './storage';
 
@@ -42,7 +44,13 @@ export class ApiService {
 
   // Delete product from cloud
 
-  async deleteProduct(productId: string) {}
+  async deleteProduct(productId: string) {
+    return firstValueFrom(
+      this.http.delete<IDeleteProductResponse>(
+        this.apiURL + '/items/' + productId,
+      ),
+    );
+  }
 
   // Syncs given products with backend and returns possibly new products
   private async syncProducts(unSyncedProducts: ISentSyncProduct[]) {
@@ -110,6 +118,36 @@ export class ApiService {
             await this.storageService.updateProduct(product);
           } else {
             await this.storageService.addProduct({ ...product, synced: true });
+          }
+        }
+
+        // Send deleted products that are unsynced if there are any
+        const localDeletions: IDeletedProduct[] =
+          await this.storageService.getDeletions();
+        // If there are deletions
+        if (localDeletions) {
+          for (const deletion of localDeletions) {
+            try {
+              // Try to delete from cloud
+              const deleted = await this.deleteProduct(deletion.itemId);
+              // if success, remove from local deletions array
+              if (deleted.success) {
+                await this.storageService.removeDeletion(deletion.itemId);
+              }
+
+              // If backend returns success: false
+              if (!deleted.success) {
+                alert('Failed to delete product: ' + deletion.itemId);
+              }
+            } catch (error) {
+              alert(
+                'Error trying to delete product: ' +
+                  deletion.itemId +
+                  ' ' +
+                  error,
+              );
+              break;
+            }
           }
         }
 

@@ -54,6 +54,10 @@ export interface ISyncPost {
   unsyncedItems: ISentSyncProduct[];
 }
 
+export interface IDeleteProductResponse {
+  success: boolean;
+}
+
 // INTERFACES FOR SYNCING WIITH BACKEND
 
 export type Operation = 'CREATE' | 'UPDATE' | 'DELETE';
@@ -103,8 +107,8 @@ export interface IConflicts {
   };
 }
 
-export interface IDeleteProduct {
+export interface IDeletedProduct {
   operation: 'DELETE';
-  itemID: string;
+  itemId: string;
   clientUpdatedAt: string; // ISO TIMESTAMP
 }

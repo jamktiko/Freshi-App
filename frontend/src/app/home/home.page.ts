@@ -203,7 +203,18 @@ export class HomePage implements OnInit {
     }, 5000);
   }
 
-  deleteItem(deletedItem: ILocalProduct) {
-    this.storageService.removeProduct(deletedItem.itemId);
+  async deleteItem(deletedItem: ILocalProduct) {
+    const deleteResponse = await this.api.deleteProduct(deletedItem.itemId);
+    if (deleteResponse.success) {
+      await this.storageService.removeProduct(deletedItem.itemId);
+      return;
+    }
+    await this.storageService.removeProduct(deletedItem.itemId);
+    await this.storageService.addDeletion({
+      itemId: deletedItem.itemId,
+      operation: 'DELETE',
+      clientUpdatedAt: new Date().toISOString(),
+    });
+    return;
   }
 }
