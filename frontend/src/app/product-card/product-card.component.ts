@@ -69,7 +69,7 @@ export class ProductCardComponent implements OnInit {
   // Sets the chip icon based on lifeLeft
   getIcon() {
     if (this.lifeLeft() > 3) {
-      return 'checkmark-circle-outline';
+      return 'leaf-outline';
     } else if (this.lifeLeft() >= 0) {
       return 'time-outline';
     } else {
