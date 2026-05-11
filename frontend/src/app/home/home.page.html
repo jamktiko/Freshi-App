@@ -64,10 +64,12 @@
           {{productList().length}} items</span
         >
       </h3>
-      <ion-button class="filtersbutton">Filters</ion-button>
+      <ion-button (click)="syncProducts()" class="filtersbutton"
+        >Filters</ion-button
+      >
     </div>
     <ion-list class="productcards" lines="none">
-      @for (product of productList(); track product.ItemId) {
+      @for (product of productList(); track product.itemId) {
       <div class="wrapper">
         <ion-item-sliding class="slider">
           <ion-item-options side="start">

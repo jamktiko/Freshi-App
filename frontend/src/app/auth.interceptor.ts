@@ -10,6 +10,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return from(fetchAuthSession()).pipe(
     switchMap((session) => {
       // AWS id-token
+
       const token = session.tokens?.idToken?.toString();
 
       if (token) {
@@ -28,8 +29,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     }),
     catchError((error) => {
       console.log('Session not found', error);
-
-      router.navigate(['/tabs/welcome']);
 
       throw error;
     }),

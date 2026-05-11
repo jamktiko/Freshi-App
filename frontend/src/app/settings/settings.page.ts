@@ -21,6 +21,7 @@ import {
 import { Cognito } from '../cognito';
 import { Router } from '@angular/router';
 import { getCurrentUser } from 'aws-amplify/auth';
+import { ApiService } from '../api-service';
 
 @Component({
   selector: 'app-settings',
@@ -47,6 +48,7 @@ import { getCurrentUser } from 'aws-amplify/auth';
   ],
 })
 export class SettingsPage implements OnInit {
+  api = inject(ApiService);
   cognito = inject(Cognito);
   router = inject(Router);
   paletteToggle = false;

@@ -1,19 +1,21 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import cordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
-import { Iproduct } from './product';
+import { IDeletedProduct, ILocalProduct, IUpdateLocal } from './product';
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
   private _storage: Storage | null = null;
   private readonly STORAGE_KEY = 'freshi_storage';
+  private readonly SYNC_KEY = 'freshi_sync';
+  private readonly DELETIONS_KEY = 'freshi_deletions';
 
   constructor(private storage: Storage) {
     this.init();
   }
 
-  public products = signal<Iproduct[]>([]);
+  public products = signal<ILocalProduct[]>([]);
 
   // Setup storage
   async init() {
@@ -25,42 +27,90 @@ export class StorageService {
   }
 
   // Get array of products from storage
-  async getProducts(): Promise<Iproduct[]> {
-    const products: Iproduct[] = await this._storage?.get(this.STORAGE_KEY);
+  async getProducts(): Promise<ILocalProduct[]> {
+    const products: ILocalProduct[] = await this._storage?.get(
+      this.STORAGE_KEY,
+    );
     return products ?? []; // Returns products or if products is null, return empty array
   }
 
+  // Get last sync time
+  async getSyncTime(): Promise<string | null> {
+    const syncTime = await this._storage?.get(this.SYNC_KEY);
+    return syncTime ?? null;
+  }
+
+  //Set last sync time
+  async setSyncTime(lastSync: string) {
+    try {
+      await this._storage?.set(this.SYNC_KEY, lastSync);
+    } catch (error) {
+      alert('Failed to set last sync time to storage');
+    }
+  }
+
+  //Get deleted products, that haven't been synced
+  async getDeletions() {
+    const deletions: IDeletedProduct[] = await this._storage?.get(
+      this.DELETIONS_KEY,
+    );
+    return deletions ?? [];
+  }
+
+  // Save a new deleted product to deletions array, if sync wasn't successfull
+  async addDeletion(deletion: IDeletedProduct) {
+    const deletions = await this.getDeletions();
+    try {
+      deletions.push(deletion);
+      await this._storage?.set(this.DELETIONS_KEY, deletions);
+    } catch (error) {
+      alert('Error saving deletion ' + error);
+    }
+  }
+  // remove product from deletions
+  async removeDeletion(deletion: string) {
+    const deletions = await this.getDeletions();
+    const newDeletions = deletions.filter((item) => item.itemId !== deletion);
+    try {
+      await this._storage?.set(this.DELETIONS_KEY, newDeletions);
+    } catch (error) {
+      alert('Error setting new deletion array: ' + error);
+    }
+  }
+
   // Add product to storage
-  async addProduct(newProduct: Iproduct) {
+  async addProduct(newProduct: ILocalProduct) {
+    let newProductList: ILocalProduct[] = [];
     this.products.update((oldProducts) => {
-      const newProducts = [...oldProducts, newProduct];
-      this._storage?.set(this.STORAGE_KEY, newProducts);
-      return newProducts;
+      newProductList = [...oldProducts, newProduct];
+      return newProductList;
     });
+    await this._storage?.set(this.STORAGE_KEY, newProductList);
   }
 
   // Remove product
-  async removeProduct(removedProduct: Iproduct) {
+  async removeProduct(removedProductId: string) {
+    let newProductList: ILocalProduct[] = [];
     this.products.update((oldProducts) => {
-      const newProducts = oldProducts.filter(
-        (product) => product.ItemId !== removedProduct.ItemId,
+      newProductList = oldProducts.filter(
+        (product) => product.itemId !== removedProductId,
       );
-      this._storage?.set(this.STORAGE_KEY, newProducts);
-      return newProducts;
+      return newProductList;
     });
+    await this._storage?.set(this.STORAGE_KEY, newProductList);
   }
 
   // Update product
-  async updateProduct(updatedProduct: Iproduct) {
+  async updateProduct(updatedProduct: IUpdateLocal) {
+    let newProductList: ILocalProduct[] = [];
     this.products.update((oldProducts) => {
-      const index = oldProducts.findIndex(
-        (product) => product.ItemId === updatedProduct.ItemId,
+      newProductList = oldProducts.map((oldProduct) =>
+        oldProduct.itemId === updatedProduct.itemId
+          ? { ...oldProduct, ...updatedProduct }
+          : oldProduct,
       );
-      if (index !== -1) {
-        oldProducts[index] = updatedProduct;
-      }
-      this._storage?.set(this.STORAGE_KEY, oldProducts);
-      return oldProducts;
+      return newProductList;
     });
+    await this._storage?.set(this.STORAGE_KEY, newProductList);
   }
 }

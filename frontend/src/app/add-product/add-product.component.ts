@@ -19,7 +19,7 @@ import {
   IonContent,
   IonImg,
 } from '@ionic/angular/standalone';
-import { Iproduct } from '../product';
+import { ILocalProduct } from '../product';
 import { CameraService } from '../camera-service';
 import { signIn } from 'aws-amplify/auth';
 import {
