@@ -119,7 +119,7 @@ export class AddProductComponent implements OnInit {
       const ocrTexts = ocrObjects.map((detection) => detection.text);
 
       // Delay, so loading won't happen too fast visually
-      const delay = new Promise((resolve) => setTimeout(resolve, 2000));
+      const delay = new Promise((resolve) => setTimeout(resolve, 1500));
       try {
         // Send ocr texts to aws bedrock and wait for response
         // Put delay and sendOcr to promise.all, so atleast the time of the delay is waited
@@ -132,24 +132,33 @@ export class AddProductComponent implements OnInit {
           ocrResponse?.success &&
           ocrResponse.data.suggestion.status === 'OK'
         ) {
+          // Set the form values and validate them immediately, so the user sees which fields are ok.
           const magicData = ocrResponse.data.suggestion;
           if (magicData.productName) {
             this.productForm.controls.name.setValue(magicData.productName);
             this.productForm.controls.name.markAsDirty();
+            this.productForm.controls.name.markAsTouched();
+            this.productForm.controls.name.updateValueAndValidity();
           }
           if (magicData.brand) {
             this.productForm.controls.brand.setValue(magicData.brand);
             this.productForm.controls.brand.markAsDirty();
+            this.productForm.controls.brand.markAsTouched();
+            this.productForm.controls.brand.updateValueAndValidity();
           }
           if (magicData.category) {
             this.productForm.controls.category.setValue(magicData.category);
             this.productForm.controls.category.markAsDirty();
+            this.productForm.controls.category.markAsTouched();
+            this.productForm.controls.category.updateValueAndValidity();
           }
           if (magicData.expirationDate) {
             this.productForm.controls.expiration.setValue(
               magicData.expirationDate,
             );
             this.productForm.controls.expiration.markAsDirty();
+            this.productForm.controls.expiration.markAsTouched();
+            this.productForm.controls.expiration.updateValueAndValidity();
           }
         }
       } catch (error) {

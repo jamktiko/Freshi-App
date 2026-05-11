@@ -54,6 +54,7 @@
           [formControl]="productForm.controls.name"
           label="Product Name"
           labelPlacement="stacked"
+          [clearInput]="true"
           fill="outline"
           placeholder="e.g., Organic Strawberries"
         ></ion-input>
@@ -65,6 +66,7 @@
           label="Brand"
           [formControl]="productForm.controls.brand"
           labelPlacement="stacked"
+          [clearInput]="true"
           fill="outline"
           placeholder="e.g., Fresh Farms"
         ></ion-input>
@@ -76,6 +78,7 @@
           label="Category"
           [formControl]="productForm.controls.category"
           labelPlacement="stacked"
+          [clearInput]="true"
           fill="outline"
           placeholder="e.g., Fruit, Dairy"
         ></ion-input>
@@ -87,6 +90,7 @@
           label="Expiration date"
           [formControl]="productForm.controls.expiration"
           labelPlacement="stacked"
+          [clearInput]="true"
           fill="outline"
           placeholder="t"
         ></ion-input>
