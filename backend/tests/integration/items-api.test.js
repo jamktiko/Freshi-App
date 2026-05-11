@@ -5,15 +5,22 @@ import { DynamoDBDocumentClient, PutCommand, QueryCommand, UpdateCommand, Delete
 
 const dynamoMock = mockClient(DynamoDBDocumentClient);
 
-describe('Items API - Full CRUD Flow', () => {
-  let createdItemId = 'ITEM#dummy123';
+/**
+ * Each test is fully independent — uses its own hardcoded item ID
+ * and provides its own DynamoDB mock response. No shared state
+ * between tests (the previous version cascaded `createdItemId`
+ * from POST to GET/PUT/DELETE).
+ */
+describe('Items API - CRUD Operations', () => {
   
   beforeEach(() => {
     dynamoMock.reset();
   });
   
-  test('POST /items — creates a new product with Flour 2027-01-01', async () => {
-    dynamoMock.on(PutCommand).resolves({}); // Mock successful insert
+  // ─── POST /items ────────────────────────────────────────────
+
+  test('POST /items — creates a new product', async () => {
+    dynamoMock.on(PutCommand).resolves({});
     
     const res = await request(app)
       .post('/items')
@@ -23,12 +30,45 @@ describe('Items API - Full CRUD Flow', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty('itemId');
-    createdItemId = res.body.data.itemId; // Dynamically save ID for later tests
   });
-  
-  test('GET /items — verifies the created product appears in the list', async () => {
+
+  test('POST /items — returns 400 when productName is missing', async () => {
+    const res = await request(app)
+      .post('/items')
+      .set('x-user-id', 'test-user-123')
+      .send({ expirationDate: '2027-01-01' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  test('POST /items — returns 400 when expirationDate is missing', async () => {
+    const res = await request(app)
+      .post('/items')
+      .set('x-user-id', 'test-user-123')
+      .send({ productName: 'Flour' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  test('POST /items — returns 400 when expirationDate format is invalid', async () => {
+    const res = await request(app)
+      .post('/items')
+      .set('x-user-id', 'test-user-123')
+      .send({ productName: 'Flour', expirationDate: 'not-a-date' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/YYYY-MM-DD/);
+  });
+
+  // ─── GET /items ─────────────────────────────────────────────
+
+  test('GET /items — returns products for the user', async () => {
+    const TEST_ITEM_ID = 'ITEM#get-test-001';
+
     dynamoMock.on(QueryCommand).resolves({
-      Items: [{ itemId: createdItemId, productName: 'Flour', expirationDate: '2027-01-01' }]
+      Items: [{ itemId: TEST_ITEM_ID, productName: 'Flour', expirationDate: '2027-01-01' }]
     });
     
     const res = await request(app)
@@ -37,16 +77,20 @@ describe('Items API - Full CRUD Flow', () => {
       
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data[0].itemId).toBe(createdItemId);
+    expect(res.body.data[0].itemId).toBe(TEST_ITEM_ID);
   });
   
-  test('PUT /items/:id — changes the expiration date to 2026-06-01', async () => {
+  // ─── PUT /items/:id ─────────────────────────────────────────
+
+  test('PUT /items/:id — updates an existing product', async () => {
+    const TEST_ITEM_ID = 'ITEM#put-test-001';
+
     dynamoMock.on(UpdateCommand).resolves({
-      Attributes: { itemId: createdItemId, productName: 'Flour', expirationDate: '2026-06-01' }
+      Attributes: { itemId: TEST_ITEM_ID, productName: 'Flour', expirationDate: '2026-06-01' }
     });
     
     const res = await request(app)
-      .put(`/items/${createdItemId}`)
+      .put(`/items/${TEST_ITEM_ID}`)
       .set('x-user-id', 'test-user-123')
       .send({ productName: 'Flour', expirationDate: '2026-06-01' });
       
@@ -55,11 +99,15 @@ describe('Items API - Full CRUD Flow', () => {
     expect(res.body.data.expirationDate).toBe('2026-06-01');
   });
   
-  test('DELETE /items/:id — removes the product', async () => {
+  // ─── DELETE /items/:id ──────────────────────────────────────
+
+  test('DELETE /items/:id — removes a product', async () => {
+    const TEST_ITEM_ID = 'ITEM#delete-test-001';
+
     dynamoMock.on(DeleteCommand).resolves({});
     
     const res = await request(app)
-      .delete(`/items/${createdItemId}`)
+      .delete(`/items/${TEST_ITEM_ID}`)
       .set('x-user-id', 'test-user-123');
       
     expect(res.status).toBe(200);

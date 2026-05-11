@@ -6,7 +6,8 @@ import {
   DynamoDBDocumentClient,
   QueryCommand,
   PutCommand,
-  UpdateCommand
+  UpdateCommand,
+  GetCommand
 } from "@aws-sdk/lib-dynamodb";
 
 // Create raw DynamoDB client with AWS region configuration
@@ -184,6 +185,27 @@ export async function getUpdatedItems(userId, lastSyncTimestamp) {
   );
 
   return res.Items || [];
+}
+
+
+/**
+ * GET SINGLE ITEM
+ * Fetch one item by userId and itemId
+ * Used for sync conflict checking
+ */
+export async function getItemById(userId, itemId) {
+  const res = await docClient.send(
+    new GetCommand({
+      TableName: process.env.DYNAMODB_TABLE,
+
+      Key: {
+        userId,
+        itemId
+      }
+    })
+  );
+
+  return res.Item || null;
 }
 
 /**

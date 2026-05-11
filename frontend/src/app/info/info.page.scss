@@ -1,0 +1,100 @@
+ion-header,
+ion-toolbar {
+  --box-shadow: none;
+  box-shadow: none;
+}
+
+ion-toolbar {
+  margin-top: 1rem;
+  margin-left: 1rem;
+}
+
+.freshilogo {
+  padding-top: 0.3rem;
+  padding-bottom: 0.5rem;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.logo-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+  background-color: var(--app-backgroundcolor);
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  padding: 1rem;
+}
+
+ion-title {
+  margin-bottom: 1rem;
+}
+
+h2 {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  color: var(--app-h1text);
+}
+h1 {
+  margin: 0;
+  padding-bottom: 1rem;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+  background-color: var(--app-backgroundcolor);
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  padding: 1rem;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+  background-color: var(--app-backgroundcolor);
+  border-radius: var(--app-borderradius);
+  box-shadow: var(--app-boxshadow);
+  padding: 1rem;
+}
+
+.features {
+  display: grid;
+  /* Kaksi saraketta: ensimmäinen ikonin kokoinen (auto), toinen loppu tila (1fr) */
+  grid-template-columns: auto 1fr;
+  align-items: center; /* Keskittää ikonit ja tekstit pystysuunnassa */
+  gap: 12px 15px; /* Ensimmäinen luku on riviväli, toinen on ikonin ja tekstin väli */
+  padding: 20px;
+}
+
+.features h1 {
+  /* Pakotetaan otsikko viemään molemmat sarakkeet */
+  grid-column: span 2;
+  margin-bottom: 10px;
+}
+
+.features h2 {
+  margin: 0; /* Poistetaan h2-marginaalit, jotka sotkevat linjausta */
+  font-size: 1.1rem;
+  font-weight: normal;
+}
+
+.features ion-icon {
+  font-size: 1.4rem;
+  color: var(--ion-color-success); /* Tehdään checkmarkeista vihreitä */
+}

@@ -13,7 +13,7 @@ describe('ProductFilterPipe', () => {
     pipe = new ProductFilterPipe();
   });
 
-  it('create an instance', () => {
+  it('should create an instance', () => {
     expect(pipe).toBeTruthy();
   });
 

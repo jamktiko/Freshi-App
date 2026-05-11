@@ -1,0 +1,54 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <b>About</b>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">App Information</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="logo-placeholder">
+    <img
+      src="assets/icon/freshilogo.svg"
+      alt="Freshi logo"
+      class="freshilogo"
+      slot="start"
+    />
+    <ion-title>Freshi</ion-title>
+    <h2>Version: 1.0.0</h2>
+    <h2>Build: {{ currentYear }}</h2>
+  </div>
+
+  <div class="info-content">
+    <h1>What is Freshi?</h1>
+    <h2>
+      Ever found a forgotten bag of rice at the back of your cupboard? We’ve all
+      been there. Freshi is a simple tool that helps you track best-before dates
+      in one easy place.
+    </h2>
+    <h2>
+      Just log your items, and we’ll send you a friendly nudge before they
+      expire. It’s the easiest way to save money and reduce food waste—one
+      pantry at a time!
+    </h2>
+  </div>
+
+  <div class="features">
+    <h1>Features</h1>
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <h2>Track dates</h2>
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <h2>notifications</h2>
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <h2>See summary of your items at one glance!</h2>
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <h2>Filter and organize your items easily</h2>
+  </div>
+</ion-content>

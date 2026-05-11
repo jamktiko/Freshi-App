@@ -1,0 +1,69 @@
+.freshilogo {
+  padding-top: 0.3rem;
+  padding-bottom: 0.5rem;
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.menuheader {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+  margin-top: 1rem;
+  padding-right: 1.5rem;
+}
+
+ion-menu {
+  --background: var(--app-backgroundcolor2);
+}
+
+ion-menu ion-header,
+ion-menu ion-toolbar,
+ion-menu ion-content,
+ion-menu ion-list,
+ion-menu ion-item {
+  --background: var(--app-backgroundcolor2);
+  background: var(--app-backgroundcolor2);
+}
+
+ion-header,
+ion-toolbar {
+  --box-shadow: none;
+  box-shadow: none;
+}
+
+.menuheader ion-title {
+  flex: 0 1 auto; /* Älä anna sen kasvaa (grow: 0), mutta anna kutistua tarvittaessa */
+  width: auto; /* Leveys määräytyy sisällön mukaan */
+  padding: 0; /* Poista Ionicin oletuspaddingit */
+  margin: 0;
+  font-weight: 500;
+}
+
+b {
+  margin: 1rem;
+}
+
+h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.settings,
+.information {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* Keskittää pystysuunnassa */
+  justify-content: flex-start;
+  line-height: 1; /* Estää tekstin riviväliä sekoittamasta asettelua */
+  gap: 0;
+}
+
+ion-icon {
+  margin-right: 1rem;
+  padding: 0;
+}

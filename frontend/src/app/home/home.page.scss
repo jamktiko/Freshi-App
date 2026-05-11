@@ -9,10 +9,17 @@
   flex-direction: column;
   padding: 1rem;
   padding-top: 0;
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   margin: 0 1rem;
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
+}
+.active-card {
+  opacity: 1;
+  border: 2px solid var(--app-primary-color, #4392f1);
+  border-radius: var(--app-borderradius, 16px);
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
 }
 ion-list {
   align-items: center;
@@ -24,8 +31,18 @@ ion-item {
 }
 
 h1 {
-  padding-bottom: 1rem;
-  padding-top: 0;
+  margin: 0;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  font-size: var(--app-h1-size);
+}
+
+h2 {
+  margin: 0;
+  padding-right: 0.5rem;
+  font-size: var(--app-h2-size);
+  color: var(--app-h1text);
+  padding-bottom: 1.5rem;
 }
 
 .summary-cards {
@@ -65,10 +82,11 @@ ion-toolbar {
 ion-header {
   box-shadow: none;
   box-shadow: var(--app-boxshadow);
+  background-color: var(--app-backgroundcolor);
 }
 
 .homeheader {
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -103,9 +121,25 @@ ion-title {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor);
   box-shadow: var(--app-boxshadowred);
+  animation: expiredPulse 2s ease-in-out infinite;
 }
+
+@keyframes expiredPulse {
+  0% {
+    box-shadow: 0 3px 10px 1px rgba(255, 120, 120, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 5px 16px 3px rgba(255, 120, 120, 0.65);
+  }
+
+  100% {
+    box-shadow: 0 3px 10px 1px rgba(255, 120, 120, 0.35);
+  }
+}
+
 .searchbar {
-  --background: #ffffff;
+  --background: var(--app-backgroundcolor);
   --color: var(--maintext);
   --placeholder-color: var(--maintext);
   --icon-color: var(--maintext);
@@ -156,10 +190,16 @@ ion-item.tuote {
   --background: transparent; /* Poistaa valkoisen oletustaustan */
   --inner-padding-end: 0px; /* Poistaa Ionicin sisäisen paddingin */
   --padding-start: 0px; /* Poistaa Ionicin alun paddingin */
-  background-color: #ffffff; /* Nyt musta väri näkyy läpi koko alalla */
+  background-color: var(
+    --app-backgroundcolor
+  ); /* Nyt musta väri näkyy läpi koko alalla */
   border-radius: var(--app-borderradius);
   --min-height: 100%;
   overflow: hidden; /* Varmistaa että violetti ei karkaa kulmien yli */
+}
+
+.productcards {
+  background-color: var(--app-backgroundcolor2);
 }
 
 app-product-card {
@@ -181,8 +221,7 @@ app-product-card {
 
 .freshi-logo {
   padding-top: 0.3rem;
-  padding-bottom: 0.8rem;
-  background-color: #ffffff;
+  padding-bottom: 0.5rem;
   width: 55px;
   height: 55px;
   object-fit: contain;
@@ -190,9 +229,11 @@ app-product-card {
 }
 
 .freshi-title {
-  padding: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--app-title-size);
+  font-weight: 500;
   line-height: 1;
   text-align: left;
 }
