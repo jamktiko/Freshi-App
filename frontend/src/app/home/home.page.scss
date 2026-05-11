@@ -21,10 +21,7 @@
   transform: scale(1.05);
   transition: all 0.2s ease-in-out;
 }
-ion-list {
-  align-items: center;
-  width: 90%;
-}
+
 ion-item {
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
@@ -114,10 +111,42 @@ ion-title {
 .expiring {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiringcolor-faded);
+
+  animation: expiringPulse 2s infinite;
 }
 .expired {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor-faded);
+
+  animation: expiredPulse 2s infinite;
+}
+
+@keyframes expiringPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 203, 17, 0.741);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(255, 120, 120, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 120, 120, 0);
+  }
+}
+
+@keyframes expiredPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 40, 40, 0.625);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(255, 120, 120, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 120, 120, 0);
+  }
 }
 
 .searchbar {
@@ -161,6 +190,8 @@ ion-list {
 .wrapper {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 
 ion-item-option[color="danger"] {
@@ -178,10 +209,16 @@ ion-item.tuote {
   border-radius: var(--app-borderradius);
   --min-height: 100%;
   overflow: hidden; /* Varmistaa että violetti ei karkaa kulmien yli */
+  transition: transform 0.2s;
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .productcards {
   background-color: var(--app-backgroundcolor2);
+  align-items: center;
+  width: 100%;
 }
 
 app-product-card {
