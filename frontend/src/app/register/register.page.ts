@@ -22,6 +22,7 @@ import { Cognito } from '../cognito';
 import { passwordMatchValidator } from '../passwordValidation';
 import { Router } from '@angular/router';
 import { autoSignIn } from 'aws-amplify/auth';
+import { StorageService } from '../storage';
 
 @Component({
   selector: 'app-register',
@@ -42,6 +43,7 @@ import { autoSignIn } from 'aws-amplify/auth';
   ],
 })
 export class RegisterPage {
+  storage = inject(StorageService);
   router = inject(Router);
   cognito = inject(Cognito);
 
@@ -86,7 +88,8 @@ export class RegisterPage {
           'Next registration step is: ' + register.nextStep.signUpStep,
         );
 
-        this.cognito.registrationEmail = this.registration.value.email;
+        // Save email to storage for confirmation step
+        this.storage.setEmail(this.registration.value.email);
 
         // Next step depends on what aws cognito returns upon registration
         switch (register.nextStep.signUpStep) {

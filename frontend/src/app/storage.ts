@@ -10,12 +10,14 @@ export class StorageService {
   private readonly STORAGE_KEY = 'freshi_storage';
   private readonly SYNC_KEY = 'freshi_sync';
   private readonly DELETIONS_KEY = 'freshi_deletions';
+  private readonly EMAIL_KEY = 'freshi_email';
 
   constructor(private storage: Storage) {
     this.init();
   }
 
   public products = signal<ILocalProduct[]>([]);
+  public email = signal<string>('');
 
   // Setup storage
   async init() {
@@ -24,6 +26,8 @@ export class StorageService {
     this._storage = storage;
     const products = await this.getProducts();
     this.products.set(products);
+    const email = await this.getEmail();
+    this.email.set(email);
   }
 
   // Get array of products from storage
@@ -47,6 +51,19 @@ export class StorageService {
     } catch (error) {
       alert('Failed to set last sync time to storage');
     }
+  }
+
+  // SET REGISTRATION EMAIL TO STORAGE
+  async setEmail(email: string) {
+    try {
+      await this._storage?.set(this.EMAIL_KEY, email);
+    } catch (error) {
+      alert('Failed to set email to storage: ' + error);
+    }
+  }
+  async getEmail() {
+    const email = await this._storage?.get(this.EMAIL_KEY);
+    return email ?? '';
   }
 
   //Get deleted products, that haven't been synced

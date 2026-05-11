@@ -1,6 +1,6 @@
 /// AWS Cognito authentication and authorization service
 
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../environment/environment';
 import { Amplify } from 'aws-amplify';
 import {
@@ -14,18 +14,17 @@ import {
 import { IUser } from './user';
 import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
 import { sessionStorage } from 'aws-amplify/utils';
+import { StorageService } from './storage';
 @Injectable({
   providedIn: 'root',
 })
 export class Cognito {
-  registrationEmail = '';
   constructor() {}
 
   // User registration function using email and password
   async registerUser(user: IUser) {
     try {
       const { isSignUpComplete, userId, nextStep } = await signUp(user);
-
       return { success: true, isSignUpComplete, userId, nextStep };
     } catch (error) {
       alert(error);

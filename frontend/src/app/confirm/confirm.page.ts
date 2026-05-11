@@ -19,6 +19,7 @@ import {
 import { Cognito } from '../cognito';
 import { Router } from '@angular/router';
 import { autoSignIn } from 'aws-amplify/auth';
+import { StorageService } from '../storage';
 
 @Component({
   selector: 'app-Confirm',
@@ -38,6 +39,7 @@ import { autoSignIn } from 'aws-amplify/auth';
 export class ConfirmPage {
   router = inject(Router);
   cognito = inject(Cognito);
+  storage = inject(StorageService);
 
   // User registration confirmation form.
   confirmation = new FormGroup({
@@ -56,7 +58,7 @@ export class ConfirmPage {
     if (typeof this.confirmation.value.code === 'string') {
       // Confirm email with code to aws cognito
       const confirmation = await this.cognito.confirmUser(
-        this.cognito.registrationEmail,
+        this.storage.email(),
         this.confirmation.value.code,
       );
 
