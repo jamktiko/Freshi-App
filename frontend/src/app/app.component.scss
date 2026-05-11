@@ -17,6 +17,19 @@
   padding-right: 1.5rem;
 }
 
+ion-menu {
+  --background: var(--app-backgroundcolor2);
+}
+
+ion-menu ion-header,
+ion-menu ion-toolbar,
+ion-menu ion-content,
+ion-menu ion-list,
+ion-menu ion-item {
+  --background: var(--app-backgroundcolor2);
+  background: var(--app-backgroundcolor2);
+}
+
 ion-header,
 ion-toolbar {
   --box-shadow: none;

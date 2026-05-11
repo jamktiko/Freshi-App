@@ -7,7 +7,7 @@
 }
 
 .appearance {
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   border-radius: var(--app-borderradius);
   margin-bottom: 1rem;
   margin-left: 1rem;
@@ -18,7 +18,7 @@
 }
 
 .appearance ion-list-header {
-  background: #ffffff;
+  background-color: var(--app-backgroundcolor);
   min-height: auto;
   padding-left: 1rem;
   margin-top: 1rem;
@@ -29,22 +29,22 @@
 }
 
 .appearance-list {
-  background: #ffffff;
-  --background: #ffffff;
+  background: var(--app-backgroundcolor);
+  --background: var(--app-backgroundcolor);
   margin: 0;
   padding-left: 1rem;
   padding-right: 2rem;
 }
 
 .appearance-item {
-  --background: #ffffff;
-  --inner-background: #ffffff;
+  --background: var(--app-backgroundcolor);
+  --inner-background: var(--app-backgroundcolor);
   --padding-start: 0;
   --inner-padding-end: 0;
 }
 
 .account {
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   border-radius: var(--app-borderradius);
   margin-left: 1rem;
   margin-right: 1rem;
@@ -53,7 +53,7 @@
 }
 
 .account ion-list-header {
-  background: #ffffff;
+  background: var(--app-backgroundcolor);
   min-height: auto;
   padding-left: 1rem;
   margin-top: 1rem;
@@ -64,16 +64,16 @@
 }
 
 .account-list {
-  background: #ffffff;
-  --background: #ffffff;
+  background: var(--app-backgroundcolor);
+  --background: var(--app-backgroundcolor);
   margin: 0;
   padding-left: 1rem;
   padding-right: 2rem;
 }
 
 .account-item {
-  --background: #ffffff;
-  --inner-background: #ffffff;
+  --background: var(--app-backgroundcolor);
+  --inner-background: var(--app-backgroundcolor);
   --padding-start: 0;
   --inner-padding-end: 0;
 }
@@ -102,4 +102,10 @@
 .user-value {
   font-size: 14px;
   color: var(--ion-color-medium);
+}
+
+ion-header,
+ion-toolbar {
+  --background: var(--app-background);
+  background: var(--app-background);
 }
