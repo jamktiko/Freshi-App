@@ -26,7 +26,7 @@ ion-toolbar {
   margin-bottom: 1rem;
   margin-top: 1rem;
   padding-right: 1.5rem;
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   border-radius: var(--app-borderradius);
   box-shadow: var(--app-boxshadow);
   padding: 1rem;
@@ -54,7 +54,7 @@ h1 {
   margin-bottom: 1rem;
   margin-top: 1rem;
   padding-right: 1.5rem;
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   border-radius: var(--app-borderradius);
   box-shadow: var(--app-boxshadow);
   padding: 1rem;
@@ -67,7 +67,7 @@ h1 {
   margin-bottom: 1rem;
   margin-top: 1rem;
   padding-right: 1.5rem;
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   border-radius: var(--app-borderradius);
   box-shadow: var(--app-boxshadow);
   padding: 1rem;

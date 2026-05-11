@@ -7,9 +7,31 @@
   gap: 1.5rem;
 }
 
+.product-photo {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-photo div {
+  width: 100%;
+  height: 100%;
+}
+
+.product-photo ion-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 ion-toolbar {
   margin-top: 1rem;
   margin-left: 1rem;
+  margin-bottom: 1rem;
 }
 
 b {
@@ -18,7 +40,7 @@ b {
 
 /* Yhtenäinen kortti tuotteen nimelle ja tiedoille */
 .productdetails {
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   border-radius: var(--app-borderradius);
   box-shadow: var(--app-boxshadow);
   padding: 1rem 1rem; /* Sisäinen tila koko laatikolle */

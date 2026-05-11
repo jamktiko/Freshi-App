@@ -48,6 +48,19 @@ ion-button {
   --border-radius: var(--app-borderradius);
 }
 
+ion-header,
+ion-toolbar {
+  --background: var(--app-background);
+  background: var(--app-background);
+}
+
+ion-back-button {
+  --color: var(--app-maintext);
+}
+
+ion-toolbar b {
+  color: var(--app-maintext);
+}
 ion-fab-button {
   --background: var(--app-calltoactionbutton);
 }

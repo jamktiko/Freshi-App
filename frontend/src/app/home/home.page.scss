@@ -9,7 +9,7 @@
   flex-direction: column;
   padding: 1rem;
   padding-top: 0;
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   margin: 0 1rem;
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
@@ -82,11 +82,11 @@ ion-toolbar {
 ion-header {
   box-shadow: none;
   box-shadow: var(--app-boxshadow);
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
 }
 
 .homeheader {
-  background-color: #ffffff;
+  background-color: var(--app-backgroundcolor);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -121,9 +121,25 @@ ion-title {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor);
   box-shadow: var(--app-boxshadowred);
+  animation: expiredPulse 2s ease-in-out infinite;
 }
+
+@keyframes expiredPulse {
+  0% {
+    box-shadow: 0 3px 10px 1px rgba(255, 120, 120, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 5px 16px 3px rgba(255, 120, 120, 0.65);
+  }
+
+  100% {
+    box-shadow: 0 3px 10px 1px rgba(255, 120, 120, 0.35);
+  }
+}
+
 .searchbar {
-  --background: #ffffff;
+  --background: var(--app-backgroundcolor);
   --color: var(--maintext);
   --placeholder-color: var(--maintext);
   --icon-color: var(--maintext);
@@ -174,10 +190,16 @@ ion-item.tuote {
   --background: transparent; /* Poistaa valkoisen oletustaustan */
   --inner-padding-end: 0px; /* Poistaa Ionicin sisäisen paddingin */
   --padding-start: 0px; /* Poistaa Ionicin alun paddingin */
-  background-color: #ffffff; /* Nyt musta väri näkyy läpi koko alalla */
+  background-color: var(
+    --app-backgroundcolor
+  ); /* Nyt musta väri näkyy läpi koko alalla */
   border-radius: var(--app-borderradius);
   --min-height: 100%;
   overflow: hidden; /* Varmistaa että violetti ei karkaa kulmien yli */
+}
+
+.productcards {
+  background-color: var(--app-backgroundcolor2);
 }
 
 app-product-card {

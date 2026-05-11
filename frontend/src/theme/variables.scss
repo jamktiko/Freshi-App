@@ -16,6 +16,8 @@
 /* Set the color on all ion-button elements */
 :root {
   /*  Värit */
+  --app-backgroundcolor2: #f8f8f8;
+  --app-backgroundcolor: #ffffff;
   --app-calltoactionbutton: #4392f1;
   --app-maintext: #272727;
   --app-calltoactiontext: #ffffff;
@@ -38,4 +40,38 @@
   --app-boxshadowred: 0 3px 9px 2px rgba(178, 17, 17, 0.85);
   --app-boxshadowyellow: 0 3px 9px rgba(150, 109, 3, 0.85);
   --app-boxshadowgreen: 0 3px 9px rgba(10, 104, 0, 0.85);
+}
+
+:root.ion-palette-dark {
+  /* Värit */
+  --app-calltoactionbutton: #4392f1;
+  --app-maintext: #f5f5f5;
+  --app-calltoactiontext: #272727;
+  --app-h1text: #d1d5db;
+  --app-bordercolor: #374151;
+  --app-backgroundcolor: #2f2f2f;
+  --app-backgroundcolor2: #121212;
+
+  --app-freshcolor: #ade76b;
+  --app-expiringcolor: #ffe064;
+  --app-expiredcolor: #ffb5b5;
+
+  --app-borderradius: 16px;
+
+  /* Spacing */
+  --app-spacing-md: 1rem;
+
+  /* Fonttikoot */
+  --app-title-size: 2.2rem;
+  --app-h1-size: 1.25rem;
+  --app-h2-size: 1rem;
+  --app-b-size: 1.5rem;
+
+  --app-boxshadow: 0 3px 10px rgba(255, 255, 255, 0.1);
+
+  --app-boxshadowred: 0 3px 10px 1px rgba(255, 120, 120, 0.45);
+
+  --app-boxshadowyellow: 0 3px 10px 1px rgba(255, 220, 80, 0.4);
+
+  --app-boxshadowgreen: 0 3px 10px 1px rgba(160, 255, 120, 0.4);
 }
