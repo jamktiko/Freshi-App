@@ -31,6 +31,9 @@
             fill="outline"
             placeholder="Enter email"
           ></ion-input>
+          @if (emailError()) {
+          <ion-note color="danger">{{emailError()}}</ion-note>
+          }
         </ion-item>
 
         <ion-item lines="none" class="field-row">
