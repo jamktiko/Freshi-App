@@ -31,10 +31,11 @@
             fill="outline"
             placeholder="Enter email"
           ></ion-input>
-          @if (emailError()) {
-          <ion-note color="danger">{{emailError()}}</ion-note>
-          }
         </ion-item>
+
+        @if (emailError()) {
+        <ion-note class="field-error" color="danger">{{emailError()}}</ion-note>
+        }
 
         <ion-item lines="none" class="field-row">
           <ion-input
@@ -44,14 +45,17 @@
             [formControl]="registration.controls.passwordsGroup.controls.password"
             labelPlacement="stacked"
             fill="outline"
-            helperText="Vähintään 8 merkkiä: sisältäen ison ja pienen kirjaimen sekä numeron."
-            errorText="Vähintään 8 merkkiä: sisältäen ison ja pienen kirjaimen sekä numeron."
             placeholder="Enter password"
           ></ion-input>
           @if (passwordError()) {
           <ion-note color="danger">{{passwordError()}}</ion-note>
           }
         </ion-item>
+
+        <ion-note color="danger">
+          Minimum 8 characters, including uppercase and lowercase letters and a
+          number.
+        </ion-note>
 
         <ion-item lines="none" class="field-row">
           <ion-input

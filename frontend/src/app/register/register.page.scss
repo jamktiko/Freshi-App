@@ -84,3 +84,11 @@ p {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
+
+.field-error {
+  display: block;
+  width: 90%;
+  margin: -6px 0 12px 0;
+  font-size: 13px;
+  background: transparent;
+}
