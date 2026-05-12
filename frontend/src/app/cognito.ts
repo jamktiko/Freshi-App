@@ -12,7 +12,10 @@ import {
   signUp,
 } from 'aws-amplify/auth';
 import { IUser } from './user';
-import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
+import {
+  cognitoUserPoolsTokenProvider,
+  resendSignUpCode,
+} from 'aws-amplify/auth/cognito';
 import { sessionStorage } from 'aws-amplify/utils';
 import { StorageService } from './storage';
 
@@ -48,6 +51,17 @@ export class Cognito {
     }
   }
 
+  async resendCode(email: string) {
+    try {
+      await resendSignUpCode({
+        username: email,
+      });
+      return { success: true };
+    } catch (error: any) {
+      return { error: error };
+    }
+  }
+
   // User login with email and password
   async loginUser(email: string, password: string) {
     try {
@@ -57,10 +71,10 @@ export class Cognito {
       });
 
       return { success: true, nextStep };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      alert(error);
-      return { success: false };
+
+      return { error: error };
     }
   }
 

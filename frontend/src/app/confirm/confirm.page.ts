@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -10,6 +10,7 @@ import {
   IonButton,
   IonButtons,
   IonBackButton,
+  IonNote,
 } from '@ionic/angular/standalone';
 
 import {
@@ -28,6 +29,7 @@ import { StorageService } from '../storage';
   templateUrl: 'confirm.page.html',
   styleUrls: ['confirm.page.scss'],
   imports: [
+    IonNote,
     IonButton,
     IonButtons,
     IonBackButton,
@@ -46,6 +48,10 @@ export class ConfirmPage {
   cognito = inject(Cognito);
   storage = inject(StorageService);
 
+  codeCooldown = signal<boolean>(false);
+
+  errorText = signal<string | null>(null);
+
   // User registration confirmation form.
   confirmation = new FormGroup({
     code: new FormControl('', [
@@ -57,13 +63,34 @@ export class ConfirmPage {
 
   constructor() {}
 
+  // Resend confirmation code to email
+  async resendCode() {
+    this.codeCooldown.set(true);
+    const email = await this.storage.getEmail();
+    console.log(email);
+    const codeResponse = await this.cognito.resendCode(email);
+    if (codeResponse?.error?.name) {
+      if (codeResponse.error.name === 'LimitExceededException') {
+        this.errorText.set(
+          'Too many requests sent, wait a few minutes before retrying',
+        );
+        this.codeCooldown.set(false);
+        return;
+      }
+    }
+    setTimeout(() => {
+      this.codeCooldown.set(false);
+    }, 2500);
+  }
+
   // Confirms user base on confirmation form details
   async submitConfirmation() {
     // Check if type of code is a string
     if (typeof this.confirmation.value.code === 'string') {
+      const email = await this.storage.getEmail();
       // Confirm email with code to aws cognito
       const confirmation = await this.cognito.confirmUser(
-        this.storage.email(),
+        email,
         this.confirmation.value.code,
       );
 

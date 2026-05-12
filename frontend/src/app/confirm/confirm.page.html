@@ -40,6 +40,12 @@
         "
       ></ion-input>
     </ion-item>
+    @if (errorText()) {
+    <ion-note color="danger">{{errorText()}}</ion-note>
+    }
+    <ion-button [disabled]="codeCooldown()" (click)="resendCode()"
+      >{{codeCooldown() ? 'Sending code...' : 'Resend Code'}}</ion-button
+    >
 
     <ion-button [disabled]="confirmation.invalid" (click)="submitConfirmation()"
       >Submit</ion-button
