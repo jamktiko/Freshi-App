@@ -121,7 +121,7 @@ export class RegisterPage {
             }
         }
       }
-      if (register.error.name) {
+      if (register.error?.name) {
         console.log(register.error.name);
         // IF username is already in use
         if (register.error.name === 'UsernameExistsException') {
