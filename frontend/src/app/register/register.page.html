@@ -44,8 +44,13 @@
             [formControl]="registration.controls.passwordsGroup.controls.password"
             labelPlacement="stacked"
             fill="outline"
+            helperText="Vähintään 8 merkkiä: sisältäen ison ja pienen kirjaimen sekä numeron."
+            errorText="Vähintään 8 merkkiä: sisältäen ison ja pienen kirjaimen sekä numeron."
             placeholder="Enter password"
           ></ion-input>
+          @if (passwordError()) {
+          <ion-note color="danger">{{passwordError()}}</ion-note>
+          }
         </ion-item>
 
         <ion-item lines="none" class="field-row">
