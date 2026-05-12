@@ -52,10 +52,13 @@
           }
         </ion-item>
 
+        @if (registration.controls.passwordsGroup.controls.password.invalid &&
+        registration.controls.passwordsGroup.controls.password.dirty) {
         <ion-note color="danger">
           Minimum 8 characters, including uppercase and lowercase letters and a
           number.
         </ion-note>
+        }
 
         <ion-item lines="none" class="field-row">
           <ion-input
