@@ -19,8 +19,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { getCurrentUser, resendSignUpCode } from 'aws-amplify/auth';
 import { Router } from '@angular/router';
+import { StorageService } from '../storage';
 
 @Component({
   selector: 'app-login',
@@ -43,6 +44,7 @@ import { Router } from '@angular/router';
 export class LoginPage {
   IDToken = signal('test');
   AccessToken = signal('test');
+  storage = inject(StorageService);
 
   router = inject(Router);
   cognito = inject(Cognito);
@@ -69,6 +71,14 @@ export class LoginPage {
         switch (login.nextStep.signInStep) {
           case 'DONE':
             this.router.navigate(['/tabs/home']);
+            break;
+          case 'CONFIRM_SIGN_UP':
+            await this.storage.setEmail(this.login.value.email);
+            resendSignUpCode({
+              username: this.login.value.email,
+            });
+            this.router.navigate(['/tabs/confirm']);
+            break;
         }
       }
     } else {

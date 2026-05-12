@@ -35,6 +35,8 @@ export class Cognito {
   // User registration confirmation with email code
   async confirmUser(email: string, code: string) {
     try {
+      console.log(email);
+      console.log(code);
       const { isSignUpComplete, nextStep } = await confirmSignUp({
         username: email,
         confirmationCode: code,
@@ -56,6 +58,7 @@ export class Cognito {
 
       return { success: true, nextStep };
     } catch (error) {
+      console.log(error);
       alert(error);
       return { success: false };
     }

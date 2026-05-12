@@ -57,6 +57,7 @@ export class StorageService {
   async setEmail(email: string) {
     try {
       await this._storage?.set(this.EMAIL_KEY, email);
+      await this.getEmail();
     } catch (error) {
       alert('Failed to set email to storage: ' + error);
     }
