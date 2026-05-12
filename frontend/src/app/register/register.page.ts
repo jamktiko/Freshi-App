@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -10,6 +10,8 @@ import {
   IonButton,
   IonButtons,
   IonBackButton,
+  IonLabel,
+  IonNote,
 } from '@ionic/angular/standalone';
 
 import {
@@ -29,6 +31,7 @@ import { StorageService } from '../storage';
   templateUrl: 'register.page.html',
   styleUrls: ['register.page.scss'],
   imports: [
+    IonNote,
     IonButton,
     IonButtons,
     IonBackButton,
@@ -38,7 +41,7 @@ import { StorageService } from '../storage';
     IonHeader,
     IonToolbar,
     IonContent,
-
+    IonLabel,
     ReactiveFormsModule,
   ],
 })
@@ -47,20 +50,27 @@ export class RegisterPage {
   router = inject(Router);
   cognito = inject(Cognito);
 
+  // Errors for form fields
+  emailError = signal<string | null>(null);
+  passwordError = signal<string | null>(null);
+
+  //testing
+  errorTest: any = null;
+
   // Registration form initialization
-  registration = new FormGroup(
-    {
-      email: new FormControl('', [Validators.email, Validators.required]),
-      passwordsGroup: new FormGroup(
-        {
-          password: new FormControl('', Validators.required),
-          pconfirm: new FormControl('', Validators.required),
-        },
-        { validators: [Validators.minLength(8)] },
-      ),
-    },
-    { validators: passwordMatchValidator },
-  );
+  registration = new FormGroup({
+    email: new FormControl('', [Validators.email, Validators.required]),
+    passwordsGroup: new FormGroup(
+      {
+        password: new FormControl('', [
+          Validators.required,
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/),
+        ]),
+        pconfirm: new FormControl('', Validators.required),
+      },
+      { validators: passwordMatchValidator },
+    ),
+  });
 
   constructor() {}
 
@@ -109,6 +119,19 @@ export class RegisterPage {
               alert(error);
               this.router.navigate(['/tabs/login']);
             }
+        }
+      }
+      if (register.error.name) {
+        console.log(register.error.name);
+        // IF username is already in use
+        if (register.error.name === 'UsernameExistsException') {
+          this.emailError.set('User with this email already exists');
+        }
+        // If password is invalid
+        if (register.error.name === 'InvalidPasswordException') {
+          this.passwordError.set(
+            'Minimun length is 8 character. Must have a number. Must have a capitalized letter',
+          );
         }
       }
     } else {

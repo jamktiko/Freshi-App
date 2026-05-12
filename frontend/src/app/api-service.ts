@@ -172,6 +172,7 @@ export class ApiService {
         }
       }
     } catch (error) {
+      console.log(error);
       alert('Error syncing products' + error);
     }
   }

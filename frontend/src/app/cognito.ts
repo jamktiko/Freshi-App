@@ -15,6 +15,7 @@ import { IUser } from './user';
 import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
 import { sessionStorage } from 'aws-amplify/utils';
 import { StorageService } from './storage';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -26,15 +27,16 @@ export class Cognito {
     try {
       const { isSignUpComplete, userId, nextStep } = await signUp(user);
       return { success: true, isSignUpComplete, userId, nextStep };
-    } catch (error) {
-      alert(error);
-      return { success: false };
+    } catch (error: any) {
+      return { error: error };
     }
   }
 
   // User registration confirmation with email code
   async confirmUser(email: string, code: string) {
     try {
+      console.log(email);
+      console.log(code);
       const { isSignUpComplete, nextStep } = await confirmSignUp({
         username: email,
         confirmationCode: code,
@@ -56,6 +58,7 @@ export class Cognito {
 
       return { success: true, nextStep };
     } catch (error) {
+      console.log(error);
       alert(error);
       return { success: false };
     }
