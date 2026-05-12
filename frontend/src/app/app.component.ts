@@ -36,6 +36,7 @@ import {
   informationCircleOutline,
   menuOutline,
   closeOutline,
+  leafOutline,
   sparkles,
 } from 'ionicons/icons';
 @Component({
@@ -86,6 +87,7 @@ export class AppComponent {
       informationCircleOutline,
       menuOutline,
       closeOutline,
+      leafOutline,
       sparkles,
     });
   }

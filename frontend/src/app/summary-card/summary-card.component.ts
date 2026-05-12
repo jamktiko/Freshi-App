@@ -10,8 +10,10 @@ import { IonIcon } from '@ionic/angular/standalone';
 export class SummaryCardComponent implements OnInit {
   // Inputs/props from parent-component
   icon = input<string>();
+  color = input<string>();
   amount = input<string>();
   freshness = input<'Expired' | 'Expiring' | 'Fresh'>();
+
   constructor() {}
 
   ngOnInit() {}

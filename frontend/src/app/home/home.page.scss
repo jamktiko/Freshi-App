@@ -21,10 +21,7 @@
   transform: scale(1.05);
   transition: all 0.2s ease-in-out;
 }
-ion-list {
-  align-items: center;
-  width: 90%;
-}
+
 ion-item {
   box-shadow: var(--app-boxshadow);
   border-radius: var(--app-borderradius);
@@ -108,18 +105,18 @@ ion-title {
 
 .Fresh {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-freshcolor);
+  background-color: var(--app-freshcolor-faded);
 }
 
 .expiring {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-expiringcolor);
+  background-color: var(--app-expiringcolor-faded);
 
   animation: expiringPulse 2s infinite;
 }
 .expired {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-expiredcolor);
+  background-color: var(--app-expiredcolor-faded);
 
   animation: expiredPulse 2s infinite;
 }
@@ -178,14 +175,6 @@ ion-item.tuote {
   box-shadow: none;
 }
 
-ion-item,
-ion-item-sliding,
-ion-item-options,
-ion-item-option,
-ion-list {
-  overflow: visible;
-}
-
 .slider {
   overflow: visible !important;
 }
@@ -193,6 +182,8 @@ ion-list {
 .wrapper {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 
 ion-item-option[color="danger"] {
@@ -210,18 +201,23 @@ ion-item.tuote {
   border-radius: var(--app-borderradius);
   --min-height: 100%;
   overflow: hidden; /* Varmistaa että violetti ei karkaa kulmien yli */
+  transition: transform 0.2s;
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .productcards {
   background-color: var(--app-backgroundcolor2);
+  align-items: center;
+  width: 100%;
 }
 
 app-product-card {
   width: 100%;
 
   display: flex;
-  padding-left: 1rem;
-  padding-right: 1rem;
+
   border-radius: var(--app-borderradius);
   box-shadow: var(--app-boxshadow);
   width: 100%;

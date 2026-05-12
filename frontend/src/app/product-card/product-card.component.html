@@ -1,4 +1,7 @@
-<div class="product-header">
+<div
+  [style.--status-color]="`var(--ion-color-${getColor()}-shade)`"
+  class="product-header"
+>
   <span class="cardtitle">{{ product()?.productName }}</span>
   @if (!product()?.brand && !product()?.category) {
     <span class="iteminfo">-</span>
@@ -18,7 +21,7 @@
       } @else if (lifeLeft() < 0) {
         <span> Expired </span>
       } @else {
-        <span>{{ lifeLeft() }} days left</span>
+        <span>{{ lifeLeft() }} days</span>
       }
     </ion-chip>
     <span class="expirationdate">{{ expirationDate() }}</span>

@@ -27,6 +27,7 @@
         class="expired"
         icon="alert-circle-outline"
         amount="1"
+        color="danger"
         freshness="Expired"
         [class.active-card]="activeFilter() === 'Expired'"
         (click)="toggleFilter('Expired')"
@@ -35,6 +36,7 @@
         class="expiring"
         icon="time-outline"
         amount="2"
+        color="warning"
         freshness="Expiring"
         [class.active-card]="activeFilter() === 'Expiring'"
         (click)="toggleFilter('Expiring')"
@@ -42,8 +44,9 @@
 
       <app-summary-card
         class="Fresh"
-        icon="checkmark-circle-outline"
+        icon="leaf-outline"
         amount="5"
+        color="success"
         freshness="Fresh"
         [class.active-card]="activeFilter() === 'Fresh'"
         (click)="toggleFilter('Fresh')"
@@ -77,7 +80,7 @@
               <ion-icon slot="icon-only" name="trash"></ion-icon>
             </ion-item-option>
           </ion-item-options>
-          <ion-item class="tuote" button (click)="showDetails(product)">
+          <ion-item class="tuote" (click)="showDetails(product)">
             <app-product-card [product]="product"></app-product-card>
           </ion-item>
           <ion-item-options side="end">

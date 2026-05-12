@@ -7,16 +7,19 @@
 }
 
 .product-header {
+  padding-left: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
   align-items: flex-start;
   padding-top: 1rem;
   padding-bottom: 1rem;
+  border-left: 8px solid var(--status-color, black);
 }
 
 .cardtitle {
   font-size: var(--app-h1-size);
+  font-weight: bold;
   color: var(--app-maintext);
   padding-bottom: 0.5rem;
 }
@@ -33,7 +36,8 @@
   justify-content: space-between;
   margin: 0;
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
+  padding-right: 1rem;
 }
 
 .expirationdate {

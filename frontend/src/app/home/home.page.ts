@@ -150,39 +150,39 @@ export class HomePage implements OnInit {
     // Saves added product
     // CURRENTLY SAVES ONLY TO AN ARRAY
     if (role === 'confirm') {
+      const formData = data.form;
+      const uri = data.photoURI;
+
+      //ALERT FOR TESTIGN
+      //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
+
+      const itemId = crypto.randomUUID();
+      const newProduct: ILocalProduct = {
+        itemId: itemId,
+        productName: formData.name,
+        brand: formData.brand ?? null,
+        category: formData.category ?? null,
+        expirationDate: formData.expiration,
+        openedDate: null,
+        S3imageKey: null,
+        synced: false,
+        createdAt: new Date().toISOString(),
+        lastUpdate: new Date().toISOString(),
+        confidence: null,
+      };
+
       try {
-        const formData = data.form;
-        const uri = data.photoURI;
-
-        //ALERT FOR TESTIGN
-        //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
-
-        const itemId = crypto.randomUUID();
-        const newProduct: ILocalProduct = {
-          itemId: itemId,
-          productName: formData.name,
-          brand: formData.brand ?? null,
-          category: formData.category ?? null,
-          expirationDate: formData.expiration,
-          openedDate: null,
-          S3imageKey: null,
-          synced: false,
-          createdAt: new Date().toISOString(),
-          lastUpdate: new Date().toISOString(),
-          confidence: null,
-        };
         const postProductResponst = await this.api.postProduct(newProduct);
 
         if (postProductResponst.success) {
           newProduct.synced = true;
         }
-
-        this.storageService.addProduct(newProduct);
-        if (uri) {
-          this.cameraService.savePhoto(uri, itemId);
-        }
       } catch (error) {
         alert('Error adding new product: ' + error);
+      }
+      this.storageService.addProduct(newProduct);
+      if (uri) {
+        this.cameraService.savePhoto(uri, itemId);
       }
     }
   }
