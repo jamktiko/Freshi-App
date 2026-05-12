@@ -10,6 +10,7 @@ import {
   IonButton,
   IonButtons,
   IonBackButton,
+  IonNote,
 } from '@ionic/angular/standalone';
 
 import { Cognito } from '../cognito';
@@ -37,8 +38,8 @@ import { StorageService } from '../storage';
     IonHeader,
     IonToolbar,
     IonContent,
-
     ReactiveFormsModule,
+    IonNote,
   ],
 })
 export class LoginPage {
@@ -48,6 +49,8 @@ export class LoginPage {
 
   router = inject(Router);
   cognito = inject(Cognito);
+
+  loginError = signal<string | null>(null);
 
   // Form for logging in user
   login = new FormGroup({
@@ -79,6 +82,22 @@ export class LoginPage {
             });
             this.router.navigate(['/tabs/confirm']);
             break;
+        }
+      }
+      if (login.error?.name) {
+        if (login.error.name === 'NotAuthorizedException') {
+          if (login.error.message) {
+            this.loginError.set(login.error.message);
+          } else {
+            this.loginError.set('Invalid username or password');
+          }
+        }
+        if (login.error.name === 'UserNotFoundException') {
+          if (login.error.message) {
+            this.loginError.set(login.error.message);
+          } else {
+            this.loginError.set('User does not exist');
+          }
         }
       }
     } else {

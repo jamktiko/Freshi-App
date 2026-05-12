@@ -56,6 +56,10 @@
             "
           ></ion-input>
         </ion-item>
+        @if (loginError()) {
+        <ion-note color="danger">{{loginError()}}</ion-note>
+        }
+
         <ion-button (click)="submitLogin()" [disabled]="login.invalid"
           >Submit</ion-button
         >

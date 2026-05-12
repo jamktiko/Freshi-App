@@ -71,10 +71,10 @@ export class Cognito {
       });
 
       return { success: true, nextStep };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      alert(error);
-      return { success: false };
+
+      return { error: error };
     }
   }
 
