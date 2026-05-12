@@ -110,3 +110,8 @@ Thumbs.db
 .env.local
 .env.production
 .env.development
+############################
+# 🎬 HYPERFRAMES & AGENTS
+############################
+.agents/
+marketing-video/renders/
