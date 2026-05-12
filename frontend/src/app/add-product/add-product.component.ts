@@ -28,6 +28,8 @@ import {
   TextDetections,
 } from '@capacitor-community/image-to-text';
 import { ApiService } from '../api-service';
+import { Platform } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-product',
@@ -52,6 +54,7 @@ import { ApiService } from '../api-service';
 export class AddProductComponent implements OnInit {
   api = inject(ApiService);
   camera = inject(CameraService);
+  router = inject(Router);
 
   // If is loading ocr autofill texts
   isLoading = signal<boolean>(false);
