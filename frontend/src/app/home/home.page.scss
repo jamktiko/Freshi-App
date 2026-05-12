@@ -105,18 +105,18 @@ ion-title {
 
 .Fresh {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-freshcolor-faded);
+  background-color: var(--app-freshcolor);
 }
 
 .expiring {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-expiringcolor-faded);
+  background-color: var(--app-expiringcolor);
 
   animation: expiringPulse 2s infinite;
 }
 .expired {
   border-radius: var(--app-borderradius);
-  background-color: var(--app-expiredcolor-faded);
+  background-color: var(--app-expiredcolor);
 
   animation: expiredPulse 2s infinite;
 }
