@@ -80,7 +80,7 @@ export class ConfirmPage {
     }
     setTimeout(() => {
       this.codeCooldown.set(false);
-    }, 2500);
+    }, 15000);
   }
 
   // Confirms user base on confirmation form details
