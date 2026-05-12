@@ -14,45 +14,46 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-        
-    - name: Install dependencies
-      working-directory: ./frontend
-      # It will try to run npm ci if lockfile exists, otherwise npm install
-      run: npm ci || npm install
-      
-    - name: Generate Environment File
-      working-directory: ./frontend
-      env:
-        USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-        CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
-      run: |
-        mkdir -p src/environment
-        
-        cat << EOF > src/environment/environment.ts
-        export const environment = {
-          production: false,
-          cognito: {
-            userPoolID: '${USER_POOL_ID}',
-            appClientID: '${CLIENT_ID}',
-          },
-        };
-        EOF
-        
-        cp src/environment/environment.ts src/environment/environment.prod.ts
-      
-    - name: Install Playwright
-      working-directory: ./frontend
-      run: npm install -D @playwright/test
-      
-    - name: Install Playwright Browsers
-      working-directory: ./frontend
-      run: npx playwright install --with-deps chromium
-      
-    - name: Run Playwright tests
-      working-directory: ./frontend
-      run: npx playwright test
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        # It will try to run npm ci if lockfile exists, otherwise npm install
+        run: npm ci || npm install
+
+      - name: Generate Environment File
+        working-directory: ./frontend
+        env:
+          USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+        run: |
+          mkdir -p src/environment
+
+          cat << EOF > src/environment/environment.ts
+          export const environment = {
+            production: false,
+            apiURL: 'http://localhost:3000',
+            cognito: {
+              userPoolID: '${USER_POOL_ID}',
+              appClientID: '${CLIENT_ID}',
+            },
+          };
+          EOF
+
+          cp src/environment/environment.ts src/environment/environment.prod.ts
+
+      - name: Install Playwright
+        working-directory: ./frontend
+        run: npm install -D @playwright/test
+
+      - name: Install Playwright Browsers
+        working-directory: ./frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: ./frontend
+        run: npx playwright test
