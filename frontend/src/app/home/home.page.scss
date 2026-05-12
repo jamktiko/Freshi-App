@@ -247,3 +247,7 @@ app-product-card {
   line-height: 1;
   text-align: left;
 }
+
+ion-fab-button {
+  margin-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
+}
