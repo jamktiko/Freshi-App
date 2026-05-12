@@ -12,6 +12,7 @@ import {
   IPostProductResponse,
   IDeleteProductResponse,
   IDeletedProduct,
+  IOcrResponse,
 } from './product';
 import { StorageService } from './storage';
 
@@ -39,6 +40,19 @@ export class ApiService {
     } catch (error) {
       console.log(error);
       throw error;
+    }
+  }
+  // Send ocr-texts and reveice an object from aws bedrock
+  async sendOCR(ocrText: string[]) {
+    try {
+      return await firstValueFrom(
+        this.http.post<IOcrResponse>(this.apiURL + '/ai/analyze', {
+          ocrText: ocrText,
+        }),
+      );
+    } catch (error) {
+      alert('Error sending ocr-texts: ' + error);
+      return null;
     }
   }
 

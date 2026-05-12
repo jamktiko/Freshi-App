@@ -112,3 +112,19 @@ export interface IDeletedProduct {
   itemId: string;
   clientUpdatedAt: string; // ISO TIMESTAMP
 }
+
+export interface IOcrResponse {
+  success: boolean;
+  data: {
+    suggestion: {
+      status: string;
+      productName: string;
+      expirationDate: string | null;
+      category: string;
+      brand: string;
+      confidenceScore: string;
+      piiDetected: boolean;
+      suspiciousInput: boolean;
+    };
+  };
+}
