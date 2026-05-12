@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Freshi-App TikTok Promo</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        font-family: "Outfit", sans-serif;
+        background: #000;
+      }
+      
+      .scene-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 180px 100px;
+      }
+
+      /* Scene backgrounds */
+      #scene-1 { background: radial-gradient(circle at center 30%, #1e1b4b, #000); z-index: 10; }
+      #scene-2 { background: linear-gradient(135deg, #166534, #064e3b); z-index: 20; }
+      #scene-3 { background: linear-gradient(135deg, #3730a3, #1e1b4b); z-index: 30; }
+      #scene-4 { background: radial-gradient(circle at center, #0f172a, #000); z-index: 40; }
+      #scene-5 { background: radial-gradient(circle at center, #111827, #000); z-index: 50; }
+
+      /* Typography */
+      .heading-xl {
+        font-size: 140px;
+        font-weight: 900;
+        color: white;
+        text-align: center;
+        line-height: 1.0;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+      }
+      .heading-l {
+        font-size: 110px;
+        font-weight: 800;
+        color: white;
+        text-align: center;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin-bottom: 40px;
+      }
+      .subtitle {
+        font-size: 54px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.9);
+        text-align: center;
+        margin-top: 30px;
+        line-height: 1.2;
+      }
+
+      .text-grad-1 { background: linear-gradient(to right, #4ade80, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .text-grad-2 { background: linear-gradient(to right, #facc15, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+      /* Phone Mockup Frame */
+      .phone-frame {
+        width: 760px;
+        height: 1520px;
+        background: #fff;
+        border-radius: 60px;
+        padding: 16px;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        position: absolute;
+        overflow: hidden;
+      }
+      
+      .phone-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 44px;
+      }
+
+      /* Specific positionings to follow Layout Before Animation */
+      #s1-content { justify-content: flex-start; }
+      #s1-phone { bottom: -250px; }
+
+      #s2-content { justify-content: flex-start; }
+      #s2-phone-1 { bottom: -200px; left: -100px; } /* Transform handled in GSAP */
+      #s2-phone-2 { bottom: -200px; right: -100px; } /* Transform handled in GSAP */
+
+      #s3-content { justify-content: flex-start; }
+      #s3-phone { bottom: -250px; }
+      #s3-phone-overlay { 
+        bottom: 100px; 
+        right: 50px; 
+        width: 480px; 
+        height: 960px; 
+        border-radius: 40px;
+        padding: 12px;
+      }
+      #s3-phone-overlay img { border-radius: 28px; }
+      
+      #s4-content { justify-content: center; }
+
+      .cta-button {
+        background: linear-gradient(to right, #10b981, #059669);
+        padding: 30px 80px;
+        border-radius: 100px;
+        font-size: 64px;
+        font-weight: 800;
+        color: white;
+        margin-top: 60px;
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+      }
+      
+      .bg-glow {
+        position: absolute;
+        width: 1000px;
+        height: 1000px;
+        background: rgba(16, 185, 129, 0.2);
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
+      
+      <!-- Scene 1: Hook -->
+      <div id="scene-1" class="scene-content clip" data-start="0" data-duration="4.5" data-track-index="1">
+        <div class="bg-glow"></div>
+        <div id="s1-content" class="scene-content" style="z-index: 2;">
+          <img src="assets/logo.png" alt="Freshi App" class="s1-title" style="max-height: 250px; max-width: 800px; object-fit: contain; border-radius: 40px; margin-bottom: 40px;" />
+          <p class="subtitle s1-sub">Smart food tracking.<br>No more waste.</p>
+        </div>
+        <div id="s1-phone" class="phone-frame s1-img">
+          <img src="assets/Welcome.png" alt="Welcome" />
+        </div>
+      </div>
+
+      <!-- Scene 2: Register/Login -->
+      <div id="scene-2" class="scene-content clip" data-start="4.0" data-duration="4.5" data-track-index="2">
+        <div id="s2-content" class="scene-content" style="z-index: 2;">
+          <h1 class="heading-l s2-title">GET STARTED<br><span class="text-grad-2">FAST</span></h1>
+        </div>
+        <!-- GSAP controls the rotation and x position -->
+        <div id="s2-phone-1" class="phone-frame s2-img">
+          <img src="assets/Register.png" alt="Register" />
+        </div>
+        <div id="s2-phone-2" class="phone-frame s2-img">
+          <img src="assets/Login.png" alt="Login" />
+        </div>
+      </div>
+
+      <!-- Scene 3: Home & Features -->
+      <div id="scene-3" class="scene-content clip" data-start="8.0" data-duration="4.5" data-track-index="3">
+        <div id="s3-content" class="scene-content" style="z-index: 2;">
+          <h1 class="heading-l s3-title">TRACK<br><span class="text-grad-1">EVERYTHING</span></h1>
+        </div>
+        <div id="s3-phone" class="phone-frame s3-img">
+          <img src="assets/Home.png" alt="Home" />
+        </div>
+        <div id="s3-phone-overlay" class="phone-frame s3-overlay">
+          <img src="assets/AddProduct.png" alt="Add Product" />
+        </div>
+      </div>
+
+      <!-- Scene 4: Outro -->
+      <div id="scene-4" class="scene-content clip" data-start="12.0" data-duration="4.5" data-track-index="4">
+        <div class="bg-glow" style="background: rgba(79, 70, 229, 0.3);"></div>
+        <div id="s4-content" class="scene-content">
+          <h1 class="heading-xl s4-title">REDUCE<br><span class="text-grad-1">WASTE</span></h1>
+          <h1 class="heading-xl s4-title" style="margin-top: 20px;">SAVE<br><span class="text-grad-2">MONEY</span></h1>
+          <div class="cta-button s4-btn">DOWNLOAD NOW</div>
+        </div>
+      </div>
+
+      <!-- Scene 5: Credits (JAMK) -->
+      <div id="scene-5" class="scene-content clip" data-start="16.0" data-duration="4.0" data-track-index="5">
+        <div id="s5-content" class="scene-content" style="justify-content: center; gap: 60px;">
+          <img src="assets/logo.png" alt="App Logo" class="s5-logo" style="max-height: 300px; max-width: 800px; object-fit: contain; border-radius: 40px;" />
+          <h2 class="heading-l s5-text" style="font-size: 80px; margin-bottom: 0;"><span class="text-grad-1">OHJELMISTOPROJEKTI 2</span></h2>
+          <img src="assets/jamk_white.png" alt="JAMK Logo" class="s5-jamk" style="max-height: 200px; max-width: 800px; object-fit: contain; margin-top: 40px;" />
+        </div>
+      </div>
+
+      <!-- Music -->
+      <audio id="bg-music" src="assets/marketmusic.mp3" data-start="0" data-duration="20" data-track-index="6" data-volume="1.0"></audio>
+
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        // Apply static transforms for layout
+        tl.set("#s2-phone-1", { rotation: -8, x: -100 }, 0);
+        tl.set("#s2-phone-2", { rotation: 8, x: 100 }, 0);
+
+        // --- SCENE 1 ENTRANCE ---
+        tl.from(".s1-title", { y: 100, opacity: 0, duration: 1.0, ease: "power4.out" }, 0.2);
+        tl.from(".s1-sub", { y: 50, opacity: 0, duration: 1.0, ease: "power3.out" }, 0.4);
+        tl.from(".s1-img", { y: 800, rotation: 5, duration: 1.2, ease: "expo.out" }, 0.5);
+        tl.from(".bg-glow", { scale: 0.5, opacity: 0, duration: 2.0, ease: "power2.out" }, 0);
+
+        // --- SCENE 2 ENTRANCE ---
+        tl.from("#scene-2", { y: "100%", duration: 1.0, ease: "expo.inOut" }, 4.0);
+        tl.from(".s2-title", { y: 80, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, 4.6);
+        tl.fromTo("#s2-phone-1", { y: 1200, rotation: -20, x: -100 }, { y: 0, rotation: -8, x: -100, duration: 1.2, ease: "expo.out" }, 4.8);
+        tl.fromTo("#s2-phone-2", { y: 1200, rotation: 20, x: 100 }, { y: 0, rotation: 8, x: 100, duration: 1.2, ease: "expo.out" }, 5.0);
+
+        // --- SCENE 3 ENTRANCE ---
+        tl.from("#scene-3", { x: "-100%", duration: 1.0, ease: "expo.inOut" }, 8.0);
+        tl.from(".s3-title", { y: 80, opacity: 0, duration: 0.8, ease: "power3.out" }, 8.6);
+        tl.from(".s3-img", { y: 1000, duration: 1.2, ease: "expo.out" }, 8.8);
+        tl.from(".s3-overlay", { x: 400, y: 300, rotation: 10, opacity: 0, duration: 1.0, ease: "back.out(1.1)" }, 9.2);
+
+        // --- SCENE 4 ENTRANCE ---
+        tl.from("#scene-4", { y: "100%", duration: 1.0, ease: "expo.inOut" }, 12.0);
+        tl.from(".s4-title", { scale: 0.8, opacity: 0, duration: 1.0, stagger: 0.2, ease: "back.out(1.5)" }, 12.6);
+        tl.from(".s4-btn", { y: 60, opacity: 0, duration: 0.8, ease: "power3.out" }, 13.2);
+
+        // --- SCENE 5 ENTRANCE ---
+        // Scene 5 slides over Scene 4
+        tl.from("#scene-5", { x: "100%", duration: 1.0, ease: "expo.inOut" }, 16.0);
+        tl.from(".s5-logo", { scale: 0.5, rotation: -10, opacity: 0, duration: 1.0, ease: "back.out(1.5)" }, 16.6);
+        tl.from(".s5-text", { y: 40, opacity: 0, duration: 0.8, ease: "power3.out" }, 16.8);
+        tl.from(".s5-jamk", { scale: 0.8, opacity: 0, duration: 1.0, ease: "back.out(1.2)" }, 17.0);
+
+        // --- SCENE 5 EXIT ---
+        tl.to(".s5-logo", { opacity: 0, duration: 0.5 }, 19.0);
+        tl.to(".s5-text", { opacity: 0, duration: 0.5 }, 19.1);
+        tl.to(".s5-jamk", { opacity: 0, duration: 0.5 }, 19.2);
+        tl.to("#scene-5", { background: "black", duration: 0.5, ease: "none" }, 19.5);
+
+        window.__timelines["main"] = tl;
+      </script>
+    </div>
+  </body>
+</html>
