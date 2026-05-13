@@ -14,6 +14,7 @@ import {
   IDeletedProduct,
   IOcrResponse,
   IUpdateLocal,
+  IUploadToS3Response,
 } from './product';
 import { StorageService } from './storage';
 
@@ -188,6 +189,32 @@ export class ApiService {
     } catch (error) {
       console.log(error);
       alert('Error syncing products' + error);
+    }
+  }
+
+  // function to updload image to s3 through backend. Return a response that has an s3 image key
+  async uploadToS3(
+    imageBlob: Blob,
+    fileName: string = 'file.jpg',
+  ): Promise<IUploadToS3Response> {
+    const formData = new FormData();
+
+    formData.append('image', imageBlob, fileName);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<IUploadToS3Response>(this.apiURL + '/upload', formData),
+      );
+      return response;
+    } catch (error) {
+      console.error('Error uploading image', error);
+      alert('Error uploading image ' + error);
+      return {
+        success: false,
+        data: {
+          s3imageKey: null,
+        },
+      };
     }
   }
 }

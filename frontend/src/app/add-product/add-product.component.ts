@@ -36,14 +36,12 @@ import { Router } from '@angular/router';
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.scss'],
   imports: [
-    IonSpinner,
-    IonImg,
     IonItem,
     IonInput,
     IonList,
     IonIcon,
     IonButton,
-    IonTitle,
+
     IonButtons,
     IonHeader,
     IonToolbar,
@@ -87,6 +85,7 @@ export class AddProductComponent implements OnInit {
       {
         form: this.productForm.value,
         photoURI: this.imageUri,
+        photoWebPath: this.imagePath(),
       },
       'confirm',
     );
