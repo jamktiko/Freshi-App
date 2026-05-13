@@ -128,3 +128,10 @@ export interface IOcrResponse {
     };
   };
 }
+
+export interface IUploadToS3Response {
+  success: boolean;
+  data: {
+    s3imageKey: string | null;
+  };
+}

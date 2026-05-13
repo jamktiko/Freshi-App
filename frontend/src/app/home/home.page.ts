@@ -295,6 +295,18 @@ export class HomePage implements OnInit {
     if (role === 'confirm') {
       const formData = data.form;
       const uri = data.photoURI;
+      const photoWebPath = data.photoWebPath;
+
+      // Convert photo to blob for uploading
+      const fetchResponse = await fetch(photoWebPath);
+      const photoBlob = await fetchResponse.blob();
+
+      // Try uploading to s3
+      const uploadResponse = await this.api.uploadToS3(photoBlob);
+      let s3imageKey: string | null = null;
+      if (uploadResponse.success) {
+        s3imageKey = uploadResponse.data.s3imageKey;
+      }
 
       //ALERT FOR TESTIGN
       //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
@@ -307,7 +319,7 @@ export class HomePage implements OnInit {
         category: formData.category ?? null,
         expirationDate: formData.expiration,
         openedDate: null,
-        S3imageKey: null,
+        S3imageKey: s3imageKey,
         synced: false,
         createdAt: new Date().toISOString(),
         lastUpdate: new Date().toISOString(),
