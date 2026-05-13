@@ -19,6 +19,7 @@ import {
   IonItemSliding,
   IonItemOptions,
   IonItemOption,
+  IonNote,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { ILocalProduct, IPostProduct } from '../product';
@@ -37,6 +38,7 @@ import { ApiService } from '../api-service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonNote,
     IonItemOption,
     IonItemOptions,
     IonItemSliding,
@@ -67,6 +69,7 @@ export class HomePage implements OnInit {
   productSearch = signal('');
   activeFilter = signal<'All' | 'Expired' | 'Expiring' | 'Fresh'>('All');
   randomGreeting = '';
+  randomEmptyMessage = '';
 
   private greetings = [
     'Stay fresh!',
@@ -82,6 +85,66 @@ export class HomePage implements OnInit {
     'Ready to dive in?',
   ];
 
+  private emptyMessages = [
+    'Nothing to report.',
+    'No items yet.',
+    'All clear!',
+    'A clean slate.',
+  ];
+
+  // How many days before expiring to set items as 'expiring'
+  expiringDays = 3;
+
+  // Summary card values computed
+  expiredItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) < 0 ? (counter += 1) : counter,
+      0,
+    );
+    return amount;
+  });
+  expiringItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) >= 0 &&
+        this.getDaysLeft(product.expirationDate) <= this.expiringDays
+          ? (counter += 1)
+          : counter,
+      0,
+    );
+    return amount;
+  });
+  freshItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) > this.expiringDays
+          ? (counter += 1)
+          : counter,
+      0,
+    );
+    return amount;
+  });
+
+  ngOnInit() {
+    this.randomGreeting =
+      this.greetings[Math.floor(Math.random() * this.greetings.length)];
+    this.randomEmptyMessage =
+      this.emptyMessages[Math.floor(Math.random() * this.emptyMessages.length)];
+    setTimeout(() => {
+      try {
+        getCurrentUser();
+        this.syncProducts();
+      } catch (error) {
+        console.log('could not sync products on load', error);
+      }
+    }, 2000);
+  }
+
+  // Visible filtered and sorted product list
   productList = computed<ILocalProduct[]>(() => {
     const products = this.storageService.products();
     const search = this.productSearch().toLowerCase();
@@ -188,19 +251,6 @@ export class HomePage implements OnInit {
   }
   async syncProducts() {
     this.api.convertAndSyncProducts();
-  }
-
-  ngOnInit() {
-    this.randomGreeting =
-      this.greetings[Math.floor(Math.random() * this.greetings.length)];
-    setTimeout(() => {
-      try {
-        getCurrentUser();
-        this.syncProducts();
-      } catch (error) {
-        console.log('could not sync products on load', error);
-      }
-    }, 5000);
   }
 
   async deleteItem(deletedItem: ILocalProduct) {
