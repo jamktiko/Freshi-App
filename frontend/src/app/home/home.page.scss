@@ -42,13 +42,35 @@ h2 {
   padding-bottom: 1.5rem;
 }
 
+/*Sumarry cards styling*/
 .summary-cards {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 3%;
   align-items: center;
   width: 100%;
 }
+
+.Fresh {
+  border-radius: var(--app-borderradius);
+  background-color: var(--app-freshcolor);
+  flex-grow: 1;
+}
+
+.expiring {
+  border-radius: var(--app-borderradius);
+  background-color: var(--app-expiringcolor);
+  flex-grow: 2;
+}
+.expired {
+  border-radius: var(--app-borderradius);
+  background-color: var(--app-expiredcolor);
+  flex-grow: 4;
+
+  animation: expiredPulse 2s infinite;
+}
+
 .product-list {
   display: flex;
   flex-direction: column;
@@ -101,24 +123,6 @@ ion-header {
 ion-title {
   text-align: left;
   padding: 0;
-}
-
-.Fresh {
-  border-radius: var(--app-borderradius);
-  background-color: var(--app-freshcolor);
-}
-
-.expiring {
-  border-radius: var(--app-borderradius);
-  background-color: var(--app-expiringcolor);
-
-  animation: expiringPulse 2s infinite;
-}
-.expired {
-  border-radius: var(--app-borderradius);
-  background-color: var(--app-expiredcolor);
-
-  animation: expiredPulse 2s infinite;
 }
 
 @keyframes expiringPulse {
