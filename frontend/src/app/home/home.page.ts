@@ -337,7 +337,7 @@ export class HomePage implements OnInit {
           newProduct.synced = true;
         }
       } catch (error) {
-        alert('Error uploading new product: ' + error);
+        console.log('Error uploading new product: ' + error);
       }
       this.storageService.addProduct(newProduct);
       if (uri) {

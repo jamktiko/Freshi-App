@@ -68,7 +68,7 @@ export class ApiService {
         }),
       );
     } catch (error) {
-      alert('Error sending ocr-texts: ' + error);
+      console.log('Error sending ocr-texts: ' + error);
       return null;
     }
   }
@@ -129,7 +129,7 @@ export class ApiService {
         for (const product of syncResponse.syncedClientItems) {
           // UPLOAD IMAGE IF THERE IS ONE
           const photoPath = await this.camera.readPhoto(product.itemId);
-          alert('photopath' + photoPath);
+          //alert('photopath' + photoPath);
           let s3imagepath: null | string = null;
           if (photoPath) {
             // CONVERT Photo to blob
