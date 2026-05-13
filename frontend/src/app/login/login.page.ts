@@ -99,6 +99,9 @@ export class LoginPage {
             this.loginError.set('User does not exist');
           }
         }
+        if (login.error.name === 'UserAlreadyAuthenticatedException') {
+          this.router.navigate(['/tabs/confirm']);
+        }
       }
     } else {
       alert('Email or password is invalid!');
