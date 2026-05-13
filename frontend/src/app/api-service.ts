@@ -13,6 +13,7 @@ import {
   IDeleteProductResponse,
   IDeletedProduct,
   IOcrResponse,
+  IUpdateLocal,
 } from './product';
 import { StorageService } from './storage';
 
@@ -29,7 +30,7 @@ export class ApiService {
     return this.http.get<IReceivedProduct>(this.apiURL + '/items');
   }
 
-  async postProduct(newProduct: IPostProduct) {
+  async postProduct(newProduct: IPostProduct | IUpdateLocal) {
     try {
       return await firstValueFrom(
         this.http.post<IPostProductResponse>(
