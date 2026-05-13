@@ -82,6 +82,44 @@ export class HomePage implements OnInit {
     'Ready to dive in?',
   ];
 
+  // How many days before expiring to set items as 'expiring'
+  expiringDays = 3;
+
+  // Summary card values computed
+  expiredItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) < 0 ? (counter += 1) : counter,
+      0,
+    );
+    return amount;
+  });
+  expiringItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) >= 0 &&
+        this.getDaysLeft(product.expirationDate) <= this.expiringDays
+          ? (counter += 1)
+          : counter,
+      0,
+    );
+    return amount;
+  });
+  freshItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) > this.expiringDays
+          ? (counter += 1)
+          : counter,
+      0,
+    );
+    return amount;
+  });
+
+  // Visible filtered and sorted product list
   productList = computed<ILocalProduct[]>(() => {
     const products = this.storageService.products();
     const search = this.productSearch().toLowerCase();

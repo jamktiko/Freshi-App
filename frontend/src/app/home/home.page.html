@@ -24,34 +24,36 @@
     <h1>{{ randomGreeting }}</h1>
     <h2>Here is your kitchen's freshness report</h2>
     <div class="summary-cards">
+      @if (expiredItems()) {
       <app-summary-card
         class="expired"
         icon="alert-circle-outline"
-        amount="1"
+        [amount]="expiredItems()"
         color="danger"
         freshness="Expired"
         [class.active-card]="activeFilter() === 'Expired'"
         (click)="toggleFilter('Expired')"
       ></app-summary-card>
-      <app-summary-card
+      } @if (expiringItems()) {<app-summary-card
         class="expiring"
         icon="time-outline"
-        amount="2"
+        [amount]="expiringItems()"
         color="warning"
         freshness="Expiring"
         [class.active-card]="activeFilter() === 'Expiring'"
         (click)="toggleFilter('Expiring')"
-      ></app-summary-card>
-
+      ></app-summary-card
+      >} @if (freshItems()) {
       <app-summary-card
         class="Fresh"
         icon="leaf-outline"
-        amount="5"
+        [amount]="freshItems()"
         color="success"
         freshness="Fresh"
         [class.active-card]="activeFilter() === 'Fresh'"
         (click)="toggleFilter('Fresh')"
       ></app-summary-card>
+      }
     </div>
   </div>
   <ion-searchbar
@@ -82,7 +84,10 @@
             </ion-item-option>
           </ion-item-options>
           <ion-item class="tuote" (click)="showDetails(product)">
-            <app-product-card [product]="product"></app-product-card>
+            <app-product-card
+              [expiringDays]="expiringDays"
+              [product]="product"
+            ></app-product-card>
           </ion-item>
           <ion-item-options side="end">
             <ion-item-option color="danger" (click)="deleteItem(product)">

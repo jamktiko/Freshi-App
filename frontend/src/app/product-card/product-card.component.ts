@@ -42,6 +42,7 @@ export class ProductCardComponent implements OnInit {
   product = input<ILocalProduct>();
   lifeLeft = signal<number>(0); // How many days until expires
   expirationDate = signal<string>('');
+  expiringDays = input<number>();
   constructor() {}
 
   getDaysLeft(ISODate: string) {
@@ -58,22 +59,33 @@ export class ProductCardComponent implements OnInit {
   }
   // Sets the chip color to green, yellow or red
   getColor() {
-    if (this.lifeLeft() > 3) {
-      return 'success';
-    } else if (this.lifeLeft() >= 0) {
-      return 'warning';
-    } else {
-      return 'danger';
+    const lifeLeft = this.lifeLeft();
+    const expiringDays = this.expiringDays();
+
+    if (expiringDays !== undefined && lifeLeft !== undefined) {
+      if (lifeLeft > expiringDays) {
+        return 'success';
+      } else if (this.lifeLeft() >= 0) {
+        return 'warning';
+      } else {
+        return 'danger';
+      }
     }
+    return 'warning';
   }
   // Sets the chip icon based on lifeLeft
   getIcon() {
-    if (this.lifeLeft() > 3) {
-      return 'leaf-outline';
-    } else if (this.lifeLeft() >= 0) {
-      return 'time-outline';
-    } else {
-      return 'alert-circle-outline';
+    const lifeLeft = this.lifeLeft();
+    const expiringDays = this.expiringDays();
+    if (expiringDays !== undefined && lifeLeft !== undefined) {
+      if (lifeLeft > expiringDays) {
+        return 'leaf-outline';
+      } else if (this.lifeLeft() >= 0) {
+        return 'time-outline';
+      } else {
+        return 'alert-circle-outline';
+      }
     }
+    return 'time-outline';
   }
 }
