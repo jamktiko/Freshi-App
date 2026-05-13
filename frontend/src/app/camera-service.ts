@@ -11,7 +11,7 @@ export class CameraService {
   async takePhoto() {
     try {
       return await Camera.takePhoto({
-        quality: 90,
+        quality: 80,
         targetWidth: 1200,
         cameraDirection: CameraDirection.Rear,
       });
