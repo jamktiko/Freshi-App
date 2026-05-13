@@ -24,7 +24,40 @@
     <h1>{{ randomGreeting }}</h1>
     <h2>Here is your kitchen's freshness report</h2>
     <div class="summary-cards">
-      @if (expiredItems()) {
+      <app-summary-card
+        class="expired"
+        icon="alert-circle-outline"
+        [amount]="expiredItems()"
+        color="danger"
+        [class.disabledCard]="!expiredItems()"
+        [style.flex-grow]="expiredItems()"
+        freshness="Expired"
+        [class.active-card]="activeFilter() === 'Expired'"
+        (click)="toggleFilter('Expired')"
+      ></app-summary-card>
+      <app-summary-card
+        class="expiring"
+        icon="time-outline"
+        [amount]="expiringItems()"
+        color="warning"
+        [class.disabledCard]="!expiringItems()"
+        [style.flex-grow]="expiringItems()"
+        freshness="Expiring"
+        [class.active-card]="activeFilter() === 'Expiring'"
+        (click)="toggleFilter('Expiring')"
+      ></app-summary-card>
+      <app-summary-card
+        class="Fresh"
+        icon="leaf-outline"
+        [amount]="freshItems()"
+        color="success"
+        [class.disabledCard]="!freshItems()"
+        [style.flex-grow]="freshItems()"
+        freshness="Fresh"
+        [class.active-card]="activeFilter() === 'Fresh'"
+        (click)="toggleFilter('Fresh')"
+      ></app-summary-card>
+      <!-- @if (expiredItems()) {
       <app-summary-card
         class="expired"
         icon="alert-circle-outline"
@@ -56,7 +89,7 @@
         [class.active-card]="activeFilter() === 'Fresh'"
         (click)="toggleFilter('Fresh')"
       ></app-summary-card>
-      }
+      } -->
     </div>
   </div>
   <ion-searchbar

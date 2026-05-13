@@ -47,30 +47,36 @@ h2 {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 3%;
+
   align-items: center;
   width: 100%;
 }
 
-.Fresh {
+.Fresh:not(.disabledCard) {
   border-radius: var(--app-borderradius);
   background-color: var(--app-freshcolor);
   flex-grow: 1;
 }
 
-.expiring {
+.expiring:not(.disabledCard) {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiringcolor);
   flex-grow: 2;
 }
-.expired {
+.expired:not(.disabledCard) {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor);
   flex-grow: 4;
 
   animation: expiredPulse 2s infinite;
 }
-
+.disabledCard {
+  opacity: 0;
+  width: 0px;
+  flex-grow: 0;
+  margin-left: 0%;
+  margin-right: 0%;
+}
 .product-list {
   display: flex;
   flex-direction: column;
