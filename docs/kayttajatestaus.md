@@ -56,8 +56,9 @@ Varmistaa, että Freshi toimii luotettavasti usealla laitteella ja että:
 ### Vaiheet
 
 1. Avaa appi
-2. Syötä sähköposti ja salasana
-3. Kirjaudu sisään
+2. Valitse kirjautuminen
+3. Syötä sähköposti ja salasana
+4. Kirjaudu sisään
 
 ### Odotettu tulos
 
