@@ -122,7 +122,7 @@ export class ProductDetailsComponent implements OnInit {
       };
 
       try {
-        const postProductResponse = await this.api.postProduct(editedProduct);
+        const postProductResponse = await this.api.updateProduct(editedProduct);
 
         if (postProductResponse.success) {
           editedProduct.synced = true;
@@ -142,11 +142,14 @@ export class ProductDetailsComponent implements OnInit {
   }
   async deleteItem() {
     try {
+      console.log('start of try');
       const deleteResponse = await this.api.deleteProduct(this.itemId);
       if (deleteResponse.success) {
         await this.storageService.removeProduct(this.itemId);
-        return;
+
+        return this.modalCtrl.dismiss(null, 'cancel');
       }
+      return this.modalCtrl.dismiss(null, 'cancel');
     } catch (error) {
       await this.storageService.removeProduct(this.itemId);
       await this.storageService.addDeletion({
@@ -154,7 +157,7 @@ export class ProductDetailsComponent implements OnInit {
         operation: 'DELETE',
         clientUpdatedAt: new Date().toISOString(),
       });
-      return;
+      return this.modalCtrl.dismiss(null, 'cancel');
     }
   }
 }

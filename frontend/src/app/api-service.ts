@@ -43,6 +43,19 @@ export class ApiService {
       throw error;
     }
   }
+  async updateProduct(newProduct: IPostProduct | IUpdateLocal) {
+    try {
+      return await firstValueFrom(
+        this.http.put<IPostProductResponse>(
+          this.apiURL + '/items/' + newProduct.itemId,
+          newProduct,
+        ),
+      );
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
   // Send ocr-texts and reveice an object from aws bedrock
   async sendOCR(ocrText: string[]) {
     try {
