@@ -5,6 +5,10 @@
   align-items: center;
 }
 
+ion-button.activeFilter {
+  --box-shadow: none;
+}
+
 .active-card {
   opacity: 1;
   border: 2px solid var(--app-primary-color, #4392f1);

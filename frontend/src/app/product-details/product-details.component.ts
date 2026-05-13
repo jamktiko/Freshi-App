@@ -60,6 +60,22 @@ export class ProductDetailsComponent implements OnInit {
   randomPhotos = 5;
   testPhotoPath = '';
 
+  expirationDateView = signal<string>('');
+  months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   private modalCtrl = inject(ModalController);
   constructor() {}
 
@@ -70,6 +86,9 @@ export class ProductDetailsComponent implements OnInit {
   ngOnInit() {
     this.getPhoto();
     this.setRandomTestPhoto();
+    this.expirationDateView.set(
+      `${this.months[new Date(this!.expirationDate).getMonth()]} ${new Date(this!.expirationDate).getDate()} ${new Date(this!.expirationDate).getFullYear()}`,
+    ); // Set date to month dd yyyy
   }
 
   async setRandomTestPhoto() {

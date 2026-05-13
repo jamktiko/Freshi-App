@@ -20,6 +20,7 @@ import {
   IonItemOptions,
   IonItemOption,
   IonNote,
+  IonLabel,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { ILocalProduct, IPostProduct } from '../product';
@@ -38,6 +39,7 @@ import { ApiService } from '../api-service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonLabel,
     IonNote,
     IonItemOption,
     IonItemOptions,
@@ -70,6 +72,8 @@ export class HomePage implements OnInit {
   activeFilter = signal<'All' | 'Expired' | 'Expiring' | 'Fresh'>('All');
   randomGreeting = '';
   randomEmptyMessage = '';
+  // How many days before expiring to set items as 'expiring'
+  expiringDays = 3;
 
   private greetings = [
     'Stay fresh!',
@@ -92,8 +96,85 @@ export class HomePage implements OnInit {
     'A clean slate.',
   ];
 
-  // How many days before expiring to set items as 'expiring'
-  expiringDays = 3;
+  ngOnInit() {
+    this.randomGreeting =
+      this.greetings[Math.floor(Math.random() * this.greetings.length)];
+    this.randomEmptyMessage =
+      this.emptyMessages[Math.floor(Math.random() * this.emptyMessages.length)];
+    setTimeout(() => {
+      try {
+        getCurrentUser();
+        this.syncProducts();
+      } catch (error) {
+        console.log('could not sync products on load', error);
+      }
+    }, 2000);
+  }
+
+  // Filtering
+  // functions
+  // variables
+  showFilters = signal<boolean>(false);
+
+  // Show filter buttons in home page
+  toggleFilters() {
+    this.showFilters.set(!this.showFilters());
+  }
+
+  // Filters for filtering items in the home page. A set for only unique filters
+  filters = signal<Set<string>>(new Set());
+
+  // Add a new filter. If the filter exists remove it instead
+  addFilter(filter: string) {
+    if (this.filters().has(filter)) {
+      this.filters.update((oldSet) => {
+        oldSet.delete(filter);
+        return new Set([...oldSet]);
+      });
+    } else {
+      this.filters.update((oldSet) => {
+        oldSet.add(filter);
+        return new Set([...oldSet]);
+      });
+    }
+  }
+
+  // Filters for filtering by freshness status
+  freshnessFilters = signal<Set<'fresh' | 'expiring' | 'expired'>>(new Set());
+
+  // Add a new freshnessFilter. If the filter exists remove it instead
+  addFreshnessFilter(filter: 'fresh' | 'expiring' | 'expired') {
+    if (this.freshnessFilters().has(filter)) {
+      this.freshnessFilters.update((oldSet) => {
+        oldSet.delete(filter);
+        return new Set([...oldSet]);
+      });
+    } else {
+      this.freshnessFilters.update((oldSet) => {
+        oldSet.add(filter);
+        return new Set([...oldSet]);
+      });
+    }
+  }
+
+  clearFilters() {
+    this.filters.set(new Set());
+    this.freshnessFilters.set(new Set());
+  }
+
+  // Gets all categories of products and makes a set of them
+  categories = computed<Set<string>>(() => {
+    const products = this.storageService.products();
+    const categoriesArray: string[] = [];
+    for (const product of products) {
+      if (product.category) {
+        categoriesArray.push(product.category.toLowerCase());
+      }
+    }
+    const categoriesSet = new Set([...categoriesArray]);
+
+    return categoriesSet;
+  });
 
   // Summary card values computed
   expiredItems = computed<number>(() => {
@@ -129,21 +210,6 @@ export class HomePage implements OnInit {
     return amount;
   });
 
-  ngOnInit() {
-    this.randomGreeting =
-      this.greetings[Math.floor(Math.random() * this.greetings.length)];
-    this.randomEmptyMessage =
-      this.emptyMessages[Math.floor(Math.random() * this.emptyMessages.length)];
-    setTimeout(() => {
-      try {
-        getCurrentUser();
-        this.syncProducts();
-      } catch (error) {
-        console.log('could not sync products on load', error);
-      }
-    }, 2000);
-  }
-
   // Visible filtered and sorted product list
   productList = computed<ILocalProduct[]>(() => {
     const products = this.storageService.products();
@@ -153,33 +219,47 @@ export class HomePage implements OnInit {
       return [];
     }
 
-    return products.filter((product) => {
+    const filteredProducts = products.filter((product) => {
+      // Check if product name, category or brand matches search
       const matchesSearch =
         product.brand?.toLowerCase().includes(search) ||
         product.category?.toLowerCase().includes(search) ||
         product.productName?.toLowerCase().includes(search);
 
-      let matchesStatus = true;
-      if (filter !== 'All') {
-        const days = this.getDaysLeft(product.expirationDate);
-        if (filter === 'Fresh') matchesStatus = days > 3;
-        else if (filter === 'Expiring') matchesStatus = days >= 0 && days <= 3;
-        else if (filter === 'Expired') matchesStatus = days < 0;
+      // Check if product category matches filters
+      let matchesFilter = true;
+      if (this.filters().size && product.category) {
+        if (!this.filters().has(product.category?.toLowerCase())) {
+          matchesFilter = false;
+        }
       }
 
-      return matchesSearch && matchesStatus;
+      // Check if the product status (expired,fresh) matches the freshness filters
+      let matchesStatus = true;
+      if (this.freshnessFilters().size !== 0) {
+        const days = this.getDaysLeft(product.expirationDate);
+        let status: 'fresh' | 'expiring' | 'expired';
+        if (days > this.expiringDays) status = 'fresh';
+        else if (days >= 0 && days <= this.expiringDays) status = 'expiring';
+        else status = 'expired';
+        if (!this.freshnessFilters().has(status)) {
+          matchesStatus = false;
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesFilter;
+    });
+    // Sort products by expiration date
+    return filteredProducts.sort((a, b) => {
+      return Date.parse(a.expirationDate) - Date.parse(b.expirationDate);
     });
   });
 
+  // How many days before expiring
   private getDaysLeft(isoDate: string): number {
     return Math.ceil((Date.parse(isoDate) - Date.now()) / (1000 * 3600 * 24));
   }
 
-  toggleFilter(status: 'Expired' | 'Expiring' | 'Fresh') {
-    this.activeFilter.set(this.activeFilter() === status ? 'All' : status);
-  }
-
-  number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
   constructor() {}
 
