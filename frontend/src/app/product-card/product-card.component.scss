@@ -15,10 +15,11 @@
   padding-top: 1rem;
   padding-bottom: 1rem;
   border-left: 8px solid var(--status-color, black);
+  max-width: 60%;
 }
 
 .cardtitle {
-  font-size: var(--app-h1-size);
+  font-size: var(--app-h2-size);
   font-weight: bold;
   color: var(--app-maintext);
   padding-bottom: 0.5rem;
