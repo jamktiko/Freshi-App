@@ -120,6 +120,7 @@ export class StorageService {
 
   // Update product
   async updateProduct(updatedProduct: IUpdateLocal) {
+    console.log('Updated product: ' + updatedProduct);
     let newProductList: ILocalProduct[] = [];
     this.products.update((oldProducts) => {
       newProductList = oldProducts.map((oldProduct) =>
@@ -127,6 +128,7 @@ export class StorageService {
           ? { ...oldProduct, ...updatedProduct }
           : oldProduct,
       );
+      console.log(newProductList);
       return newProductList;
     });
     await this._storage?.set(this.STORAGE_KEY, newProductList);

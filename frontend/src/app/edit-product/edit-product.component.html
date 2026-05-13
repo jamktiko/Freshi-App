@@ -1,0 +1,104 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <b>Edit product</b>
+
+    <ion-buttons class="back" slot="start">
+      <ion-button (click)="cancel()"
+        ><ion-icon name="arrow-back"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div class="center">
+    <div
+      (click)="takePhoto()"
+      class="image-frame"
+      [style.background-image]="
+        `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${imagePath()})`
+      "
+    >
+      <div class="camera-circle">
+        <ion-icon class="camera" name="camera"></ion-icon>
+      </div>
+
+      <!--
+      @if (imagePath() === null) {
+        <ion-icon class="camera" name="camera"></ion-icon>
+        <ion-button (click)="takePhoto()">Take a picture</ion-button>
+      } @else {
+        <ion-img [src]="imagePath()"></ion-img>
+      }
+        -->
+    </div>
+
+    <div class="magic-button-container">
+      <ion-button
+        [disabled]="!detectedTexts() || isLoading()"
+        [class.loading]="isLoading()"
+        (click)="autoFillForm()"
+        class="magic-button"
+      >
+        <ion-icon slot="start" name="sparkles"></ion-icon>
+        {{ isLoading() ? "Autofilling " : "Autofill from image" }}
+      </ion-button>
+    </div>
+  </div>
+
+  <form class="addproduct" [formGroup]="productForm">
+    <ion-list class="input-list">
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          id="name"
+          [formControl]="productForm.controls.name"
+          label="Product Name"
+          labelPlacement="stacked"
+          [clearInput]="true"
+          fill="outline"
+          placeholder="e.g., Organic Strawberries"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          label="Brand"
+          [formControl]="productForm.controls.brand"
+          labelPlacement="stacked"
+          [clearInput]="true"
+          fill="outline"
+          placeholder="e.g., Fresh Farms"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          label="Category"
+          [formControl]="productForm.controls.category"
+          labelPlacement="stacked"
+          [clearInput]="true"
+          fill="outline"
+          placeholder="e.g., Fruit, Dairy"
+        ></ion-input>
+      </ion-item>
+      <ion-item lines="none" class="field-row">
+        <ion-input
+          class="freshi-input"
+          type="date"
+          label="Expiration date"
+          [formControl]="productForm.controls.expiration"
+          labelPlacement="stacked"
+          [clearInput]="true"
+          fill="outline"
+          placeholder="t"
+        ></ion-input>
+      </ion-item>
+
+      <ion-button (click)="submitProduct()" [disabled]="productForm.invalid">
+        Edit product
+      </ion-button>
+    </ion-list>
+  </form>
+</ion-content>
