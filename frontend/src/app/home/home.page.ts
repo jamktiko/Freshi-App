@@ -228,8 +228,12 @@ export class HomePage implements OnInit {
 
       // Check if product category matches filters
       let matchesFilter = true;
-      if (this.filters().size && product.category) {
-        if (!this.filters().has(product.category?.toLowerCase())) {
+      if (this.filters().size) {
+        if (product.category) {
+          if (!this.filters().has(product.category?.toLowerCase())) {
+            matchesFilter = false;
+          }
+        } else {
           matchesFilter = false;
         }
       }
@@ -333,7 +337,7 @@ export class HomePage implements OnInit {
           newProduct.synced = true;
         }
       } catch (error) {
-        alert('Error adding new product: ' + error);
+        console.log('Error uploading new product: ' + error);
       }
       this.storageService.addProduct(newProduct);
       if (uri) {
