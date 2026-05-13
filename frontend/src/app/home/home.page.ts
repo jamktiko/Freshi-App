@@ -19,6 +19,7 @@ import {
   IonItemSliding,
   IonItemOptions,
   IonItemOption,
+  IonNote,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { ILocalProduct, IPostProduct } from '../product';
@@ -37,6 +38,7 @@ import { ApiService } from '../api-service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonNote,
     IonItemOption,
     IonItemOptions,
     IonItemSliding,
@@ -67,6 +69,7 @@ export class HomePage implements OnInit {
   productSearch = signal('');
   activeFilter = signal<'All' | 'Expired' | 'Expiring' | 'Fresh'>('All');
   randomGreeting = '';
+  randomEmptyMessage = '';
 
   private greetings = [
     'Stay fresh!',
@@ -80,6 +83,13 @@ export class HomePage implements OnInit {
     'Time for a quick check?',
     'Hi there!',
     'Ready to dive in?',
+  ];
+
+  private emptyMessages = [
+    'Nothing to report.',
+    'No items yet.',
+    'All clear!',
+    'A clean slate.',
   ];
 
   // How many days before expiring to set items as 'expiring'
@@ -118,6 +128,21 @@ export class HomePage implements OnInit {
     );
     return amount;
   });
+
+  ngOnInit() {
+    this.randomGreeting =
+      this.greetings[Math.floor(Math.random() * this.greetings.length)];
+    this.randomEmptyMessage =
+      this.emptyMessages[Math.floor(Math.random() * this.emptyMessages.length)];
+    setTimeout(() => {
+      try {
+        getCurrentUser();
+        this.syncProducts();
+      } catch (error) {
+        console.log('could not sync products on load', error);
+      }
+    }, 2000);
+  }
 
   // Visible filtered and sorted product list
   productList = computed<ILocalProduct[]>(() => {
@@ -226,19 +251,6 @@ export class HomePage implements OnInit {
   }
   async syncProducts() {
     this.api.convertAndSyncProducts();
-  }
-
-  ngOnInit() {
-    this.randomGreeting =
-      this.greetings[Math.floor(Math.random() * this.greetings.length)];
-    setTimeout(() => {
-      try {
-        getCurrentUser();
-        this.syncProducts();
-      } catch (error) {
-        console.log('could not sync products on load', error);
-      }
-    }, 5000);
   }
 
   async deleteItem(deletedItem: ILocalProduct) {

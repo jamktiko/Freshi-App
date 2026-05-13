@@ -4,16 +4,7 @@
   flex-direction: column;
   align-items: center;
 }
-.summary-card-list {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  padding-top: 0;
-  background-color: var(--app-backgroundcolor);
-  margin: 0 1rem;
-  box-shadow: var(--app-boxshadow);
-  border-radius: var(--app-borderradius);
-}
+
 .active-card {
   opacity: 1;
   border: 2px solid var(--app-primary-color, #4392f1);
@@ -43,6 +34,16 @@ h2 {
 }
 
 /*Sumarry cards styling*/
+.summary-card-list {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  padding-top: 0;
+  background-color: var(--app-backgroundcolor);
+  margin: 0 1rem;
+  box-shadow: var(--app-boxshadow);
+  border-radius: var(--app-borderradius);
+}
 .summary-cards {
   display: flex;
   flex-direction: row;
@@ -50,6 +51,7 @@ h2 {
 
   align-items: center;
   width: 100%;
+  transition: 0.75s;
 }
 
 .Fresh:not(.disabledCard) {
@@ -73,6 +75,7 @@ h2 {
   flex-grow: 0;
   margin-left: 0%;
   margin-right: 0%;
+  height: 0;
 }
 
 .product-list {

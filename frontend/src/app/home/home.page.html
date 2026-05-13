@@ -23,6 +23,9 @@
   <div class="summary-card-list">
     <h1>{{ randomGreeting }}</h1>
     <h2>Here is your kitchen's freshness report</h2>
+    @if (!expiredItems() && !expiringItems() && !freshItems()){
+    <ion-note>{{randomEmptyMessage}}</ion-note>
+    }
     <div class="summary-cards">
       <app-summary-card
         class="expired"
