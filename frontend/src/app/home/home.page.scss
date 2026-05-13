@@ -46,7 +46,7 @@ h2 {
 .summary-cards {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
 
   align-items: center;
   width: 100%;
@@ -55,18 +55,15 @@ h2 {
 .Fresh:not(.disabledCard) {
   border-radius: var(--app-borderradius);
   background-color: var(--app-freshcolor);
-  flex-grow: 1;
 }
 
 .expiring:not(.disabledCard) {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiringcolor);
-  flex-grow: 2;
 }
 .expired:not(.disabledCard) {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor);
-  flex-grow: 4;
 
   animation: expiredPulse 2s infinite;
 }
@@ -77,6 +74,7 @@ h2 {
   margin-left: 0%;
   margin-right: 0%;
 }
+
 .product-list {
   display: flex;
   flex-direction: column;
