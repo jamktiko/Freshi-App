@@ -114,4 +114,6 @@ Thumbs.db
 # 🎬 HYPERFRAMES & AGENTS
 ############################
 .agents/
-marketing-video/renders/
+# Ignore entire marketing-video folder
+marketing-video/
+
