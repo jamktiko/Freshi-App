@@ -113,7 +113,7 @@ export class ProductDetailsComponent implements OnInit {
         brandInput: this.productBrand,
         categoryInput: this.productCategory,
         expirationInput: this.expirationDate,
-        imageInput: this.photoWebPath,
+        imageInput: this.photoWebPath(),
       },
     });
     modal.present();
@@ -121,10 +121,22 @@ export class ProductDetailsComponent implements OnInit {
     const { data, role } = await modal.onWillDismiss();
 
     // Saves added product
-    // CURRENTLY SAVES ONLY TO AN ARRAY
+
     if (role === 'confirm') {
       const formData = data.form;
       const uri = data.photoURI;
+      const photoWebPath = data.photoWebPath;
+
+      // Convert photo to blob for uploading
+      const fetchResponse = await fetch(photoWebPath);
+      const photoBlob = await fetchResponse.blob();
+
+      // Try uploading to s3
+      const uploadResponse = await this.api.uploadToS3(photoBlob);
+      let s3imageKey: string | null = null;
+      if (uploadResponse.success) {
+        s3imageKey = uploadResponse.data.s3imageKey;
+      }
 
       //ALERT FOR TESTIGN
       //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
@@ -134,6 +146,7 @@ export class ProductDetailsComponent implements OnInit {
         productName: formData.name,
         brand: formData.brand ?? null,
         category: formData.category ?? null,
+        S3imageKey: s3imageKey,
         expirationDate: formData.expiration,
         synced: false,
         lastUpdate: new Date().toISOString(),

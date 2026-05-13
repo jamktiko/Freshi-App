@@ -290,8 +290,8 @@ export class HomePage implements OnInit {
 
     const { data, role } = await modal.onWillDismiss();
 
-    // Saves added product
-    // CURRENTLY SAVES ONLY TO AN ARRAY
+    // Saves edited product
+
     if (role === 'confirm') {
       const formData = data.form;
       const uri = data.photoURI;
