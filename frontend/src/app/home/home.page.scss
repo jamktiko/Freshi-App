@@ -54,16 +54,16 @@ h2 {
   transition: 0.75s;
 }
 
-.Fresh:not(.disabledCard) {
+.Fresh {
   border-radius: var(--app-borderradius);
   background-color: var(--app-freshcolor);
 }
 
-.expiring:not(.disabledCard) {
+.expiring {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiringcolor);
 }
-.expired:not(.disabledCard) {
+.expired {
   border-radius: var(--app-borderradius);
   background-color: var(--app-expiredcolor);
 
