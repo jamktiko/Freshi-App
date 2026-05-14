@@ -1,4 +1,7 @@
 <ion-content class="homepage">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <ion-header [translucent]="true">
     <ion-toolbar>
       <div
