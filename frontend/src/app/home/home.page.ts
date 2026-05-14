@@ -21,6 +21,9 @@ import {
   IonItemOption,
   IonNote,
   IonLabel,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherCustomEvent,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { ILocalProduct, IPostProduct } from '../product';
@@ -39,6 +42,8 @@ import { ApiService } from '../api-service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonRefresherContent,
+    IonRefresher,
     IonLabel,
     IonNote,
     IonItemOption,
@@ -369,5 +374,14 @@ export class HomePage implements OnInit {
       });
       return;
     }
+  }
+
+  // Refresh page and sync items
+  handleRefresh(event: RefresherCustomEvent) {
+    setTimeout(() => {
+      this.api.convertAndSyncProducts().finally(() => {
+        event.target.complete();
+      });
+    }, 2000);
   }
 }
