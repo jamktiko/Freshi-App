@@ -44,7 +44,7 @@ dist/
 build/
 
 # Capacitor native platforms
-android/
+# android/
 ios/
 
 # Ionic cache
