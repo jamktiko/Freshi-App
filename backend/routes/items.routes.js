@@ -10,6 +10,7 @@ import {
   deleteItem,
   getItemById
  } from "../services/dynamo.service.js";
+import { getSignedImageUrl } from "../services/s3.service.js";
 
 const router = express.Router();
 
@@ -26,11 +27,16 @@ function getUserId(req) {
 }
 
 //Normalize item to return null if the attribute has no value
-  function normalizeItem(item) {
+  async function normalizeItem(item) {
     return {
       userId: item.userId ?? null,
       itemId: item.itemId ?? null,
       S3imageKey: item.S3imageKey ?? null,
+
+      imageUrl: item.S3imageKey
+        ? await getSignedImageUrl(item.S3imageKey)
+        : null,
+
       productName: item.productName ?? null,
       brand: item.brand ?? null,
       category: item.category ?? null,
@@ -183,7 +189,7 @@ if (category &&
 
     res.json({
       success: true,
-      data: normalizeItem(saved)
+      data: await normalizeItem(saved)
     });
 
   } catch (err) {
@@ -215,7 +221,7 @@ router.get(
 
         return res.json({
         success: true, // Indicate successful response
-        data: result.items.map(normalizeItem), // Return the list of items for the user
+        data: await Promise.all(result.items.map(normalizeItem)), // Return the list of items for the user
         lastKey: result.lastKey || null // Return last evaluated key for pagination if available
       });
     } 
@@ -276,6 +282,7 @@ router.post("/sync", async (req, res) => {
         operation,
         productName,
         brand,
+        category,
         expirationDate,
         openedDate,
         S3imageKey,
@@ -317,6 +324,17 @@ router.post("/sync", async (req, res) => {
 
         continue;
         }
+
+        if (category && typeof category !== "string") {
+          syncedClientItems.push({
+            localId: localId ?? null,
+            itemId: itemId ?? null,
+            operation: "CREATE",
+            status: "INVALID_CATEGORY"
+          });
+
+          continue;
+        }
         
         const ttl = Math.floor(
           (expDate.getTime() + 30 * 24 * 60 * 60 * 1000) / 1000
@@ -328,6 +346,7 @@ router.post("/sync", async (req, res) => {
           S3imageKey: S3imageKey ?? null,
           productName,
           brand: brand ?? null,
+          category: category ?? null,
           expirationDate,
           openedDate: openedDate ?? null,
           confidence: confidence ?? null,
@@ -385,7 +404,7 @@ router.post("/sync", async (req, res) => {
       itemId,
       operation: "UPDATE",
       reason: "SERVER_VERSION_NEWER",
-      serverItem: normalizeItem(serverItem)
+      serverItem: await normalizeItem(serverItem)
     });
 
     continue;
@@ -394,6 +413,7 @@ router.post("/sync", async (req, res) => {
   const updated = await updateItem(userId, itemId, {
     productName,
     brand,
+    category,
     expirationDate,
     openedDate
   });
@@ -444,7 +464,7 @@ router.post("/sync", async (req, res) => {
       itemId,
       operation: "DELETE",
       reason: "SERVER_VERSION_NEWER",
-      serverItem: normalizeItem(serverItem)
+      serverItem: await normalizeItem(serverItem)
     });
 
     continue;
@@ -467,7 +487,9 @@ router.post("/sync", async (req, res) => {
         ? (await getItemsByUser(userId)).items
         : await getUpdatedItems(userId, lastSync);
 
-    const normalizedItems = serverItems.map(normalizeItem);
+    const normalizedItems = await Promise.all(
+      serverItems.map(normalizeItem)
+    );
 
     const updated = normalizedItems.filter(
       item => item.isDeleted !== true
@@ -583,7 +605,7 @@ if (category && typeof category !== "string"){
 
       return res.json({
         success: true, // Indicate successful update
-        data: normalizeItem(updated) // Return the updated item data
+        data: await normalizeItem(updated) // Return the updated item data
       });
     } catch (err) { // Error handling
       console.error("Update item error", err);
