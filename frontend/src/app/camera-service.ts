@@ -14,6 +14,7 @@ export class CameraService {
         quality: 80,
         targetWidth: 1200,
         cameraDirection: CameraDirection.Rear,
+        includeMetadata: false,
       });
     } catch (error) {
       console.log('taking a photo failed: ', error);
