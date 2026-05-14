@@ -20,9 +20,16 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
+    max-height: 0;
+
+    padding-top: 0;
+    padding-bottom: 0;
   }
   to {
     opacity: 1;
+    max-height: 150px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 }
 
@@ -30,15 +37,11 @@
   0% {
     opacity: 1;
     max-height: 150px; /* Säädä tuotekorttisi maksimikorkeuden mukaan */
-    margin-bottom: 8px;
-    transform: scale(1);
   }
   /* Vaihe 1: Häivytys (0% -> 40%) */
   40% {
     opacity: 0;
     max-height: 150px;
-    margin-bottom: 8px;
-    transform: scale(0.95);
   }
   /* Vaihe 2: Tilan poisto (40% -> 100%) */
   100% {
@@ -47,7 +50,6 @@
     margin-bottom: 0;
     padding-top: 0;
     padding-bottom: 0;
-    transform: scale(0.9);
   }
 }
 
@@ -102,7 +104,6 @@ h2 {
   align-items: center;
   width: 100%;
   transition: 0.75s;
-  overflow: hidden;
 }
 
 .Fresh {
