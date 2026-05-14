@@ -207,7 +207,10 @@ export class ApiService {
       }
     } catch (error) {
       console.log(error);
-      alert('Error syncing products' + error);
+      alert(
+        'Error syncing products ' +
+          `${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`,
+      );
     }
   }
 
