@@ -43,7 +43,15 @@
     @if (errorText()) {
     <ion-note color="danger">{{errorText()}}</ion-note>
     }
-    <ion-button [disabled]="codeCooldown()" (click)="resendCode()"
+    <ion-button
+      fill="outline"
+      style="
+        --background: var(--app-backgroundcolor);
+        --color: var(--app-calltoactionbutton);
+        --border-color: var(--app-calltoactionbutton);
+      "
+      [disabled]="codeCooldown()"
+      (click)="resendCode()"
       >{{codeCooldown() ? 'Sending code...' : 'Resend Code'}}</ion-button
     >
 
