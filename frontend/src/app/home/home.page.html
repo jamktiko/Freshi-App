@@ -82,25 +82,25 @@
 
       <div class="filter-row">
         <ion-button
+          class="expired-button"
           (click)="addFreshnessFilter('expired')"
           [class.activeFilter]="freshnessFilters().has('expired')"
-          color="danger"
         >
           Expired
         </ion-button>
 
         <ion-button
+          class="expiring-button"
           (click)="addFreshnessFilter('expiring')"
           [class.activeFilter]="freshnessFilters().has('expiring')"
-          color="warning"
         >
           Expiring
         </ion-button>
 
         <ion-button
+          class="fresh-button"
           (click)="addFreshnessFilter('fresh')"
           [class.activeFilter]="freshnessFilters().has('fresh')"
-          color="success"
         >
           Fresh
         </ion-button>
