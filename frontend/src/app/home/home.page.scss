@@ -93,9 +93,28 @@ h2 {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   padding-left: 1rem;
   padding-right: 1rem;
   width: 100%;
+}
+
+.expired-button {
+  --background: var(--app-expiredcolor);
+  --color: var(--ion-color-danger-dark);
+  font-weight: 600;
+}
+
+.expiring-button {
+  --background: var(--app-expiringcolor);
+  --color: var(--ion-color-warning-dark);
+  font-weight: 600;
+}
+
+.fresh-button {
+  --background: var(--app-freshcolor);
+  --color: var(--ion-color-success-dark);
+  font-weight: 600;
 }
 
 .product-list-subtitle {
