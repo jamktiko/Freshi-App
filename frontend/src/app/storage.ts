@@ -136,7 +136,14 @@ export class StorageService {
 
   // Clear stored data
   async clearUserData() {
-    const cleared = await this._storage?.clear();
+    const productsClear = await this._storage?.remove(this.STORAGE_KEY);
+    const deletionsClear = await this._storage?.remove(this.DELETIONS_KEY);
+    const syncClear = await this._storage?.remove(this.SYNC_KEY);
     this.products.set([]);
+    return {
+      productsClear,
+      deletionsClear,
+      syncClear,
+    };
   }
 }
