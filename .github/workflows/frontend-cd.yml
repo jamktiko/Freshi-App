@@ -76,6 +76,9 @@ jobs:
       - name: Build Signed APK
         working-directory: ./frontend/android
         run: |
+          # Fix deprecated proguard file in third-party plugin causing build crash
+          sed -i "s/'proguard-android.txt'/'proguard-android-optimize.txt'/g" ../node_modules/@capacitor-community/image-to-text/android/build.gradle
+
           chmod +x ./gradlew
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=release.keystore \
