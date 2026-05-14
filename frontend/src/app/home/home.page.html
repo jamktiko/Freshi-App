@@ -77,36 +77,56 @@
   </div>
   <div class="filter-container">
     @if (showFilters()) {
-    <ion-button (click)="clearFilters()">Clear filters</ion-button>
+    <div class="filter-group">
+      <ion-label class="filter-title">Freshness</ion-label>
 
-    <ion-label>Freshness</ion-label>
-    <ion-button
-      (click)="addFreshnessFilter('expired')"
-      [class.activeFilter]="freshnessFilters().has('expired')"
-      color="danger"
-      >Expired</ion-button
-    >
-    <ion-button
-      (click)="addFreshnessFilter('expiring')"
-      [class.activeFilter]="freshnessFilters().has('expiring')"
-      color="warning"
-      >Expiring</ion-button
-    >
-    <ion-button
-      (click)="addFreshnessFilter('fresh')"
-      [class.activeFilter]="freshnessFilters().has('fresh')"
-      color="success"
-      >Fresh</ion-button
-    >
+      <div class="filter-row">
+        <ion-button
+          (click)="addFreshnessFilter('expired')"
+          [class.activeFilter]="freshnessFilters().has('expired')"
+          color="danger"
+        >
+          Expired
+        </ion-button>
 
-    <ion-label>Categories</ion-label>
-    @for (category of categories(); track $index) {
-    <ion-button
-      (click)="addFilter(category)"
-      [class.activeFilter]="filters().has(category)"
-      >{{category}}</ion-button
-    >
-    } }
+        <ion-button
+          (click)="addFreshnessFilter('expiring')"
+          [class.activeFilter]="freshnessFilters().has('expiring')"
+          color="warning"
+        >
+          Expiring
+        </ion-button>
+
+        <ion-button
+          (click)="addFreshnessFilter('fresh')"
+          [class.activeFilter]="freshnessFilters().has('fresh')"
+          color="success"
+        >
+          Fresh
+        </ion-button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <ion-label class="filter-title">Categories</ion-label>
+
+      <div class="filter-row">
+        @for (category of categories(); track $index) {
+        <ion-button
+          class="category-filter-button"
+          (click)="addFilter(category)"
+          [class.activeFilter]="filters().has(category)"
+        >
+          {{ category }}
+        </ion-button>
+        }
+      </div>
+    </div>
+
+    <div class="clear-filters-row">
+      <ion-button (click)="clearFilters()">Clear filters</ion-button>
+    </div>
+    }
     <ion-list class="productcards" lines="none">
       @for (product of productList(); track product.itemId) {
       <div class="wrapper">

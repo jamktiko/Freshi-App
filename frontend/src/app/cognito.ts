@@ -23,6 +23,7 @@ import { StorageService } from './storage';
   providedIn: 'root',
 })
 export class Cognito {
+  storage = inject(StorageService);
   constructor() {}
 
   // User registration function using email and password
@@ -69,7 +70,7 @@ export class Cognito {
         username: email,
         password: password,
       });
-
+      await this.storage.clearUserData();
       return { success: true, nextStep };
     } catch (error: any) {
       console.log(error);
@@ -82,6 +83,7 @@ export class Cognito {
   async logoutUser() {
     try {
       await signOut();
+      await this.storage.clearUserData();
     } catch (error) {
       alert(error);
     }

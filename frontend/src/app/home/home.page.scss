@@ -266,3 +266,73 @@ app-product-card {
 ion-fab-button {
   margin-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
 }
+
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-title {
+  font-size: var(---app-h3-size);
+  font-weight: 500;
+  color: var(--ion-color-medium);
+  margin-left: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-left: 1rem;
+}
+
+.clear-filters-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 1rem;
+}
+
+ion-button {
+  margin: 0;
+  height: 32px;
+  font-size: 12px;
+}
+
+ion-button.activeFilter {
+  --border-width: 2px;
+  --border-style: solid;
+  --border-color: var(--app-bordercolor);
+
+  --box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.18);
+  transform: scale(1.03);
+}
+
+.filtersbutton {
+  --border-width: 0;
+  --box-shadow: none;
+  transform: none;
+}
+
+.category-filter-button {
+  --background: var(--app-backgroundcolor);
+  --color: var(--ion-color-primary);
+
+  --border-color: var(--ion-color-primary);
+  --border-style: solid;
+  --border-width: 1px;
+
+  --box-shadow: none;
+}
+
+.filtersbutton.activeFilter {
+  --border-width: 0;
+  --box-shadow: none;
+  transform: none;
+}

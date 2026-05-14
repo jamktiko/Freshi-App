@@ -133,4 +133,10 @@ export class StorageService {
     });
     await this._storage?.set(this.STORAGE_KEY, newProductList);
   }
+
+  // Clear stored data
+  async clearUserData() {
+    const cleared = await this._storage?.clear();
+    this.products.set([]);
+  }
 }
