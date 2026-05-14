@@ -10,7 +10,7 @@ import {
   deleteItem,
   getItemById
  } from "../services/dynamo.service.js";
-import { getSignedImageUrl } from "../services/s3.service.js";
+
 
 const router = express.Router();
 
@@ -27,16 +27,11 @@ function getUserId(req) {
 }
 
 //Normalize item to return null if the attribute has no value
-  async function normalizeItem(item) {
+  function normalizeItem(item) {
     return {
       userId: item.userId ?? null,
       itemId: item.itemId ?? null,
       S3imageKey: item.S3imageKey ?? null,
-
-      imageUrl: item.S3imageKey
-        ? await getSignedImageUrl(item.S3imageKey)
-        : null,
-
       productName: item.productName ?? null,
       brand: item.brand ?? null,
       category: item.category ?? null,
@@ -189,7 +184,7 @@ if (category &&
 
     res.json({
       success: true,
-      data: await normalizeItem(saved)
+      data: normalizeItem(saved)
     });
 
   } catch (err) {
@@ -221,7 +216,7 @@ router.get(
 
         return res.json({
         success: true, // Indicate successful response
-        data: await Promise.all(result.items.map(normalizeItem)), // Return the list of items for the user
+        data: result.items.map(normalizeItem), // Return the list of items for the user
         lastKey: result.lastKey || null // Return last evaluated key for pagination if available
       });
     } 
@@ -404,7 +399,7 @@ router.post("/sync", async (req, res) => {
       itemId,
       operation: "UPDATE",
       reason: "SERVER_VERSION_NEWER",
-      serverItem: await normalizeItem(serverItem)
+      serverItem: normalizeItem(serverItem)
     });
 
     continue;
@@ -464,7 +459,7 @@ router.post("/sync", async (req, res) => {
       itemId,
       operation: "DELETE",
       reason: "SERVER_VERSION_NEWER",
-      serverItem: await normalizeItem(serverItem)
+      serverItem: normalizeItem(serverItem)
     });
 
     continue;
@@ -487,9 +482,7 @@ router.post("/sync", async (req, res) => {
         ? (await getItemsByUser(userId)).items
         : await getUpdatedItems(userId, lastSync);
 
-    const normalizedItems = await Promise.all(
-      serverItems.map(normalizeItem)
-    );
+    const normalizedItems = serverItems.map(normalizeItem);
 
     const updated = normalizedItems.filter(
       item => item.isDeleted !== true
@@ -605,7 +598,7 @@ if (category && typeof category !== "string"){
 
       return res.json({
         success: true, // Indicate successful update
-        data: await normalizeItem(updated) // Return the updated item data
+        data: normalizeItem(updated) // Return the updated item data
       });
     } catch (err) { // Error handling
       console.error("Update item error", err);

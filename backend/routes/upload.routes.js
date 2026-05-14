@@ -8,7 +8,7 @@ import multer from "multer";
 import { requireAuth } from "../middleware/auth.middleware.js";
 
 // Service responsible for uploading images to AWS S3
-import { uploadToS3 } from "../services/s3.service.js";
+import { uploadToS3, getSignedImageUrl } from "../services/s3.service.js";
 
 
 // Create Express router instance
@@ -80,6 +80,53 @@ router.post(
     }
   }
 );
+
+    /**
+ * Generate signed image URL
+ * Flow:
+ * 1. Authenticate user
+ * 2. Receive S3imageKey from frontend
+ * 3. Verify that image belongs to authenticated user
+ * 4. Return temporary signed URL
+ */
+router.post("/image-url", async (req, res) => {
+  try {
+    const userId = req.user.sub;
+    const { S3imageKey } = req.body;
+
+    if (!S3imageKey || typeof S3imageKey !== "string") {
+      return res.status(400).json({
+        error: "S3imageKey is required"
+      });
+    }
+
+    const cleanKey = S3imageKey.trim();
+
+    // Ownership check
+    if (!cleanKey.startsWith(`uploads/${userId}/`)) {
+      return res.status(403).json({
+        error: "Forbidden"
+      });
+    }
+
+    const imageUrl = await getSignedImageUrl(cleanKey);
+
+    return res.json({
+      success: true,
+      data: {
+        S3imageKey: cleanKey,
+        imageUrl
+      }
+    });
+
+  } catch (err) {
+    console.error("Generate signed image URL error:", err);
+
+    return res.status(500).json({
+      error: "Failed to generate image URL"
+    });
+  }
+});
 
 // Export router so it can be mounted in main app
 export default router;
