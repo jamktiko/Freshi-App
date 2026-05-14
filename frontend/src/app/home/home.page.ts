@@ -301,17 +301,20 @@ export class HomePage implements OnInit {
       const uri = data.photoURI;
       const photoWebPath = data.photoWebPath;
 
-      // Convert photo to blob for uploading
-      const fetchResponse = await fetch(photoWebPath);
-      const photoBlob = await fetchResponse.blob();
-
-      // Try uploading to s3
-      const uploadResponse = await this.api.uploadToS3(photoBlob);
       let s3imageKey: string | null = null;
-      if (uploadResponse.success) {
-        s3imageKey = uploadResponse.data.s3imageKey;
-      }
+      //If photo was taken
+      if (photoWebPath) {
+        // Convert photo to blob for uploading
+        const fetchResponse = await fetch(photoWebPath);
+        const photoBlob = await fetchResponse.blob();
 
+        // Try uploading to s3
+        const uploadResponse = await this.api.uploadToS3(photoBlob);
+
+        if (uploadResponse.success) {
+          s3imageKey = uploadResponse.data.s3imageKey;
+        }
+      }
       //ALERT FOR TESTIGN
       //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
 
