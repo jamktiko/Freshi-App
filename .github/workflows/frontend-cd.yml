@@ -1,0 +1,101 @@
+name: Frontend CD Pipeline (Android)
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-cd.yml'
+  workflow_dispatch: # Allows manual triggering
+
+# Required permission to create GitHub Releases
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci || npm install
+
+      - name: Generate Environment File
+        working-directory: ./frontend
+        env:
+          USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+          API_URL: ${{ secrets.API_URL }}
+        run: |
+          mkdir -p src/environment
+
+          # If API_URL secret is not set, fallback to to production URL
+          PROD_API_URL="${API_URL:-https://your-production-api-url.com}"
+
+          cat << EOF > src/environment/environment.ts
+          export const environment = {
+            production: true,
+            apiURL: '${PROD_API_URL}',
+            cognito: {
+              userPoolID: '${USER_POOL_ID}',
+              appClientID: '${CLIENT_ID}',
+            },
+          };
+          EOF
+          cp src/environment/environment.ts src/environment/environment.prod.ts
+
+      - name: Build Web App
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Sync Capacitor
+        working-directory: ./frontend
+        run: npx cap sync android
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Decode Keystore
+        working-directory: ./frontend/android/app
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+
+      - name: Build Signed APK
+        working-directory: ./frontend/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=release.keystore \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+
+      - name: Get App Version
+        id: package-version
+        working-directory: ./frontend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create GitHub Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}-${{ github.run_number }}
+          name: App Release v${{ env.VERSION }} (Build ${{ github.run_number }})
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: frontend/android/app/build/outputs/apk/release/app-release.apk
