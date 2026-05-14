@@ -22,12 +22,24 @@
   font-size: var(--app-h2-size);
   font-weight: bold;
   color: var(--app-maintext);
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Kuinka monta riviä näytetään ennen pisteitä */
+  -webkit-box-orient: vertical;
+  max-height: 2.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .iteminfo {
   font-size: var(--app-h3-size);
   color: var(--app-h1text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Kuinka monta riviä näytetään ennen pisteitä */
+  -webkit-box-orient: vertical;
+  max-height: 2.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 :host {
@@ -39,6 +51,7 @@
   width: 100%;
   overflow: hidden;
   padding-right: 1rem;
+  max-height: 150px;
 }
 
 .expirationdate {

@@ -132,7 +132,7 @@
     }
     <ion-list class="productcards" lines="none">
       @for (product of productList(); track product.itemId) {
-      <div class="wrapper">
+      <div class="wrapper" animate.enter="fade-in" animate.leave="fade-out">
         <ion-item-sliding class="slider">
           <ion-item-options side="start">
             <ion-item-option color="danger" (click)="deleteItem(product)">

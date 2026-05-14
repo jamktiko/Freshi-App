@@ -36,6 +36,7 @@ import { Cognito } from '../cognito';
 import { ProductDetailsComponent } from '../product-details/product-details.component';
 import { CameraService } from '../camera-service';
 import { ApiService } from '../api-service';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
