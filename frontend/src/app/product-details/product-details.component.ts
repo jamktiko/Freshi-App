@@ -130,15 +130,29 @@ export class ProductDetailsComponent implements OnInit {
       let s3imageKey: string | null = null;
       //IF photo was taken
       if (photoWebPath) {
-        // Convert photo to blob for uploading
-        const fetchResponse = await fetch(photoWebPath);
-        const photoBlob = await fetchResponse.blob();
+        try {
+          // Convert photo to blob for uploading
+          const fetchResponse = await fetch(photoWebPath);
+          const photoBlob = await fetchResponse.blob();
 
-        // Try uploading to s3
-        const uploadResponse = await this.api.uploadToS3(photoBlob);
+          // Resize image
+          const resizedBlob = await this.cameraService.resizeImage(
+            photoBlob,
+            1200,
+            1600,
+          );
 
-        if (uploadResponse.success) {
-          s3imageKey = uploadResponse.data.s3imageKey;
+          // Try uploading to s3
+          const uploadResponse = await this.api.uploadToS3(resizedBlob);
+
+          if (uploadResponse.success) {
+            s3imageKey = uploadResponse.data.s3imageKey;
+          }
+        } catch (error) {
+          alert(
+            'Error with image upload process: ' +
+              `${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`,
+          );
         }
       }
       //ALERT FOR TESTIGN

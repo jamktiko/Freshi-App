@@ -132,14 +132,28 @@ export class ApiService {
           //alert('photopath' + photoPath);
           let s3imagepath: null | string = null;
           if (photoPath) {
-            // CONVERT Photo to blob
-            const fetchResponse = await fetch(photoPath);
-            const photoBlob = await fetchResponse.blob();
+            try {
+              // CONVERT Photo to blob
+              const fetchResponse = await fetch(photoPath);
+              const photoBlob = await fetchResponse.blob();
 
-            // Upload photo
-            const uploadResponse = await this.uploadToS3(photoBlob);
-            if (uploadResponse.success) {
-              s3imagepath = uploadResponse.data.s3imageKey;
+              // Resize image
+              const resizedBlob = await this.camera.resizeImage(
+                photoBlob,
+                1200,
+                1600,
+              );
+
+              // Upload photo
+              const uploadResponse = await this.uploadToS3(resizedBlob);
+              if (uploadResponse.success) {
+                s3imagepath = uploadResponse.data.s3imageKey;
+              }
+            } catch (error) {
+              alert(
+                'Error with image upload process: ' +
+                  `${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`,
+              );
             }
           }
 
