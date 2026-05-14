@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "966723085616",
+    "project_id": "freshi-81dde",
+    "storage_bucket": "freshi-81dde.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966723085616:android:c86b230c7f116fe3ac14f5",
+        "android_client_info": {
+          "package_name": "fi.freshi.freshi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBF9XqoKSIgxBZq1fd5kAM6YZAlEI9MRyU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
