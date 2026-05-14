@@ -11,7 +11,7 @@ export class SummaryCardComponent implements OnInit {
   // Inputs/props from parent-component
   icon = input<string>();
   color = input<string>();
-  amount = input<string>();
+  amount = input<number>();
   freshness = input<'Expired' | 'Expiring' | 'Fresh'>();
 
   constructor() {}

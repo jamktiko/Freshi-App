@@ -107,6 +107,7 @@ export class EditProductComponent implements OnInit {
       {
         form: this.productForm.value,
         photoURI: this.imageUri,
+        photoWebPath: this.imagePath(),
       },
       'confirm',
     );

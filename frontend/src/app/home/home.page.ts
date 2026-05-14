@@ -19,6 +19,8 @@ import {
   IonItemSliding,
   IonItemOptions,
   IonItemOption,
+  IonNote,
+  IonLabel,
 } from '@ionic/angular/standalone';
 import { SummaryCardComponent } from '../summary-card/summary-card.component';
 import { ILocalProduct, IPostProduct } from '../product';
@@ -37,6 +39,8 @@ import { ApiService } from '../api-service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    IonLabel,
+    IonNote,
     IonItemOption,
     IonItemOptions,
     IonItemSliding,
@@ -67,6 +71,9 @@ export class HomePage implements OnInit {
   productSearch = signal('');
   activeFilter = signal<'All' | 'Expired' | 'Expiring' | 'Fresh'>('All');
   randomGreeting = '';
+  randomEmptyMessage = '';
+  // How many days before expiring to set items as 'expiring'
+  expiringDays = 3;
 
   private greetings = [
     'Stay fresh!',
@@ -82,6 +89,128 @@ export class HomePage implements OnInit {
     'Ready to dive in?',
   ];
 
+  private emptyMessages = [
+    'Nothing to report.',
+    'No items yet.',
+    'All clear!',
+    'A clean slate.',
+  ];
+
+  ngOnInit() {
+    this.randomGreeting =
+      this.greetings[Math.floor(Math.random() * this.greetings.length)];
+    this.randomEmptyMessage =
+      this.emptyMessages[Math.floor(Math.random() * this.emptyMessages.length)];
+    setTimeout(() => {
+      try {
+        getCurrentUser();
+        this.syncProducts();
+      } catch (error) {
+        console.log('could not sync products on load', error);
+      }
+    }, 2000);
+  }
+
+  // Filtering
+  // functions
+  // variables
+  showFilters = signal<boolean>(false);
+
+  // Show filter buttons in home page
+  toggleFilters() {
+    this.showFilters.set(!this.showFilters());
+  }
+
+  // Filters for filtering items in the home page. A set for only unique filters
+  filters = signal<Set<string>>(new Set());
+
+  // Add a new filter. If the filter exists remove it instead
+  addFilter(filter: string) {
+    if (this.filters().has(filter)) {
+      this.filters.update((oldSet) => {
+        oldSet.delete(filter);
+        return new Set([...oldSet]);
+      });
+    } else {
+      this.filters.update((oldSet) => {
+        oldSet.add(filter);
+        return new Set([...oldSet]);
+      });
+    }
+  }
+
+  // Filters for filtering by freshness status
+  freshnessFilters = signal<Set<'fresh' | 'expiring' | 'expired'>>(new Set());
+
+  // Add a new freshnessFilter. If the filter exists remove it instead
+  addFreshnessFilter(filter: 'fresh' | 'expiring' | 'expired') {
+    if (this.freshnessFilters().has(filter)) {
+      this.freshnessFilters.update((oldSet) => {
+        oldSet.delete(filter);
+        return new Set([...oldSet]);
+      });
+    } else {
+      this.freshnessFilters.update((oldSet) => {
+        oldSet.add(filter);
+        return new Set([...oldSet]);
+      });
+    }
+  }
+
+  clearFilters() {
+    this.filters.set(new Set());
+    this.freshnessFilters.set(new Set());
+  }
+
+  // Gets all categories of products and makes a set of them
+  categories = computed<Set<string>>(() => {
+    const products = this.storageService.products();
+    const categoriesArray: string[] = [];
+    for (const product of products) {
+      if (product.category) {
+        categoriesArray.push(product.category.toLowerCase());
+      }
+    }
+    const categoriesSet = new Set([...categoriesArray]);
+
+    return categoriesSet;
+  });
+
+  // Summary card values computed
+  expiredItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) < 0 ? (counter += 1) : counter,
+      0,
+    );
+    return amount;
+  });
+  expiringItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) >= 0 &&
+        this.getDaysLeft(product.expirationDate) <= this.expiringDays
+          ? (counter += 1)
+          : counter,
+      0,
+    );
+    return amount;
+  });
+  freshItems = computed<number>(() => {
+    const products = this.storageService.products();
+    const amount = products.reduce(
+      (counter, product) =>
+        this.getDaysLeft(product.expirationDate) > this.expiringDays
+          ? (counter += 1)
+          : counter,
+      0,
+    );
+    return amount;
+  });
+
+  // Visible filtered and sorted product list
   productList = computed<ILocalProduct[]>(() => {
     const products = this.storageService.products();
     const search = this.productSearch().toLowerCase();
@@ -90,33 +219,51 @@ export class HomePage implements OnInit {
       return [];
     }
 
-    return products.filter((product) => {
+    const filteredProducts = products.filter((product) => {
+      // Check if product name, category or brand matches search
       const matchesSearch =
         product.brand?.toLowerCase().includes(search) ||
         product.category?.toLowerCase().includes(search) ||
         product.productName?.toLowerCase().includes(search);
 
-      let matchesStatus = true;
-      if (filter !== 'All') {
-        const days = this.getDaysLeft(product.expirationDate);
-        if (filter === 'Fresh') matchesStatus = days > 3;
-        else if (filter === 'Expiring') matchesStatus = days >= 0 && days <= 3;
-        else if (filter === 'Expired') matchesStatus = days < 0;
+      // Check if product category matches filters
+      let matchesFilter = true;
+      if (this.filters().size) {
+        if (product.category) {
+          if (!this.filters().has(product.category?.toLowerCase())) {
+            matchesFilter = false;
+          }
+        } else {
+          matchesFilter = false;
+        }
       }
 
-      return matchesSearch && matchesStatus;
+      // Check if the product status (expired,fresh) matches the freshness filters
+      let matchesStatus = true;
+      if (this.freshnessFilters().size !== 0) {
+        const days = this.getDaysLeft(product.expirationDate);
+        let status: 'fresh' | 'expiring' | 'expired';
+        if (days > this.expiringDays) status = 'fresh';
+        else if (days >= 0 && days <= this.expiringDays) status = 'expiring';
+        else status = 'expired';
+        if (!this.freshnessFilters().has(status)) {
+          matchesStatus = false;
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesFilter;
+    });
+    // Sort products by expiration date
+    return filteredProducts.sort((a, b) => {
+      return Date.parse(a.expirationDate) - Date.parse(b.expirationDate);
     });
   });
 
+  // How many days before expiring
   private getDaysLeft(isoDate: string): number {
     return Math.ceil((Date.parse(isoDate) - Date.now()) / (1000 * 3600 * 24));
   }
 
-  toggleFilter(status: 'Expired' | 'Expiring' | 'Fresh') {
-    this.activeFilter.set(this.activeFilter() === status ? 'All' : status);
-  }
-
-  number1 = 1; // number for testing
   private modalCtrl = inject(ModalController);
   constructor() {}
 
@@ -147,11 +294,23 @@ export class HomePage implements OnInit {
 
     const { data, role } = await modal.onWillDismiss();
 
-    // Saves added product
-    // CURRENTLY SAVES ONLY TO AN ARRAY
+    // Saves edited product
+
     if (role === 'confirm') {
       const formData = data.form;
       const uri = data.photoURI;
+      const photoWebPath = data.photoWebPath;
+
+      // Convert photo to blob for uploading
+      const fetchResponse = await fetch(photoWebPath);
+      const photoBlob = await fetchResponse.blob();
+
+      // Try uploading to s3
+      const uploadResponse = await this.api.uploadToS3(photoBlob);
+      let s3imageKey: string | null = null;
+      if (uploadResponse.success) {
+        s3imageKey = uploadResponse.data.s3imageKey;
+      }
 
       //ALERT FOR TESTIGN
       //alert('THIS IS WHAT HOME PAGE RECEIVED: ' + uri);
@@ -164,7 +323,7 @@ export class HomePage implements OnInit {
         category: formData.category ?? null,
         expirationDate: formData.expiration,
         openedDate: null,
-        S3imageKey: null,
+        S3imageKey: s3imageKey,
         synced: false,
         createdAt: new Date().toISOString(),
         lastUpdate: new Date().toISOString(),
@@ -178,7 +337,7 @@ export class HomePage implements OnInit {
           newProduct.synced = true;
         }
       } catch (error) {
-        alert('Error adding new product: ' + error);
+        console.log('Error uploading new product: ' + error);
       }
       this.storageService.addProduct(newProduct);
       if (uri) {
@@ -188,19 +347,6 @@ export class HomePage implements OnInit {
   }
   async syncProducts() {
     this.api.convertAndSyncProducts();
-  }
-
-  ngOnInit() {
-    this.randomGreeting =
-      this.greetings[Math.floor(Math.random() * this.greetings.length)];
-    setTimeout(() => {
-      try {
-        getCurrentUser();
-        this.syncProducts();
-      } catch (error) {
-        console.log('could not sync products on load', error);
-      }
-    }, 5000);
   }
 
   async deleteItem(deletedItem: ILocalProduct) {

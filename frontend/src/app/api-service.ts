@@ -14,8 +14,10 @@ import {
   IDeletedProduct,
   IOcrResponse,
   IUpdateLocal,
+  IUploadToS3Response,
 } from './product';
 import { StorageService } from './storage';
+import { CameraService } from './camera-service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,7 @@ import { StorageService } from './storage';
 export class ApiService {
   private apiURL: string = environment.apiURL;
   private http = inject(HttpClient);
+  private camera = inject(CameraService);
 
   private storageService = inject(StorageService);
 
@@ -65,7 +68,7 @@ export class ApiService {
         }),
       );
     } catch (error) {
-      alert('Error sending ocr-texts: ' + error);
+      console.log('Error sending ocr-texts: ' + error);
       return null;
     }
   }
@@ -88,7 +91,7 @@ export class ApiService {
     return firstValueFrom(
       this.http.post<ISyncResponse>(this.apiURL + '/items/sync', {
         lastSync: lastSync,
-        unSyncedProducts,
+        unsyncedItems: unSyncedProducts,
       }),
     );
   }
@@ -124,9 +127,26 @@ export class ApiService {
       if (syncResponse.success) {
         // Set synced products status as "synced" in local storage
         for (const product of syncResponse.syncedClientItems) {
+          // UPLOAD IMAGE IF THERE IS ONE
+          const photoPath = await this.camera.readPhoto(product.itemId);
+          //alert('photopath' + photoPath);
+          let s3imagepath: null | string = null;
+          if (photoPath) {
+            // CONVERT Photo to blob
+            const fetchResponse = await fetch(photoPath);
+            const photoBlob = await fetchResponse.blob();
+
+            // Upload photo
+            const uploadResponse = await this.uploadToS3(photoBlob);
+            if (uploadResponse.success) {
+              s3imagepath = uploadResponse.data.s3imageKey;
+            }
+          }
+
           await this.storageService.updateProduct({
             itemId: product.itemId,
             synced: true,
+            S3imageKey: s3imagepath,
           });
         }
 
@@ -188,6 +208,35 @@ export class ApiService {
     } catch (error) {
       console.log(error);
       alert('Error syncing products' + error);
+    }
+  }
+
+  // function to updload image to s3 through backend. Return a response that has an s3 image key
+  async uploadToS3(
+    imageBlob: Blob,
+    fileName: string = 'file.jpg',
+  ): Promise<IUploadToS3Response> {
+    const formData = new FormData();
+
+    formData.append('image', imageBlob, fileName);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<IUploadToS3Response>(this.apiURL + '/upload', formData),
+      );
+      return response;
+    } catch (error) {
+      console.error('Error uploading image', error);
+      alert(
+        'Error uploading image ' +
+          `${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`,
+      );
+      return {
+        success: false,
+        data: {
+          s3imageKey: null,
+        },
+      };
     }
   }
 }
