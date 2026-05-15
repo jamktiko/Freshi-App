@@ -1,12 +1,7 @@
 name: Frontend CD Pipeline (Android)
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-cd.yml'
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch: # Manual trigger only — avoids building APK on every merge
 
 # Required permission to create GitHub Releases
 permissions:
