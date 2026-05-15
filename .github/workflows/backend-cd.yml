@@ -1,12 +1,7 @@
 name: Backend CD Pipeline
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend-cd.yml'
-  workflow_dispatch: # Manual trigger kept as fallback
+  workflow_dispatch: # Manual trigger only — avoids deploying on every merge
 
 jobs:
   deploy:
