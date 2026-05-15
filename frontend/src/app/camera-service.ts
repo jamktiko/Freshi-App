@@ -13,6 +13,7 @@ export class CameraService {
       return await Camera.takePhoto({
         quality: 80,
         targetWidth: 1200,
+        targetHeight: 1600,
         cameraDirection: CameraDirection.Rear,
         includeMetadata: false,
       });
@@ -20,6 +21,58 @@ export class CameraService {
       console.log('taking a photo failed: ', error);
       return null;
     }
+  }
+
+  // Make a smaller image for uploading
+  async resizeImage(
+    blob: Blob,
+    maxWidth: number,
+    maxHeight: number,
+  ): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.src = url;
+
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject('Failed creating a canvas context');
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (resizedBlob) => {
+            if (resizedBlob) resolve(resizedBlob);
+            else reject('Making a blob failed');
+          },
+          'image/jpeg',
+          0.8,
+        );
+      };
+
+      img.onerror = (error) => reject(error);
+    });
   }
 
   // Save given photo to application files

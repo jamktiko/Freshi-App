@@ -119,6 +119,7 @@ export class RegisterPage {
               alert(error);
               this.router.navigate(['/tabs/login']);
             }
+            break;
         }
       }
       if (register.error?.name) {
@@ -131,6 +132,11 @@ export class RegisterPage {
         if (register.error.name === 'InvalidPasswordException') {
           this.passwordError.set(
             'Minimun length is 8 character. Must have a number. Must have a capitalized letter',
+          );
+        }
+        if (register.error.name === 'LimitExceededException') {
+          this.emailError.set(
+            'Email registration quota reached for the day. Try again tomorrow.',
           );
         }
       }
