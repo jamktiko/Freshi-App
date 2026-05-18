@@ -92,8 +92,8 @@ export class Notifications {
                 : 'Your product is expiring 3 days!',
             body:
               type === 'expired'
-                ? `${productName} — ${productBrand} expires today!`
-                : `${productName} — ${productBrand} expires in 3 days!`,
+                ? `Your ${productBrand} ${productName} expires today. Save it from the trash!`
+                : `Your ${productBrand} ${productName} expires in 3 days. Consider using it soon!`,
             schedule: { at: expirationDateTime },
           },
         ],
