@@ -55,6 +55,8 @@ export class ProductDetailsComponent implements OnInit {
   openedDate!: string | null;
   s3ImageKey!: string | null;
 
+  photoFromS3 = false;
+
   photoWebPath = signal<string | null>(null);
 
   // FOR TEST PHOTOS FOR testing on browser
@@ -107,6 +109,7 @@ export class ProductDetailsComponent implements OnInit {
           // If not stored localy try to get from s3
           const webPath = await this.api.getS3Url(this.s3ImageKey);
           this.photoWebPath.set(webPath);
+          this.photoFromS3 = true;
         }
       }
     }
@@ -137,7 +140,7 @@ export class ProductDetailsComponent implements OnInit {
 
       let s3imageKey: string | null = null;
       //IF photo was taken
-      if (photoWebPath) {
+      if (photoWebPath && !this.photoFromS3) {
         try {
           // Convert photo to blob for uploading
           const fetchResponse = await fetch(photoWebPath);
