@@ -89,6 +89,9 @@ lint/tmp/
 # Android Profiling
 *.hprof
 
+# Build output metadata
+app/release/output-metadata.json
+
 # Cordova plugins for Capacitor
 capacitor-cordova-android-plugins
 

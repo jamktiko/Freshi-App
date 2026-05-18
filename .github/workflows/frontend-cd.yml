@@ -57,6 +57,20 @@ jobs:
         working-directory: ./frontend
         run: npx cap sync android
 
+      - name: Get App Version
+        id: package-version
+        working-directory: ./frontend
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Inject Version into Android Build
+        working-directory: ./frontend/android
+        run: |
+          sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/" app/build.gradle
+          sed -i "s/versionName \".*\"/versionName \"$VERSION\"/" app/build.gradle
+          echo "Patched build.gradle with versionName=$VERSION, versionCode=${{ github.run_number }}"
+
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
@@ -83,12 +97,6 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: '34.0.0'
 
-      - name: Get App Version
-        id: package-version
-        working-directory: ./frontend
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create GitHub Release and Upload APK
         uses: softprops/action-gh-release@v2
