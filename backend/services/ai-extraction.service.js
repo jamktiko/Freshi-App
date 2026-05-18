@@ -51,6 +51,7 @@ Rules:
 - If product is partially visible but unclear, status should be UNSURE.
 - Use null for unknown fields.
 - Set the item to category most viable in your opinion (For example Dairy, Meat Products, Vegetables, Fruits etc.)
+- If there is multiple languages present, prefer finnish first, then english and lastly any other languages present
 
 Return ONLY valid JSON in this exact format:
 
