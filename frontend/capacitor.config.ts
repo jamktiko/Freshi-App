@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'fi.freshi.freshi',
-  appName: 'Freshi-App',
+  appName: 'Freshi',
   webDir: 'www',
   plugins: {
     LocalNotifications: {
