@@ -22,6 +22,7 @@ import { Cognito } from '../cognito';
 import { Router } from '@angular/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { ApiService } from '../api-service';
+import { StorageService } from '../storage';
 
 @Component({
   selector: 'app-settings',
@@ -48,6 +49,7 @@ import { ApiService } from '../api-service';
   ],
 })
 export class SettingsPage implements OnInit {
+  storage = inject(StorageService);
   api = inject(ApiService);
   cognito = inject(Cognito);
   router = inject(Router);
@@ -55,8 +57,16 @@ export class SettingsPage implements OnInit {
   user = signal<string>('');
   constructor() {}
 
-  ngOnInit() {
-    this.getUser();
+  async ngOnInit() {
+    await this.getUser();
+    const settings = await this.storage.getSettings();
+    if (settings) {
+      this.paletteToggle = settings.darkMode;
+    } else {
+      this.paletteToggle = window.matchMedia(
+        '(prefers-color-scheme: dark)',
+      ).matches;
+    }
   }
   // Gets user
   async getUser() {
@@ -70,6 +80,10 @@ export class SettingsPage implements OnInit {
   // Listen for the toggle check/uncheck to toggle the dark palette
   toggleChange(event: CustomEvent) {
     this.toggleDarkPalette(event.detail.checked);
+    // Save darkmode preference to settings
+    this.storage.setSettings({
+      darkMode: event.detail.checked,
+    });
   }
   // Add or remove the "ion-palette-dark" class on the html element
   toggleDarkPalette(shouldAdd: boolean) {

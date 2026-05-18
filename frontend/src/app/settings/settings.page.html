@@ -13,6 +13,7 @@
     <ion-list [inset]="true" class="appearance-list">
       <ion-item class="appearance-item">
         <ion-toggle
+          checked="paletteToggle"
           class="toggle"
           [(ngModel)]="paletteToggle"
           (ionChange)="toggleChange($event)"
