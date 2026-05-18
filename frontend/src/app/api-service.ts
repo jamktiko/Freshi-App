@@ -39,7 +39,7 @@ export class ApiService {
     try {
       const imageUrlResponse = await firstValueFrom(
         this.http.post<IS3UrlResponse>(this.apiURL + '/upload/image-url', {
-          S3ImageKey: s3ImageKey,
+          S3imageKey: s3ImageKey,
         }),
       );
       if (imageUrlResponse.success) {
@@ -239,7 +239,7 @@ export class ApiService {
       }
     } catch (error) {
       console.log(error);
-      alert(
+      console.log(
         'Error syncing products ' +
           `${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`,
       );
