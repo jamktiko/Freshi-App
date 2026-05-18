@@ -23,6 +23,7 @@ import { Router } from '@angular/router';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { ApiService } from '../api-service';
 import { StorageService } from '../storage';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 @Component({
   selector: 'app-settings',
@@ -97,6 +98,32 @@ export class SettingsPage implements OnInit {
       this.router.navigate(['/tabs/welcome']);
     } catch (error) {
       alert(error);
+    }
+  }
+
+  async lahetaIlmoitus() {
+    // 1. Tarkistetaan ja pyydetään luvat käyttäjältä (erityisesti iOS ja Android 13+)
+    const luvat = await LocalNotifications.requestPermissions();
+
+    if (luvat.display === 'granted') {
+      // 2. Ajastetaan ilmoitus tulevaksi esim. 5 sekunnin kuluttua
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: 'Moikka! 👋',
+            body: 'Tämä on paikallinen ilmoitus Ionic-sovelluksestasi.',
+            id: 1, // Uniikki ID jokaiselle ilmoitukselle
+            schedule: { at: new Date(Date.now() + 1000 * 5) }, // 5 sekuntia tästä hetkestä
+            sound: 'default', // Käytetään laitteen oletusääntä
+            actionTypeId: '',
+            extra: null,
+          },
+        ],
+      });
+
+      alert('Ilmoitus ajastettu onnistuneesti!');
+    } else {
+      alert('Käyttäjä ei antanut lupaa ilmoituksille.');
     }
   }
 }

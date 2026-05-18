@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import cordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 import { IDeletedProduct, ILocalProduct, IUpdateLocal } from './product';
+import { Notifications } from './notifications';
 export interface ISettings {
   darkMode: boolean;
 }
@@ -16,6 +17,8 @@ export class StorageService {
   private readonly EMAIL_KEY = 'freshi_email';
   private readonly SETTINGS_KEY = 'freshi_settings';
   private storageReady: Promise<void>;
+
+  private notifApi = inject(Notifications);
 
   constructor(private storage: Storage) {
     this.init();
@@ -118,40 +121,56 @@ export class StorageService {
 
   // Add product to storage
   async addProduct(newProduct: ILocalProduct) {
-    let newProductList: ILocalProduct[] = [];
-    this.products.update((oldProducts) => {
-      newProductList = [...oldProducts, newProduct];
-      return newProductList;
-    });
-    await this._storage?.set(this.STORAGE_KEY, newProductList);
+    try {
+      let newProductList: ILocalProduct[] = [];
+      this.products.update((oldProducts) => {
+        newProductList = [...oldProducts, newProduct];
+        return newProductList;
+      });
+      await this._storage?.set(this.STORAGE_KEY, newProductList);
+      // Add notifications for product
+      this.notifApi.syncNotifications(newProduct);
+    } catch (error) {}
   }
 
   // Remove product
   async removeProduct(removedProductId: string) {
-    let newProductList: ILocalProduct[] = [];
-    this.products.update((oldProducts) => {
-      newProductList = oldProducts.filter(
-        (product) => product.itemId !== removedProductId,
-      );
-      return newProductList;
-    });
-    await this._storage?.set(this.STORAGE_KEY, newProductList);
+    try {
+      let newProductList: ILocalProduct[] = [];
+      this.products.update((oldProducts) => {
+        newProductList = oldProducts.filter(
+          (product) => product.itemId !== removedProductId,
+        );
+        return newProductList;
+      });
+      await this._storage?.set(this.STORAGE_KEY, newProductList);
+      // Remove scheduled notifications
+      this.notifApi.deleteNotifications(removedProductId);
+    } catch (error) {}
   }
 
   // Update product
   async updateProduct(updatedProduct: IUpdateLocal) {
-    console.log('Updated product: ' + updatedProduct);
-    let newProductList: ILocalProduct[] = [];
-    this.products.update((oldProducts) => {
-      newProductList = oldProducts.map((oldProduct) =>
-        oldProduct.itemId === updatedProduct.itemId
-          ? { ...oldProduct, ...updatedProduct }
-          : oldProduct,
+    try {
+      console.log('Updated product: ' + updatedProduct);
+      let newProductList: ILocalProduct[] = [];
+      this.products.update((oldProducts) => {
+        newProductList = oldProducts.map((oldProduct) =>
+          oldProduct.itemId === updatedProduct.itemId
+            ? { ...oldProduct, ...updatedProduct }
+            : oldProduct,
+        );
+        console.log(newProductList);
+        return newProductList;
+      });
+      await this._storage?.set(this.STORAGE_KEY, newProductList);
+
+      const productIndex = this.products().findIndex(
+        (product) => product.itemId === updatedProduct.itemId,
       );
-      console.log(newProductList);
-      return newProductList;
-    });
-    await this._storage?.set(this.STORAGE_KEY, newProductList);
+      await this.notifApi.deleteNotifications(updatedProduct.itemId);
+      await this.notifApi.syncNotifications(this.products()[productIndex]);
+    } catch (error) {}
   }
 
   // Clear stored data
