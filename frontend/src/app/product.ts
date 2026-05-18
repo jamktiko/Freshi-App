@@ -11,6 +11,14 @@ export interface IProduct {
   confidence: string | null;
 }
 
+export interface IS3UrlResponse {
+  success: boolean;
+  data: {
+    S3imageKey: string;
+    imageUrl: string;
+  };
+}
+
 // Product interface for locally stored products
 export interface ILocalProduct extends IProduct {
   synced: boolean;
