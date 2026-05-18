@@ -284,6 +284,7 @@ export class HomePage implements OnInit {
         productCategory: product.category,
         expirationDate: product.expirationDate,
         openedDate: product.openedDate,
+        s3ImageKey: product.S3imageKey,
       },
     });
     modal.present();

@@ -53,6 +53,7 @@ export class ProductDetailsComponent implements OnInit {
   productCategory!: string | null;
   expirationDate!: string;
   openedDate!: string | null;
+  s3ImageKey!: string | null;
 
   photoWebPath = signal<string | null>(null);
 
@@ -101,6 +102,13 @@ export class ProductDetailsComponent implements OnInit {
     if (this.itemId) {
       const webPath = await this.cameraService.readPhoto(this.itemId);
       this.photoWebPath.set(webPath);
+      if (!this.photoWebPath()) {
+        if (this.s3ImageKey) {
+          // If not stored localy try to get from s3
+          const webPath = await this.api.getS3Url(this.s3ImageKey);
+          this.photoWebPath.set(webPath);
+        }
+      }
     }
   }
 

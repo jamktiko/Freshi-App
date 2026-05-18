@@ -15,6 +15,8 @@ import {
   IOcrResponse,
   IUpdateLocal,
   IUploadToS3Response,
+  ILocalProduct,
+  IS3UrlResponse,
 } from './product';
 import { StorageService } from './storage';
 import { CameraService } from './camera-service';
@@ -31,6 +33,22 @@ export class ApiService {
 
   getProducts(): Observable<IReceivedProduct> {
     return this.http.get<IReceivedProduct>(this.apiURL + '/items');
+  }
+  //Get image url from s3
+  async getS3Url(s3ImageKey: string) {
+    try {
+      const imageUrlResponse = await firstValueFrom(
+        this.http.post<IS3UrlResponse>(this.apiURL + '/upload/image-url', {
+          S3imageKey: s3ImageKey,
+        }),
+      );
+      if (imageUrlResponse.success) {
+        return imageUrlResponse.data.imageUrl;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
   }
 
   async postProduct(newProduct: IPostProduct | IUpdateLocal) {
@@ -221,7 +239,7 @@ export class ApiService {
       }
     } catch (error) {
       console.log(error);
-      alert(
+      console.log(
         'Error syncing products ' +
           `${typeof error === 'object' ? JSON.stringify(error, null, 2) : error}`,
       );
