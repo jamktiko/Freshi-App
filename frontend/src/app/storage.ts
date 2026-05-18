@@ -2,6 +2,9 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import cordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 import { IDeletedProduct, ILocalProduct, IUpdateLocal } from './product';
+export interface ISettings {
+  darkMode: boolean;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -11,9 +14,12 @@ export class StorageService {
   private readonly SYNC_KEY = 'freshi_sync';
   private readonly DELETIONS_KEY = 'freshi_deletions';
   private readonly EMAIL_KEY = 'freshi_email';
+  private readonly SETTINGS_KEY = 'freshi_settings';
+  private storageReady: Promise<void>;
 
   constructor(private storage: Storage) {
     this.init();
+    this.storageReady = this.init();
   }
 
   public products = signal<ILocalProduct[]>([]);
@@ -28,6 +34,20 @@ export class StorageService {
     this.products.set(products);
     const email = await this.getEmail();
     this.email.set(email);
+  }
+
+  // get and set user settings (darkmode)
+  async getSettings() {
+    await this.storageReady;
+    const settings: ISettings = await this._storage?.get(this.SETTINGS_KEY);
+    return settings;
+  }
+  async setSettings(settings: ISettings) {
+    try {
+      this._storage?.set(this.SETTINGS_KEY, settings);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // Get array of products from storage
@@ -139,6 +159,7 @@ export class StorageService {
     const productsClear = await this._storage?.remove(this.STORAGE_KEY);
     const deletionsClear = await this._storage?.remove(this.DELETIONS_KEY);
     const syncClear = await this._storage?.remove(this.SYNC_KEY);
+
     this.products.set([]);
     return {
       productsClear,
