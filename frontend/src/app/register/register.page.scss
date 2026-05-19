@@ -12,6 +12,8 @@ ion-list {
   justify-content: center;
   width: 100%;
   padding: 0 16px;
+  --background: var(--app-backgroundcolor2);
+  background: var(--app-backgroundcolor2);
 }
 
 .center-wrapper {
