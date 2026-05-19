@@ -21,6 +21,8 @@ ion-list {
   justify-content: center;
   min-height: 100%;
   padding: 1rem;
+  --background: var(--app-backgroundcolor2);
+  background: var(--app-backgroundcolor2);
 }
 
 .app-logo {
