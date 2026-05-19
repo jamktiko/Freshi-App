@@ -10,6 +10,8 @@ ion-list {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  --background: var(--app-backgroundcolor2);
+  background: var(--app-backgroundcolor2);
 }
 
 .center-wrapper {
@@ -71,7 +73,7 @@ ion-toolbar {
   --border: var(--app-bordercolor);
   --border-width: 2px;
   --highlight-color-focused: #4392f1;
-
+  background-color: var(--app-calltoactiontext);
   /* Real CSS border-radius on the host element */
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
